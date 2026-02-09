@@ -5,7 +5,7 @@ not limited, how would you like to perform a multiclass classification for the w
 a program for this task
 """
 from helper_code.Perceptron import Perceptron
-from helper_code.Plotters import plot_3_classes
+from helper_code.Plotters import plot_2_params
 from helper_code.roxannes_abs_bias import AdalineGD, LogisticRegressionGD
 import numpy as np
 from matplotlib.colors import ListedColormap
@@ -121,4 +121,4 @@ class TriClassPerceptron():
     return y
 
 # finally, generate a plot with visible decision regions
-plot_3_classes(X, y, classifier = TriClassPerceptron(P_setosa, P_versi, P_virg))
+plot_2_params(X, y, classifier = TriClassPerceptron(P_setosa, P_versi, P_virg))

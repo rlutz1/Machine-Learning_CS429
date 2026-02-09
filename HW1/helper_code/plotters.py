@@ -7,7 +7,8 @@ import numpy as np
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 
-def plot_3_classes(X, y, classifier, resolution=0.02):
+# can plot 1+ classes with colored decision regions
+def plot_2_params(X, y, classifier, resolution=0.02):
 
   # setup marker generator and color map
   markers = ('o', 's', '^', 'v', '<')
