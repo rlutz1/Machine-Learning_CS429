@@ -71,9 +71,21 @@ df = pd.read_csv(iris,
 # extract the other information defining the classes
 X = df.iloc[0:150, [0, 2]].values  
 y = df.iloc[0:150, 4].values
-y[(y == "Iris-setosa")] = 0
-y[(y == "Iris-versicolor")] = 1
-y[(y == "Iris-virginica")] = 2
+
+# conditions = [arr > 20, arr > 10, arr > 5]
+# choices = ['High', 'Medium', 'Low'] # If >20 use 'High', else if >10 use 'Medium', else if >5 use 'Low'
+# # Use np.select
+# # Values not meeting any condition (<=5 in this case) will get the default value
+# result = np.select(conditions, choices, default='Very Low')
+conditions = [y == "Iris-setosa", y == "Iris-versicolor", y == "Iris-virginica"]
+choices = [0, 1, 2]
+y = np.select(conditions, choices)
+# y = np.where(y == "Iris-setosa", 0)
+# y = np.where(y == "Iris-versicolor", 1)
+# y = np.where(y == "Iris-virginica", 2)
+# y[(y == "Iris-setosa")] = 0
+# y[(y == "Iris-versicolor")] = 1
+# y[(y == "Iris-virginica")] = 2
 
 
 
@@ -106,14 +118,30 @@ portion_virg = P_virg.net_input(test)
 class TriClassPerceptron():
   
   def __init__(self, P0, P1, P2):
-    self.perceptrons = [P0, P1, P2]
+    self.perceptrons = np.array([P0, P1, P2])
 
   def predict(self, X):
-    self.predictions = [self.P0.net_input(X), self.P1.net_input(X), self.P2.net_input(X)]
-    max_prediction = max(self.predictions)
-    if max_prediction == self.predictions[0]: return 0
-    if max_prediction == self.predictions[1]: return 1
-    if max_prediction == self.predictions[2]: return 2
+    self.predictions = np.array([self.perceptrons[0].net_input(X), self.perceptrons[1].net_input(X), self.perceptrons[2].net_input(X)])
+    # max_prediction =  max(self.predictions)
+    val0 = self.predictions[0]
+    val1 = self.predictions[1]
+    val2 = self.predictions[2]
+    # print(val0)
+    y = np.array([])
+    # maximum = max(val0, val1, val2)
+    for i in range(X.shape[0]): # for each n test case
+      maximum = max(val0[i], val1[i], val2[i])
+      if maximum == val0[i]: y = np.append(y, 0)
+      elif maximum == val1[i]: y = np.append(y, 1)
+      else: y = np.append(y, 2)
+
+    return y
+
+      # for i in range(3): # for each 3 classes
+
+    # if : return 0
+    # if self.predictions[1] > self.predictions[0] and self.predictions[1] > self.predictions[2]: return 1
+    # if self.predictions[1] > self.predictions[1] and self.predictions[2] > self.predictions[0]: return 2
 
 
 
