@@ -133,7 +133,7 @@ class LogisticRegressionGD:
               - ((1 - y).dot(np.log(1 - output)))
               / X.shape[0])
       self.losses_.append(loss)
-    print("after train ", self.w_)
+    # print("after train ", self.w_)
     return self
   
   def net_input(self, X):

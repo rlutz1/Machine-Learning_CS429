@@ -25,15 +25,13 @@ def plot_3_classes(X, y, classifier, resolution=0.02):
   plt.ylim(xx2.min(), xx2.max())
   # plot class examples
   for idx, cl in enumerate(np.unique(y)):
-    # plt.scatter(
-
-    # )
-    print(idx, cl)
-    # plt.scatter(x=X[y == cl, 0],
-    #   y=X[y == cl, 1],
-    #   alpha=0.8,
-    #   c=colors[idx],
-    #   marker=markers[idx],
-    #   label=f'Class {cl}',
-    #   edgecolor='black')
+    # print(idx, cl)
+    plt.scatter(x=X[y == cl, 0],
+      y=X[y == cl, 1],
+      alpha=0.8,
+      c=colors[idx],
+      marker=markers[idx],
+      label=f'Class {cl}',
+      edgecolor='black')
+  plt.legend()
   plt.show()
