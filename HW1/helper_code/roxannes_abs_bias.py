@@ -61,9 +61,16 @@ class AdalineGD:
     # print("after train: ", self.w_)
     return self
   
+  # function to add ones to end
+  def extend_samples(self, X):
+    ones = [[1]]* X.shape[0]
+    X = np.hstack((X, ones))
+    return X
+
   def net_input(self, X):
     """Calculate net input"""
-    return np.dot(X, self.w_[0:(X.shape[1])])  + self.w_[-1] # b is in w now
+    X = self.extend_samples(X) # extend X
+    return np.dot(X, self.w_) 
   
   def activation(self, X):
     """Compute linear activation"""
