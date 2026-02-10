@@ -58,6 +58,32 @@ y_wine = np.where(y_wine == 1, 0, 1) # classes 1 (0) and 2 (1) of grapes
 # X_wine = df.iloc[0:100, [1, 5, 10, 11]].values # getting the vibe this is not linearly separable or something
 X_wine = df.iloc[0:100, [10, 11]].values # this one kinda works... with eta = 0.01, n = 10000
 
+# -------------------------------------------------------------------
+# IRIS:
+# -------------------------------------------------------------------
+
+ada = AdalineGD(eta=0.01, n_iter=10000) # note that eta needs to be small here!
+ada.fit(X_iris, y_iris) # hand off the iris data and correct labels to learning algorithm
+
+log = LogisticRegressionGD(eta=0.01, n_iter=10000) # same eta and iteration here
+log.fit(X_iris, y_iris)
+
+# two separate plots
+plot_2_params(X_iris, y_iris, classifier=ada, title="Adaline with Iris", x_axis_title="Sepal Length", y_axis_title="Petal Length")
+plot_2_params(X_iris, y_iris, classifier=log, title="Log Reg with Iris", x_axis_title="Sepal Length", y_axis_title="Petal Length")
+
+# plot one on top of the other
+plot_2_params(X_iris, y_iris, classifier=ada, show=False)
+plot_2_params(X_iris, y_iris, classifier=log, show=False, title="Adaline and Log Reg with Iris", x_axis_title="Sepal Length", y_axis_title="Petal Length")
+plt.show() # can see them on the same plot--easier to see difference a bit.
+
+# plot loss 
+plot_loss_ada_v_log(ada, log)
+
+# -------------------------------------------------------------------
+# WINE:
+# -------------------------------------------------------------------
+
 ada = AdalineGD(eta=0.01, n_iter=10000) # note that eta needs to be small here!
 ada.fit(X_wine, y_wine) # hand off the iris data and correct labels to learning algorithm
 
