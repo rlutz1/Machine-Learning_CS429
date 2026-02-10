@@ -17,11 +17,10 @@ In order to make apple-to-apple comparisons,
 you should use the same hyperparameters 
 and number of epochs for both learning algorithms.
 """
-# from original_codes.adaline import AdalineGD
-# from log_ada_absorbed_bias import AdalineGD, LogisticRegressionGD
-# from plotters import plot_decision_regions
+
+from helper_code.Plotters import plot_2_params, plot_loss_ada_v_log
+from helper_code.roxannes_abs_bias import AdalineGD, LogisticRegressionGD
 import numpy as np
-from matplotlib.colors import ListedColormap
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -40,7 +39,7 @@ df = pd.read_csv(iris,
 
 # set up classes for setosa vs versi
 y_iris = df.iloc[0:100, 4].values # values in the 4th column of csv -> names of iris
-y_iris = np.where(y_iris == "Iris-setosa", 0, 1) # setosa -> 0, versi 1
+y_iris = np.where(y_iris == "Iris-setosa", 0, 1) # binary classification: setosa -> 0, versi 1
 
 # extract the other information defining the classes
 X_iris = df.iloc[0:100, [0, 2]].values  
@@ -51,26 +50,30 @@ wine = 'https://archive.ics.uci.edu/ml/'\
 df = pd.read_csv(wine,
      header=None,
      encoding='utf-8')
-# print(df)
 
 y_wine = df.iloc[0:100, 0].values # values in the 4th column of csv -> type of grape
-# print(y_wine)
-y_wine = np.where(y_wine == 1, 0, 1) # classes 1 (0) and 2 of grapes (1)
-# print(y_wine.size)
-# extract the other information defining the classes
+y_wine = np.where(y_wine == 1, 0, 1) # classes 1 (0) and 2 (1) of grapes
+
 # alcohol(1), magnesium(5), color intensity(10), hue(11) 
-# X_wine = df.iloc[0:100, [1, 5, 10, 11]].values # getting the vibe this is not linearly separable
-# X_wine = df.iloc[0:100, [10, 11]].values # this one kinda works... with eta = 0.01, n = 10000
+# X_wine = df.iloc[0:100, [1, 5, 10, 11]].values # getting the vibe this is not linearly separable or something
 X_wine = df.iloc[0:100, [10, 11]].values # this one kinda works... with eta = 0.01, n = 10000
-# print(X_wine)
-# print(X_wine)
+
+ada = AdalineGD(eta=0.01, n_iter=10000) # note that eta needs to be small here!
+ada.fit(X_wine, y_wine) # hand off the iris data and correct labels to learning algorithm
+
+log = LogisticRegressionGD(eta=0.01, n_iter=10000) # same eta and iteration here
+log.fit(X_wine, y_wine)
+
+# two separate plots
+plot_2_params(X_wine, y_wine, classifier=ada, title="Adaline with Wine", x_axis_title="Color Intensity", y_axis_title="Hue")
+plot_2_params(X_wine, y_wine, classifier=log, title="Log Reg with Wine", x_axis_title="Color Intensity", y_axis_title="Hue")
+
+# plot one on top of the other
+plot_2_params(X_wine, y_wine, classifier=ada, show=False)
+plot_2_params(X_wine, y_wine, classifier=log, show=False, title="Adaline and Log Reg with Wine", x_axis_title="Color Intensity", y_axis_title="Hue")
+plt.show() # can see them on the same plot--easier to see difference a bit.
+
+# plot loss 
+plot_loss_ada_v_log(ada, log)
 
 
-# ada = AdalineGD(eta=0.01, n_iter=1000) # note that eta needs to be small here!
-# ada.fit(X_wine, y_wine) # hand off the iris data and correct labels to learning algorithm
-# plotting of the linearly separable decision regions.
-# plot_decision_regions(X_wine, y_wine, classifier=ada)
-
-# log = LogisticRegressionGD(eta=0.01, n_iter=100)
-# log.fit(X, y)
-# plot_decision_regions(X, y, classifier=log)
