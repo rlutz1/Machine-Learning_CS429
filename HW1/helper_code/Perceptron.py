@@ -1,6 +1,8 @@
 """
 textbook code for the vanilla perceptron.
 """
+import numpy as np
+
 class Perceptron:
 
   """

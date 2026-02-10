@@ -8,16 +8,13 @@ from helper_code.Perceptron import Perceptron
 from helper_code.Plotters import plot_2_params
 from helper_code.roxannes_abs_bias import AdalineGD, LogisticRegressionGD
 import numpy as np
-from matplotlib.colors import ListedColormap
 import pandas as pd
-import matplotlib.pyplot as plt
 
-PERCEPTRON_MODE = "P"
-ADALINE_MODE = "A"
-LOG_REG_MODE = "L"
+PERCEPTRON_MODE = "Perceptron"
+ADALINE_MODE = "Adaline"
+LOG_REG_MODE = "Logistic Regression"
 
-mode = ADALINE_MODE
-
+mode = LOG_REG_MODE
 
 
 # ===================================================================
@@ -101,13 +98,14 @@ class TriClassPerceptron():
   # activation is probably better practice, but doesn't have
   # discernable difference on decision regions
   def predict(self, X):
-    # val0 = self.P0.net_input(X)
-    # val1 = self.P1.net_input(X)
-    # val2 = self.P2.net_input(X)
+    val0 = self.P0.net_input(X)
+    val1 = self.P1.net_input(X)
+    val2 = self.P2.net_input(X)
     # made no discernable difference in the plot:
-    val0 = self.P0.activation(self.P0.net_input(X)) 
-    val1 = self.P1.activation(self.P1.net_input(X))
-    val2 = self.P2.activation(self.P2.net_input(X))
+    # perceptron doesn't have activation func, to note
+    # val0 = self.P0.activation(self.P0.net_input(X)) 
+    # val1 = self.P1.activation(self.P1.net_input(X))
+    # val2 = self.P2.activation(self.P2.net_input(X))
     y = np.array([])
     for i in range(X.shape[0]): # for each of the test cases
       maximum = max(val0[i], val1[i], val2[i]) # get max of 3
@@ -121,4 +119,4 @@ class TriClassPerceptron():
     return y
 
 # finally, generate a plot with visible decision regions
-plot_2_params(X, y, classifier = TriClassPerceptron(P_setosa, P_versi, P_virg))
+plot_2_params(X, y, classifier = TriClassPerceptron(P_setosa, P_versi, P_virg), title=f"{mode} Model with 3 Classes", x_axis_title="Sepal Length", y_axis_title="Petal Length")
