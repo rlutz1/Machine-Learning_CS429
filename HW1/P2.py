@@ -60,9 +60,11 @@ y_wine = np.where(y_wine == 1, 0, 1) # classes 1 (0) and 2 (1) of grapes
 # extract the other information defining the classes (hue and color intensity)
 X_wine = df.iloc[0:100, [10, 11]].values 
 
-# -------------------------------------------------------------------
-# IRIS:
-# -------------------------------------------------------------------
+"""
+-------------------------------------------------------------------
+IRIS:
+-------------------------------------------------------------------
+"""
 
 # use these to ensure models are running with the same parameters
 e = 0.01 # learning rate for iris
@@ -77,12 +79,25 @@ log.fit(X_iris, y_iris)
 titles = ["Adaline with Iris", "Log Reg with Iris"]
 x_axis_titles = ["Sepal Length"] * len(titles)
 y_axis_titles = ["Petal Length"] * len(titles)
-plot_2_params(X_iris, y_iris, classifiers=[ada, log], titles=titles, x_axis_titles=x_axis_titles, y_axis_titles=y_axis_titles, num_plots=len(titles))
+classifiers = [ada, log]
+# plot 2 figures of the classifiers decision regions
+plot_2_params(
+  X_iris, 
+  y_iris, 
+  classifiers=classifiers, 
+  titles=titles, 
+  x_axis_titles=x_axis_titles, 
+  y_axis_titles=y_axis_titles, 
+  num_plots=len(titles)
+  )
+# plot the loss comparison
 plot_loss_ada_v_log(ada, log)
 
-# -------------------------------------------------------------------
-# WINE:
-# -------------------------------------------------------------------
+"""
+-------------------------------------------------------------------
+WINE:
+-------------------------------------------------------------------
+"""
 
 # use these to ensure models are running with the same parameters
 e = 0.01 # learning rate for iris
@@ -97,9 +112,19 @@ log.fit(X_wine, y_wine)
 titles = ["Adaline with Wine", "Log Reg with Wine"]
 x_axis_titles = ["Color Intensity"] * len(titles)
 y_axis_titles = ["Hue"] * len(titles)
-plot_2_params(X_wine, y_wine, classifiers=[ada, log], titles=titles, x_axis_titles=x_axis_titles, y_axis_titles=y_axis_titles, num_plots=len(titles))
+classifiers = [ada, log]
+# plot 2 figures of the classifiers decision regions
+plot_2_params(
+  X_wine, 
+  y_wine, 
+  classifiers=classifiers, 
+  titles=titles, 
+  x_axis_titles=x_axis_titles, 
+  y_axis_titles=y_axis_titles, 
+  num_plots=len(titles)
+  )
 
-# plot loss 
+# plot the loss comparison
 plot_loss_ada_v_log(ada, log)
 
 
