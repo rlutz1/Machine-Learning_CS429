@@ -24,7 +24,7 @@ def plot_2_params(
   # setup marker generator and color map
   markers = ('o', 's', '^', 'v', '<')
   colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')
-  fig, ax = plt.subplots(nrows=1, ncols=num_plots, figsize=(10, 4))
+  fig, ax = plt.subplots(nrows=1, ncols=num_plots, figsize=(12, 4))
   
   for p in range(0, num_plots):  
     # plt.subplot(nrows=1, ncols=num_plots, index=p+1) # choose which plot in fig

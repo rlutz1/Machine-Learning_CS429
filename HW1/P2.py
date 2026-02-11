@@ -27,9 +27,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ===================================================================
-# SCRIPTING
-# ===================================================================
+"""
+===================================================================
+SCRIPTING
+===================================================================
+"""
 
 # grab the iris dataset
 iris = 'https://archive.ics.uci.edu/ml/'\
@@ -100,8 +102,8 @@ WINE:
 """
 
 # use these to ensure models are running with the same parameters
-e = 0.01 # learning rate for iris
-i = 10000 # num iterations for iris
+e = 0.01 # learning rate for wine
+i = 10000 # num iterations for wine
 
 ada = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
 ada.fit(X_wine, y_wine) # hand off the iris data and correct labels to learning algorithm
