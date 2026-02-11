@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 
 # can plot 1+ classes with colored decision regions
+# changed to allow for multiple classifiers to be given.
 def plot_2_params(
     X, 
     y, 
@@ -57,6 +58,21 @@ def plot_2_params(
   if show:
     plt.show()
 
+# plot loss of the 2 classifiers given--ada and log
+def plot_loss_ada_v_log(ada, log, show=True):
+  fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
+
+  ax[0].plot(range(1, len(ada.losses_) + 1), ada.losses_, marker='o')
+  ax[0].set_xlabel(f'{ada.n_iter} Epochs')
+  ax[0].set_ylabel('Loss Function')
+  ax[0].set_title(f"Adaline - Learning rate {ada.eta}")
+  
+  ax[1].plot(range(1, len(log.losses_) + 1), log.losses_, marker='o')
+  ax[1].set_xlabel(f'{log.n_iter} Epochs')
+  ax[1].set_ylabel('Loss Function')
+  ax[1].set_title(f"Logistic Regression - Learning rate {log.eta}")
+  if show:
+    plt.show()
 
 # old plotter that plots only one
 # def plot_2_params(
@@ -102,18 +118,4 @@ def plot_2_params(
 #     plt.show()
  
 
-def plot_loss_ada_v_log(ada, log, show=True):
-  fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
-
-  ax[0].plot(range(1, len(ada.losses_) + 1), ada.losses_, marker='o')
-  ax[0].set_xlabel(f'{ada.n_iter} Epochs')
-  ax[0].set_ylabel('Loss Function')
-  ax[0].set_title(f"Adaline - Learning rate {ada.eta}")
-  
-  ax[1].plot(range(1, len(log.losses_) + 1), log.losses_, marker='o')
-  ax[1].set_xlabel(f'{log.n_iter} Epochs')
-  ax[1].set_ylabel('Loss Function')
-  ax[1].set_title(f"Logistic Regression - Learning rate {log.eta}")
-  if show:
-    plt.show()
 
