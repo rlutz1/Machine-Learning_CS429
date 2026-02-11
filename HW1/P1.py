@@ -10,25 +10,23 @@ Explain how the bias is transformed to an extra weight
 and why the translated model is equivalent
 to the original one.
 """
-# from log_ada_absorbed_bias import AdalineGD, LogisticRegressionGD
-# from plotters import plot_decision_regions
 from helper_code.roxannes_abs_bias import AdalineGD, LogisticRegressionGD, Orig_AdalineGD, Orig_LogisticRegressionGD
 import numpy as np
 import pandas as pd
 
+"""
+===================================================================
+SCRIPTING
+===================================================================
+"""
 
+# for consistency in training models to ensure they have same params.
+i = 1000 # number of iterations
+e = 0.01 # learning rate
 
-# ===================================================================
-# SCRIPTING
-# ===================================================================
-
-# for consistency in training models so i don't lose my mind
-i = 1000
-e = 0.01
-
+# use iris data set for testing
 s = 'https://archive.ics.uci.edu/ml/'\
     'machine-learning-databases/iris/iris.data'
-print('From URL:', s)
 
 df = pd.read_csv(s,
      header=None,
@@ -58,11 +56,11 @@ log_orig.fit(X, y)
 ada_orig = Orig_AdalineGD(eta=e, n_iter=i)
 ada_orig.fit(X, y) 
 
-# i'm checking to make sure the weights and bias are the same between them
+# checking to make sure the weights and bias are the same between them
 print("ADA COMPARISON")
-print(f"absorbed weights (bias last): {ada_abs.w_}, orig weights: {ada_orig.w_}")
+print(f"absorbed weights: {ada_abs.w_[0:(ada_abs.w_.size - 1)]}, orig weights: {ada_orig.w_}")
 print(f"absorbed bias: {ada_abs.w_[-1]}, orig bias: {ada_orig.b_}")
 
 print("LOG COMPARISON")
-print(f"absorbed weights (bias last): {log_abs.w_}, orig weights: {log_orig.w_}")
+print(f"absorbed weights: {log_abs.w_[0:(log_abs.w_.size - 1)]}, orig weights: {log_orig.w_}")
 print(f"absorbed bias: {log_abs.w_[-1]}, orig bias: {log_orig.b_}")
