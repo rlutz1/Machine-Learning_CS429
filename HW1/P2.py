@@ -60,8 +60,8 @@ y_wine = df.iloc[0:100, 0].values # values in the 1st column of csv -> type of g
 y_wine = np.where(y_wine == 1, 0, 1) # classes 1 (0) and 2 (1) of grapes
 
 # extract the other information defining the classes (hue and color intensity)
+# X_wine = df.iloc[0:100, [1, 2, 10, 11]].values 
 X_wine = df.iloc[0:100, [10, 11]].values 
-
 """
 -------------------------------------------------------------------
 IRIS:
@@ -78,20 +78,21 @@ ada.fit(X_iris, y_iris) # hand off the iris data and correct labels to learning 
 log = LogisticRegressionGD(eta=e, n_iter=i) # same eta and iteration here
 log.fit(X_iris, y_iris)
 
-titles = ["Adaline with Iris", "Log Reg with Iris"]
-x_axis_titles = ["Sepal Length"] * len(titles)
-y_axis_titles = ["Petal Length"] * len(titles)
-classifiers = [ada, log]
-# plot 2 figures of the classifiers decision regions
-plot_2_params(
-  X_iris, 
-  y_iris, 
-  classifiers=classifiers, 
-  titles=titles, 
-  x_axis_titles=x_axis_titles, 
-  y_axis_titles=y_axis_titles, 
-  num_plots=len(titles)
-  )
+if X_iris.shape[1] == 2: # 2 params needed for that func, breaks with more
+    titles = [f"Adaline with Iris (learn rate={e}, epochs={i})", f"Log Reg with Iris (learn rate={e}, epochs={i})"]
+    x_axis_titles = ["Sepal Length"] * len(titles)
+    y_axis_titles = ["Petal Length"] * len(titles)
+    classifiers = [ada, log]
+    # plot 2 figures of the classifiers decision regions
+    plot_2_params(
+    X_iris, 
+    y_iris, 
+    classifiers=classifiers, 
+    titles=titles, 
+    x_axis_titles=x_axis_titles, 
+    y_axis_titles=y_axis_titles, 
+    num_plots=len(titles)
+    )
 # plot the loss comparison
 plot_loss_ada_v_log(ada, log)
 
@@ -111,20 +112,22 @@ ada.fit(X_wine, y_wine) # hand off the iris data and correct labels to learning 
 log = LogisticRegressionGD(eta=e, n_iter=i) # same eta and iteration here
 log.fit(X_wine, y_wine)
 
-titles = ["Adaline with Wine", "Log Reg with Wine"]
+titles = [f"Adaline with Wine (learn rate={e}, epochs={i})", f"Log Reg with Wine (learn rate={e}, epochs={i})"]
 x_axis_titles = ["Color Intensity"] * len(titles)
 y_axis_titles = ["Hue"] * len(titles)
 classifiers = [ada, log]
-# plot 2 figures of the classifiers decision regions
-plot_2_params(
-  X_wine, 
-  y_wine, 
-  classifiers=classifiers, 
-  titles=titles, 
-  x_axis_titles=x_axis_titles, 
-  y_axis_titles=y_axis_titles, 
-  num_plots=len(titles)
-  )
+
+if X_wine.shape[1] == 2: # 2 params needed for that func, breaks with more
+    # plot 2 figures of the classifiers decision regions
+    plot_2_params(
+    X_wine, 
+    y_wine, 
+    classifiers=classifiers, 
+    titles=titles, 
+    x_axis_titles=x_axis_titles, 
+    y_axis_titles=y_axis_titles, 
+    num_plots=len(titles)
+    )
 
 # plot the loss comparison
 plot_loss_ada_v_log(ada, log)
