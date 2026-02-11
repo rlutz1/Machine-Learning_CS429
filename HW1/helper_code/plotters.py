@@ -24,9 +24,10 @@ def plot_2_params(
   # setup marker generator and color map
   markers = ('o', 's', '^', 'v', '<')
   colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')
+  fig, ax = plt.subplots(nrows=1, ncols=num_plots, figsize=(10, 4))
   
   for p in range(0, num_plots):  
-    plt.subplot(nrows=1, ncols=num_plots, index=p+1) # choose which plot in fig
+    # plt.subplot(nrows=1, ncols=num_plots, index=p+1) # choose which plot in fig
     cmap = ListedColormap(colors[:len(np.unique(y))])
     # plot the decision surface
     x1_min, x1_max = X[:, 0].min() - 1, X[:, 0].max() + 1
@@ -36,22 +37,22 @@ def plot_2_params(
     lab = classifiers[p].predict(np.array([xx1.ravel(), xx2.ravel()]).T) # T -> transpose
     lab = lab.reshape(xx1.shape)
 
-    plt.contourf(xx1, xx2, lab, alpha=0.3, cmap=cmap)
-    plt.xlim(xmin=xx1.min(), xmax=xx1.max())
-    plt.ylim(ymin=xx2.min(), ymax=xx2.max())
+    ax[p].contourf(xx1, xx2, lab, alpha=0.3, cmap=cmap)
+    ax[p].set_xlim(xmin=xx1.min(), xmax=xx1.max())
+    ax[p].set_ylim(ymin=xx2.min(), ymax=xx2.max())
     # plot class examples
     for idx, cl in enumerate(np.unique(y)):
-      plt.scatter(x=X[y == cl, 0],
+      ax[p].scatter(x=X[y == cl, 0],
         y=X[y == cl, 1],
         alpha=0.8,
         c=colors[idx],
         marker=markers[idx],
         label=f'Class {cl}',
         edgecolor='black')
-    plt.legend()
-    plt.title(titles[p])
-    plt.xlabel(x_axis_titles[p])
-    plt.ylabel(y_axis_titles[p])
+    ax[p].legend()
+    ax[p].set_title(titles[p])
+    ax[p].set_xlabel(x_axis_titles[p])
+    ax[p].set_ylabel(y_axis_titles[p])
 
   if show:
     plt.show()
@@ -100,7 +101,6 @@ def plot_2_params(
 #   if show:
 #     plt.show()
  
-
 
 def plot_loss_ada_v_log(ada, log, show=True):
   fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
