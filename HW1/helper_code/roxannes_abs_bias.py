@@ -1,6 +1,7 @@
 import numpy as np
 
 """
+MODIFICATIONS
 code from the text book for the adaline learning model.
 below are modifications to absorb the bias into the vectors w and x.
 """
@@ -136,7 +137,6 @@ class LogisticRegressionGD:
               - ((1 - y).dot(np.log(1 - output))))
               / X.shape[0])
       self.losses_.append(loss)
-    # print("after train ", self.w_)
     return self
   
   # function to add ones to end of given samples
@@ -149,7 +149,8 @@ class LogisticRegressionGD:
 
   def net_input(self, X):
     """Calculate net input"""
-    return np.dot(X, self.w_[0:(X.shape[1])])  + self.w_[-1] # b is in w now
+    X = self.extend_samples(X) # extend X with ones
+    return np.dot(X, self.w_) # w (dot) x, with bias absorbed.
   
   def activation(self, z):
     """Compute logistic sigmoid activation"""
@@ -160,11 +161,13 @@ class LogisticRegressionGD:
     return np.where(self.activation(self.net_input(X)) >= 0.5, 1, 0)
   
 
-
-# ====================================================================
-# ORIGINALS
-# use for testing the absorption is the same
-# ===================================================================
+"""
+===================================================================
+ORIGINALS
+use for testing the absorption method is producing the same
+weights and bias as the non-absorbed method.
+===================================================================
+"""
 
 class Orig_AdalineGD:
   """ADAptive LInear NEuron classifier.
@@ -204,28 +207,24 @@ class Orig_AdalineGD:
     -------
     self : object
     """
-    # same general initialization as perceptron
+
     rgen = np.random.RandomState(self.random_state)
     self.w_ = rgen.normal(loc=0.0, scale=0.01,size=X.shape[1])
     self.b_ = np.float64(0.)
-    self.losses_ = [] # errors versus losses? 
+    self.losses_ = []
 
-    for i in range(self.n_iter): # for how many iterations
-      net_input = self.net_input(X) # z = wx + b
-      # "prediction" is now production of activation func
-      # which is for adaline the identity (return z)
+    for i in range(self.n_iter): 
+      net_input = self.net_input(X) 
       output = self.activation(net_input)
-      errors = (y - output) # error between real label and prediction
-      self.w_ += self.eta * 2.0 * X.T.dot(errors) / X.shape[0] # update function!
-      self.b_ += self.eta * 2.0 * errors.mean() # update function!
-      loss = (errors**2).mean() # loss is the mean squared error objective func!
-      self.losses_.append(loss) # track the loss
-    # print("after train: ", self.w_, self.b_)
+      errors = (y - output) 
+      self.w_ += self.eta * 2.0 * X.T.dot(errors) / X.shape[0] 
+      self.b_ += self.eta * 2.0 * errors.mean() 
+      loss = (errors**2).mean() 
+      self.losses_.append(loss)
     return self
   
   def net_input(self, X):
     """Calculate net input"""
-    # print(np.dot(X, self.w_) + self.b_)
     return np.dot(X, self.w_) + self.b_
   
   def activation(self, X):
@@ -290,7 +289,6 @@ class Orig_LogisticRegressionGD:
               - ((1 - y).dot(np.log(1 - output))))
               / X.shape[0])
       self.losses_.append(loss)
-    print("after train ", self.w_, self.b_)
     return self
   
   def net_input(self, X):
