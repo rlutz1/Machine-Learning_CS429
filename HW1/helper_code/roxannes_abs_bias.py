@@ -1,7 +1,4 @@
 import numpy as np
-from matplotlib.colors import ListedColormap
-import pandas as pd
-import matplotlib.pyplot as plt
 
 """
 code from the text book for the adaline learning model.
@@ -58,10 +55,11 @@ class AdalineGD:
       self.w_[-1] += self.eta * 2.0 * errors.mean() # update b in w now
       loss = (errors**2).mean() 
       self.losses_.append(loss)
-    # print("after train: ", self.w_)
     return self
   
-  # function to add ones to end
+  # function to add ones to end of given samples
+  # in order to make use of the absorbed bias during
+  # net_input calculations.
   def extend_samples(self, X):
     ones = [[1]]* X.shape[0]
     X = np.hstack((X, ones))
@@ -69,8 +67,8 @@ class AdalineGD:
 
   def net_input(self, X):
     """Calculate net input"""
-    X = self.extend_samples(X) # extend X
-    return np.dot(X, self.w_) 
+    X = self.extend_samples(X) # extend X with ones
+    return np.dot(X, self.w_) # w (dot) x, with bias absorbed.
   
   def activation(self, X):
     """Compute linear activation"""
@@ -124,8 +122,6 @@ class LogisticRegressionGD:
     self : Instance of LogisticRegressionGD
     """
     rgen = np.random.RandomState(self.random_state)
-    # self.w_ = rgen.normal(loc=0.0, scale=0.01, size=X.shape[1])
-    # self.b_ = np.float_(0.)
     self.w_ = rgen.normal(loc=0.0, scale=0.01,size=X.shape[1] + 1) # add one to size for bias
     self.w_[-1] = np.float64(0.) # absorb b into w as the last element
     self.losses_ = []
@@ -136,13 +132,21 @@ class LogisticRegressionGD:
       errors = (y - output)
       self.w_[0:(X.shape[1])] += self.eta * 2.0 * X.T.dot(errors) / X.shape[0]
       self.w_[-1] += self.eta * 2.0 * errors.mean()
-      loss = (-y.dot(np.log(output))
-              - ((1 - y).dot(np.log(1 - output)))
+      loss = ((-y.dot(np.log(output))
+              - ((1 - y).dot(np.log(1 - output))))
               / X.shape[0])
       self.losses_.append(loss)
     # print("after train ", self.w_)
     return self
   
+  # function to add ones to end of given samples
+  # in order to make use of the absorbed bias during
+  # net_input calculations.
+  def extend_samples(self, X):
+    ones = [[1]]* X.shape[0]
+    X = np.hstack((X, ones))
+    return X
+
   def net_input(self, X):
     """Calculate net input"""
     return np.dot(X, self.w_[0:(X.shape[1])])  + self.w_[-1] # b is in w now
@@ -282,8 +286,8 @@ class Orig_LogisticRegressionGD:
       errors = (y - output)
       self.w_ += self.eta * 2.0 * X.T.dot(errors) / X.shape[0]
       self.b_ += self.eta * 2.0 * errors.mean()
-      loss = (-y.dot(np.log(output))
-              - ((1 - y).dot(np.log(1 - output)))
+      loss = ((-y.dot(np.log(output))
+              - ((1 - y).dot(np.log(1 - output))))
               / X.shape[0])
       self.losses_.append(loss)
     print("after train ", self.w_, self.b_)
