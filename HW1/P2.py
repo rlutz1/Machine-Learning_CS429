@@ -16,6 +16,9 @@ The comparisons should be done based on the convergence of the loss.
 In order to make apple-to-apple comparisons, 
 you should use the same hyperparameters 
 and number of epochs for both learning algorithms.
+
+REPORT: 
+For Task 2, explain the comparisons using figures
 """
 
 from helper_code.Plotters import plot_2_params, plot_loss_ada_v_log
@@ -24,9 +27,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ===================================================================
-# SCRIPTING
-# ===================================================================
+"""
+===================================================================
+SCRIPTING
+===================================================================
+"""
 
 # grab the iris dataset
 iris = 'https://archive.ics.uci.edu/ml/'\
@@ -38,10 +43,10 @@ df = pd.read_csv(iris,
 # print(df)
 
 # set up classes for setosa vs versi
-y_iris = df.iloc[0:100, 4].values # values in the 4th column of csv -> names of iris
+y_iris = df.iloc[0:100, 4].values # values in the 5th column of csv -> names of iris
 y_iris = np.where(y_iris == "Iris-setosa", 0, 1) # binary classification: setosa -> 0, versi 1
 
-# extract the other information defining the classes
+# extract the other information defining the classes (sepal and petal length)
 X_iris = df.iloc[0:100, [0, 2]].values  
 
 # grab the wine dataset
@@ -51,55 +56,75 @@ df = pd.read_csv(wine,
      header=None,
      encoding='utf-8')
 
-y_wine = df.iloc[0:100, 0].values # values in the 4th column of csv -> type of grape
+y_wine = df.iloc[0:100, 0].values # values in the 1st column of csv -> type of grape
 y_wine = np.where(y_wine == 1, 0, 1) # classes 1 (0) and 2 (1) of grapes
 
-# alcohol(1), magnesium(5), color intensity(10), hue(11) 
-# X_wine = df.iloc[0:100, [1, 5, 10, 11]].values # getting the vibe this is not linearly separable or something
-X_wine = df.iloc[0:100, [10, 11]].values # this one kinda works... with eta = 0.01, n = 10000
+# extract the other information defining the classes (hue and color intensity)
+X_wine = df.iloc[0:100, [10, 11]].values 
 
-# -------------------------------------------------------------------
-# IRIS:
-# -------------------------------------------------------------------
+"""
+-------------------------------------------------------------------
+IRIS:
+-------------------------------------------------------------------
+"""
 
-ada = AdalineGD(eta=0.01, n_iter=10000) # note that eta needs to be small here!
+# use these to ensure models are running with the same parameters
+e = 0.01 # learning rate for iris
+i = 10000 # num iterations for iris
+
+ada = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
 ada.fit(X_iris, y_iris) # hand off the iris data and correct labels to learning algorithm
 
-log = LogisticRegressionGD(eta=0.01, n_iter=10000) # same eta and iteration here
+log = LogisticRegressionGD(eta=e, n_iter=i) # same eta and iteration here
 log.fit(X_iris, y_iris)
 
-# two separate plots
-plot_2_params(X_iris, y_iris, classifier=ada, title="Adaline with Iris", x_axis_title="Sepal Length", y_axis_title="Petal Length")
-plot_2_params(X_iris, y_iris, classifier=log, title="Log Reg with Iris", x_axis_title="Sepal Length", y_axis_title="Petal Length")
-
-# plot one on top of the other
-plot_2_params(X_iris, y_iris, classifier=ada, show=False)
-plot_2_params(X_iris, y_iris, classifier=log, show=False, title="Adaline and Log Reg with Iris", x_axis_title="Sepal Length", y_axis_title="Petal Length")
-plt.show() # can see them on the same plot--easier to see difference a bit.
-
-# plot loss 
+titles = ["Adaline with Iris", "Log Reg with Iris"]
+x_axis_titles = ["Sepal Length"] * len(titles)
+y_axis_titles = ["Petal Length"] * len(titles)
+classifiers = [ada, log]
+# plot 2 figures of the classifiers decision regions
+plot_2_params(
+  X_iris, 
+  y_iris, 
+  classifiers=classifiers, 
+  titles=titles, 
+  x_axis_titles=x_axis_titles, 
+  y_axis_titles=y_axis_titles, 
+  num_plots=len(titles)
+  )
+# plot the loss comparison
 plot_loss_ada_v_log(ada, log)
 
-# -------------------------------------------------------------------
-# WINE:
-# -------------------------------------------------------------------
+"""
+-------------------------------------------------------------------
+WINE:
+-------------------------------------------------------------------
+"""
 
-ada = AdalineGD(eta=0.01, n_iter=10000) # note that eta needs to be small here!
+# use these to ensure models are running with the same parameters
+e = 0.01 # learning rate for wine
+i = 10000 # num iterations for wine
+
+ada = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
 ada.fit(X_wine, y_wine) # hand off the iris data and correct labels to learning algorithm
 
-log = LogisticRegressionGD(eta=0.01, n_iter=10000) # same eta and iteration here
+log = LogisticRegressionGD(eta=e, n_iter=i) # same eta and iteration here
 log.fit(X_wine, y_wine)
 
-# two separate plots
-plot_2_params(X_wine, y_wine, classifier=ada, title="Adaline with Wine", x_axis_title="Color Intensity", y_axis_title="Hue")
-plot_2_params(X_wine, y_wine, classifier=log, title="Log Reg with Wine", x_axis_title="Color Intensity", y_axis_title="Hue")
+titles = ["Adaline with Wine", "Log Reg with Wine"]
+x_axis_titles = ["Color Intensity"] * len(titles)
+y_axis_titles = ["Hue"] * len(titles)
+classifiers = [ada, log]
+# plot 2 figures of the classifiers decision regions
+plot_2_params(
+  X_wine, 
+  y_wine, 
+  classifiers=classifiers, 
+  titles=titles, 
+  x_axis_titles=x_axis_titles, 
+  y_axis_titles=y_axis_titles, 
+  num_plots=len(titles)
+  )
 
-# plot one on top of the other
-plot_2_params(X_wine, y_wine, classifier=ada, show=False)
-plot_2_params(X_wine, y_wine, classifier=log, show=False, title="Adaline and Log Reg with Wine", x_axis_title="Color Intensity", y_axis_title="Hue")
-plt.show() # can see them on the same plot--easier to see difference a bit.
-
-# plot loss 
+# plot the loss comparison
 plot_loss_ada_v_log(ada, log)
-
-
