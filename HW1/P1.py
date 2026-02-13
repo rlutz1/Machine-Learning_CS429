@@ -10,7 +10,10 @@ Explain how the bias is transformed to an extra weight
 and why the translated model is equivalent
 to the original one.
 """
-from helper_code.roxannes_abs_bias import AdalineGD, LogisticRegressionGD, Orig_AdalineGD, Orig_LogisticRegressionGD
+from helper_code.Absorbed_Adaline import AdalineGD
+from helper_code.Absorbed_LogReg import LogisticRegressionGD
+from helper_code.unaltered_original_code.Adaline import Orig_AdalineGD
+from helper_code.unaltered_original_code.LogReg import Orig_LogisticRegressionGD
 import numpy as np
 import pandas as pd
 
