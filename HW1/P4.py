@@ -1,17 +1,16 @@
 """
-Problem 4: Mini-batch SGD Comparison
+PROBLEM 4 DRIVER
+
+Mini-batch SGD Comparison
+
 Stochastic gradient descent (SGD) and mini-batch gradient descent are described in our textbook
 (Page 45). Their combination is called mini-batch SGD which has been intensively used to handle large-scale
 datasets in machine learning. Please implement a new function fit_mini_batch_SGD in the logistic regression
 class for mini-batch SGD. Choose a small batch size, e.g., 32, and compare the performance of GD, SGD
 and mini-batch SGD in the aspects of time cost and loss convergence speed.
-
-REPORT:
-For Task 4, explain the comparisons using figures.
 """
 
-
-from helper_code.roxannes_abs_bias import LogisticRegressionGD
+from helper_code.Absorbed_LogReg import LogisticRegressionGD
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -19,6 +18,11 @@ matplotlib.use('TkAgg')  # Try to use interactive backend
 import matplotlib.pyplot as plt
 import time
 
+"""
+===================================================================
+SCRIPTING
+===================================================================
+"""
 
 def fit_sgd(self, X, y, shuffle=True):
     """
@@ -123,9 +127,11 @@ LogisticRegressionGD.fit_sgd = fit_sgd
 LogisticRegressionGD.fit_mini_batch_sgd = fit_mini_batch_sgd
 
 
-# =============================================================================
-# LOAD WINE DATASET
-# =============================================================================
+"""
+-------------------------------------------------------------------
+LOAD WINE DATASET
+-------------------------------------------------------------------
+"""
 
 def load_wine_dataset():
     """Load Wine dataset from UCI repository"""
@@ -162,10 +168,11 @@ def standardize_features(X):
         X_std[:, i] = (X[:, i] - X[:, i].mean()) / X[:, i].std()
     return X_std
 
-
-# =============================================================================
-# RUN COMPARISON
-# =============================================================================
+"""
+-------------------------------------------------------------------
+RUN COMPARISON
+-------------------------------------------------------------------
+"""
 
 def run_comparison():
     """Comparison between the 3"""
@@ -181,9 +188,11 @@ def run_comparison():
 
     results = {}
 
-    # =========================================================================
-    # 1. FULL BATCH GRADIENT DESCENT
-    # =========================================================================
+    """
+    -------------------------------------------------------------------
+    1. FULL BATCH GRADIENT DESCENT
+    -------------------------------------------------------------------
+    """
 
     lr_gd = LogisticRegressionGD(eta=eta, n_iter=n_iter, random_state=random_state)
     start = time.time()
@@ -197,9 +206,11 @@ def run_comparison():
         'updates_per_epoch': 1
     }
 
-    # =========================================================================
-    # 2. STOCHASTIC GRADIENT DESCENT
-    # =========================================================================
+    """
+    -------------------------------------------------------------------
+    2. STOCHASTIC GRADIENT DESCENT
+    -------------------------------------------------------------------
+    """
 
     lr_sgd = LogisticRegressionGD(eta=eta, n_iter=n_iter, random_state=random_state)
     start = time.time()
@@ -213,9 +224,11 @@ def run_comparison():
         'updates_per_epoch': len(y)
     }
 
-    # =========================================================================
-    # 3. MINI-BATCH SGD
-    # =========================================================================
+    """
+    -------------------------------------------------------------------
+    3. MINI-BATCH SGD
+    -------------------------------------------------------------------
+    """
 
     lr_mb = LogisticRegressionGD(eta=eta, n_iter=n_iter, random_state=random_state)
     start = time.time()
@@ -229,9 +242,12 @@ def run_comparison():
         'updates_per_epoch': len(y) // batch_size
     }
 
-    # =========================================================================
-    # PLOT RESULTS
-    # =========================================================================
+    """
+    -------------------------------------------------------------------
+    PLOT RESULTS
+    -------------------------------------------------------------------
+    """
+
     plot_results(results)
 
 
