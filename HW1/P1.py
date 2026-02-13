@@ -1,15 +1,13 @@
 """
+PROBLEM 1 DRIVER
+
 Modify the classes AdalineGD and LogisticRegressionGD 
 in the textbook such that the bias
 data field b is absorbed by the weight vector w . 
 Your program is required to be compatible with the training
 programs in the textbook.
-
-REPORT:
-Explain how the bias is transformed to an extra weight 
-and why the translated model is equivalent
-to the original one.
 """
+
 from helper_code.Absorbed_Adaline import AdalineGD
 from helper_code.Absorbed_LogReg import LogisticRegressionGD
 from helper_code.unaltered_original_code.Adaline import Orig_AdalineGD

@@ -1,4 +1,6 @@
 """
+PROBLEM 2 DRIVER
+
 Compare the performance of Adaline and logistic regression 
 (bias absorbed versions) on the Iris
 and Wine datasets that can be obtained from the UCI machine 
@@ -16,16 +18,13 @@ The comparisons should be done based on the convergence of the loss.
 In order to make apple-to-apple comparisons, 
 you should use the same hyperparameters 
 and number of epochs for both learning algorithms.
-
-REPORT: 
-For Task 2, explain the comparisons using figures
 """
 
+from helper_code.Absorbed_Adaline import AdalineGD
+from helper_code.Absorbed_LogReg import LogisticRegressionGD
 from helper_code.Plotters import plot_2_params, plot_loss_ada_v_log
-from helper_code.roxannes_abs_bias import AdalineGD, LogisticRegressionGD
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 """
 ===================================================================
@@ -36,11 +35,10 @@ SCRIPTING
 # grab the iris dataset
 iris = 'https://archive.ics.uci.edu/ml/'\
     'machine-learning-databases/iris/iris.data'
-# 'machine-learning-databases/wine/wine.data'
+
 df = pd.read_csv(iris,
      header=None,
      encoding='utf-8')
-# print(df)
 
 # set up classes for setosa vs versi
 y_iris = df.iloc[0:100, 4].values # values in the 5th column of csv -> names of iris
@@ -69,13 +67,13 @@ IRIS:
 """
 
 # use these to ensure models are running with the same parameters
-e = 0.01 # learning rate for iris
-i = 10000 # num iterations for iris
+e_iris = 0.01 # learning rate for iris
+i_iris = 10000 # num iterations for iris
 
-ada = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
+ada = AdalineGD(eta=e_iris, n_iter=i_iris) # note that eta needs to be small here!
 ada.fit(X_iris, y_iris) # hand off the iris data and correct labels to learning algorithm
 
-log = LogisticRegressionGD(eta=e, n_iter=i) # same eta and iteration here
+log = LogisticRegressionGD(eta=e_iris, n_iter=i_iris) # same eta and iteration here
 log.fit(X_iris, y_iris)
 
 titles = ["Adaline with Iris", "Log Reg with Iris"]
@@ -102,13 +100,13 @@ WINE:
 """
 
 # use these to ensure models are running with the same parameters
-e = 0.01 # learning rate for wine
-i = 10000 # num iterations for wine
+e_wine = 0.01 # learning rate for wine
+i_wine = 10000 # num iterations for wine
 
-ada = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
+ada = AdalineGD(eta=e_wine, n_iter=i_wine) # note that eta needs to be small here!
 ada.fit(X_wine, y_wine) # hand off the iris data and correct labels to learning algorithm
 
-log = LogisticRegressionGD(eta=e, n_iter=i) # same eta and iteration here
+log = LogisticRegressionGD(eta=e_wine, n_iter=i_wine) # same eta and iteration here
 log.fit(X_wine, y_wine)
 
 titles = ["Adaline with Wine", "Log Reg with Wine"]
