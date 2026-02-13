@@ -229,5 +229,7 @@ accuracy rating of logistic regression: 0.9333333333333333
 
 # petal length/width
 """
-
+accuracy rating of perceptron: 0.62
+accuracy rating of adaline: 0.7733333333333333
+accuracy rating of logistic regression: 0.9
 """
