@@ -33,6 +33,12 @@ When running, 4 figures will appear, one after the other, the next appearing whe
 
 ### P3.py 
 
+On run, this will default to grabbing Iris Setosa/Versicolor/Virginica data, specifically sepal and petal length. All models will run with learning rate `e` and epochs `i` as set in script.
+
+This driver will set up the One-Vs-All approach for multiclass classifications. It will use all 3 models (Perceptron/Adaline/Logistic Regression) for comparison. Then, we use a simple custom `TriClassPredictor` with a method `predict()` that will perform the choosing max `net_input` functionality explained in more detail in the report, Section 3.
+
+Then we will plot the decision boundaries between all 3 classes of iris based on predictions made by the `TriClassPredictor`. Further, we will print out the proportion of accurate classifications made by the `TriClassPredictor` model.
+
 ### P4.py 
 
 ## Helper Files

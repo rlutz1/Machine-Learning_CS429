@@ -1,16 +1,16 @@
 """
+PROBLEM 3 DRIVER
+
 Adaline and perceptron learning can only be used for binary classification, however, the Iris dataset
 has 3 classes: setosa, versicolor and virginica. If you are only allowed to use perceptrons but the number is
 not limited, how would you like to perform a multiclass classification for the whole Iris data set? Please write
 a program for this task
-
-REPORT:
-For Task 3, explain the method you developed for multiclass classification and its correctness
 """
-  
-from helper_code.Perceptron import Perceptron
+
+from helper_code.Absorbed_Adaline import AdalineGD
+from helper_code.Absorbed_LogReg import LogisticRegressionGD
+from helper_code.unaltered_original_code.Perceptron import Perceptron
 from helper_code.Plotters import plot_2_params
-from helper_code.roxannes_abs_bias import AdalineGD, LogisticRegressionGD
 import numpy as np
 import pandas as pd
 
@@ -19,7 +19,8 @@ import pandas as pd
 SCRIPTING
 ===================================================================
 """
-
+# for clarity when plotting only. 
+# corresponds the class to its class number.
 SETOSA_CLASS = 0
 VERSI_CLASS = 1
 VIRGINIA_CLASS = 2
@@ -28,15 +29,17 @@ VIRGINIA_CLASS = 2
 # grab the iris dataset
 iris = 'https://archive.ics.uci.edu/ml/'\
     'machine-learning-databases/iris/iris.data'
+
 df = pd.read_csv(iris,
      header=None,
      encoding='utf-8')
 
 # extract the other information defining the classes
-X = df.iloc[0:, [0, 2]].values  
+X = df.iloc[0:, [0, 2]].values  # sepal, petal length
+# X = df.iloc[0:, [2, 3]].values # petal length, width
 y = df.iloc[0:, 4].values
 
-# replace string names with numbers.
+# replace string names with numbers for plotting.
 # setosa is class 0, versi class 1, virg class 2
 conditions = [y == "Iris-setosa", y == "Iris-versicolor", y == "Iris-virginica"]
 choices = [SETOSA_CLASS, VERSI_CLASS, VIRGINIA_CLASS]
@@ -52,6 +55,16 @@ y_versi = np.where(y_versi == "Iris-versicolor", 1, 0) # versicolor -> 1, everyt
 y_virg = df.iloc[0:, 4].values # values in the 4th column of csv -> names of iris
 y_virg = np.where(y_virg == "Iris-virginica", 1, 0) # virginica -> 1, everything else 0 
 
+# the following code is optional, but was used for a figure in report.
+# we're gonna shift versi sepal lengths (0) over enough
+# to enforce linear separability, to prove a point.
+# this assumes you grab sepal and petal length ([0, 2]) above
+# i = 0
+# for f in y_versi:
+#   if f == 1: # if class 1
+#     X[i][0] += 5 # shove over sepal length 5 units
+#   i += 1
+
 # use these to ensure models are running with the same parameters
 e = 0.01 # learning rate for iris
 i = 10000 # num iterations for iris
@@ -62,13 +75,13 @@ TRAIN BASIC 0/1 PERCEPTRON:
 -------------------------------------------------------------------
 """
 
-P_setosa = Perceptron(eta=e, n_iter=i) # note that eta needs to be small here!
+P_setosa = Perceptron(eta=e, n_iter=i) 
 P_setosa.fit(X, y_setosa) # hand off the iris data and correct labels to learning algorithm
 
-P_versi = Perceptron(eta=e, n_iter=i) # note that eta needs to be small here!
+P_versi = Perceptron(eta=e, n_iter=i) 
 P_versi.fit(X, y_versi) # hand off the iris data and correct labels to learning algorithm
 
-P_virg = Perceptron(eta=e, n_iter=i) # note that eta needs to be small here!
+P_virg = Perceptron(eta=e, n_iter=i) 
 P_virg.fit(X, y_virg) # hand off the iris data and correct labels to learning algorithm
 
 """
@@ -77,13 +90,13 @@ TRAIN ADALINE:
 -------------------------------------------------------------------
 """
 
-A_setosa = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
+A_setosa = AdalineGD(eta=e, n_iter=i) 
 A_setosa.fit(X, y_setosa) # hand off the iris data and correct labels to learning algorithm
 
-A_versi = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
+A_versi = AdalineGD(eta=e, n_iter=i) 
 A_versi.fit(X, y_versi) # hand off the iris data and correct labels to learning algorithm
 
-A_virg = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
+A_virg = AdalineGD(eta=e, n_iter=i) 
 A_virg.fit(X, y_virg) # hand off the iris data and correct labels to learning algorithm
 
 """
@@ -92,13 +105,13 @@ TRAIN LOGISTIC REGRESSION:
 -------------------------------------------------------------------
 """
 
-LR_setosa = LogisticRegressionGD(eta=e, n_iter=i) # note that eta needs to be small here!
+LR_setosa = LogisticRegressionGD(eta=e, n_iter=i) 
 LR_setosa.fit(X, y_setosa) # hand off the iris data and correct labels to learning algorithm
 
-LR_versi = LogisticRegressionGD(eta=e, n_iter=i) # note that eta needs to be small here!
+LR_versi = LogisticRegressionGD(eta=e, n_iter=i) 
 LR_versi.fit(X, y_versi) # hand off the iris data and correct labels to learning algorithm
 
-LR_virg = LogisticRegressionGD(eta=e, n_iter=i) # note that eta needs to be small here!
+LR_virg = LogisticRegressionGD(eta=e, n_iter=i) 
 LR_virg.fit(X, y_virg) # hand off the iris data and correct labels to learning algorithm
 
 """
@@ -143,16 +156,41 @@ class TriClassPredictor():
 
     return y
 
+
+# simple accuracy rate calculator 
+def acc_rate(pred_labels, true_labels):
+  accurates = 0
+  for (pred_label, true_label) in zip(pred_labels, true_labels):
+    if true_label == pred_label:
+      accurates += 1
+
+  return accurates / true_labels.shape[0]
+
+# accuracy values.
+classifier_perc = TriClassPredictor(P_setosa, P_versi, P_virg)
+print(f"accuracy rating of perceptron: {acc_rate(classifier_perc.predict(X), y)}" )
+
+# accuracy values.
+classifier_ada = TriClassPredictor(A_setosa, A_versi, A_virg)
+print(f"accuracy rating of adaline: {acc_rate(classifier_ada.predict(X), y)}" )
+
+# accuracy values.
+classifier_log = TriClassPredictor(LR_setosa, LR_versi, LR_virg)
+print(f"accuracy rating of logistic regression: {acc_rate(classifier_log.predict(X), y)}" )
+
+
 # finally, generate a plot with visible decision regions
 # using the tri class predictor
 
 titles = ["Perceptron with 3 classes", "Adaline with 3 Classes", "Log Reg with with 3 Classes"]
-x_axis_titles = ["Sepal Length"] * len(titles)
+x_axis_titles = ["Sepal Length"] * len(titles) # for when plotting [0, 2]
 y_axis_titles = ["Petal Length"] * len(titles)
+# x_axis_titles = ["Petal Length"] * len(titles) # for when plotting [2, 3]
+# y_axis_titles = ["Petal Width"] * len(titles)
 classifiers = [
-  TriClassPredictor(P_setosa, P_versi, P_virg),
-  TriClassPredictor(A_setosa, A_versi, A_virg),
-  TriClassPredictor(LR_setosa, LR_versi, LR_virg)
+  classifier_perc,
+  classifier_ada,
+  classifier_log
   ]
 
 # plot 3 figures of the classifiers decision regions
