@@ -14,15 +14,19 @@ from helper_code.roxannes_abs_bias import AdalineGD, LogisticRegressionGD
 import numpy as np
 import pandas as pd
 
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from mpl_toolkits.mplot3d import axes3d
+
 """
 ===================================================================
 SCRIPTING
 ===================================================================
 """
-
+# for plotting primarily
 SETOSA_CLASS = 0
 VERSI_CLASS = 1
-VIRGINIA_CLASS = 2
+VIRGINICA_CLASS = 2
 
 
 # grab the iris dataset
@@ -33,13 +37,14 @@ df = pd.read_csv(iris,
      encoding='utf-8')
 
 # extract the other information defining the classes
-X = df.iloc[0:, [0, 2]].values  
+X = df.iloc[0:, [0, 2]].values # sepal, petal length
+# X = df.iloc[0:, [2, 3]].values # petal length, width
 y = df.iloc[0:, 4].values
 
 # replace string names with numbers.
 # setosa is class 0, versi class 1, virg class 2
 conditions = [y == "Iris-setosa", y == "Iris-versicolor", y == "Iris-virginica"]
-choices = [SETOSA_CLASS, VERSI_CLASS, VIRGINIA_CLASS]
+choices = [SETOSA_CLASS, VERSI_CLASS, VIRGINICA_CLASS]
 y = np.select(conditions, choices)
 
 # set up classes for setosa, versi, virg
@@ -51,6 +56,15 @@ y_versi = np.where(y_versi == "Iris-versicolor", 1, 0) # versicolor -> 1, everyt
 
 y_virg = df.iloc[0:, 4].values # values in the 4th column of csv -> names of iris
 y_virg = np.where(y_virg == "Iris-virginica", 1, 0) # virginica -> 1, everything else 0 
+
+# the following code is optional, but was used for a figure in report.
+# we're gonna shift versi sepal lengths (0) over enough
+# to enforce linear separability, to prove a point.
+# i = 0
+# for f in y_versi:
+#   if f == 1: # if class 1
+#     X[i][0] += 5 # shove over sepal length 5 units
+#   i += 1
 
 # use these to ensure models are running with the same parameters
 e = 0.01 # learning rate for iris
@@ -131,6 +145,7 @@ class TriClassPredictor():
     val0 = self.P0.net_input(X) # predictions of setosa
     val1 = self.P1.net_input(X) # predictions of versi
     val2 = self.P2.net_input(X) # predictions of virginia
+    # print(val0, val1, val2)
     y = np.array([])
     for i in range(X.shape[0]): # for each of the test cases in X
       maximum = max(val0[i], val1[i], val2[i]) # get max of 3 for this sample
@@ -138,7 +153,7 @@ class TriClassPredictor():
       # say the maximum is the class we will go with.
       if   maximum == val0[i]: y = np.append(y, SETOSA_CLASS) 
       elif maximum == val1[i]: y = np.append(y, VERSI_CLASS)
-      elif maximum == val2[i]: y = np.append(y, VIRGINIA_CLASS)
+      elif maximum == val2[i]: y = np.append(y, VIRGINICA_CLASS)
       else: print("Something's off in the TriClassPerceptron ", maximum)
 
     return y
@@ -146,9 +161,11 @@ class TriClassPredictor():
 # finally, generate a plot with visible decision regions
 # using the tri class predictor
 
-titles = ["Perceptron with 3 classes", "Adaline with 3 Classes", "Log Reg with with 3 Classes"]
-x_axis_titles = ["Sepal Length"] * len(titles)
+titles = [f"Perceptron with 3 Classes", f"Adaline with 3 Classes", f"Log Reg with with 3 Classes"]
+x_axis_titles = ["Sepal Length"] * len(titles) # for when plotting [0, 2]
 y_axis_titles = ["Petal Length"] * len(titles)
+# x_axis_titles = ["Petal Length"] * len(titles) # for when plotting [2, 3]
+# y_axis_titles = ["Petal Width"] * len(titles)
 classifiers = [
   TriClassPredictor(P_setosa, P_versi, P_virg),
   TriClassPredictor(A_setosa, A_versi, A_virg),
@@ -165,3 +182,52 @@ plot_2_params(
   y_axis_titles=y_axis_titles, 
   num_plots=len(titles)
   )
+
+
+# accuracy values.
+classifier = TriClassPredictor(P_setosa, P_versi, P_virg)
+pred_label = classifier.predict(X)
+accurates = 0
+i = 0
+for true_label in y:
+  if true_label == pred_label[i]:
+    accurates += 1
+  i += 1
+
+print(f"accuracy rating of perceptron: {accurates/y.shape[0]}" )
+
+# accuracy values.
+classifier = TriClassPredictor(A_setosa, A_versi, A_virg)
+pred_label = classifier.predict(X)
+accurates = 0
+i = 0
+for true_label in y:
+  if true_label == pred_label[i]:
+    accurates += 1
+  i += 1
+
+print(f"accuracy rating of adaline: {accurates/y.shape[0]}" )
+
+# accuracy values.
+classifier = TriClassPredictor(LR_setosa, LR_versi, LR_virg)
+pred_label = classifier.predict(X)
+accurates = 0
+i = 0
+for true_label in y:
+  if true_label == pred_label[i]:
+    accurates += 1
+  i += 1
+
+print(f"accuracy rating of logistic regression: {accurates/y.shape[0]}" )
+
+# sepal and petal length
+"""
+accuracy rating of perceptron: 0.6666666666666666
+accuracy rating of adaline: 0.76
+accuracy rating of logistic regression: 0.9333333333333333
+"""
+
+# petal length/width
+"""
+
+"""

@@ -78,23 +78,23 @@ ada.fit(X_iris, y_iris) # hand off the iris data and correct labels to learning 
 log = LogisticRegressionGD(eta=e, n_iter=i) # same eta and iteration here
 log.fit(X_iris, y_iris)
 
-if X_iris.shape[1] == 2: # 2 params needed for that func, breaks with more
-    titles = [f"Adaline with Iris (learn rate={e}, epochs={i})", f"Log Reg with Iris (learn rate={e}, epochs={i})"]
-    x_axis_titles = ["Sepal Length"] * len(titles)
-    y_axis_titles = ["Petal Length"] * len(titles)
-    classifiers = [ada, log]
-    # plot 2 figures of the classifiers decision regions
-    plot_2_params(
-    X_iris, 
-    y_iris, 
-    classifiers=classifiers, 
-    titles=titles, 
-    x_axis_titles=x_axis_titles, 
-    y_axis_titles=y_axis_titles, 
-    num_plots=len(titles)
-    )
-# plot the loss comparison
-plot_loss_ada_v_log(ada, log)
+# if X_iris.shape[1] == 2: # 2 params needed for that func, breaks with more
+#     titles = [f"Adaline with Iris (learn rate={e}, epochs={i})", f"Log Reg with Iris (learn rate={e}, epochs={i})"]
+#     x_axis_titles = ["Sepal Length"] * len(titles)
+#     y_axis_titles = ["Petal Length"] * len(titles)
+#     classifiers = [ada, log]
+#     # plot 2 figures of the classifiers decision regions
+#     plot_2_params(
+#     X_iris, 
+#     y_iris, 
+#     classifiers=classifiers, 
+#     titles=titles, 
+#     x_axis_titles=x_axis_titles, 
+#     y_axis_titles=y_axis_titles, 
+#     num_plots=len(titles)
+#     )
+# # plot the loss comparison
+# plot_loss_ada_v_log(ada, log)
 
 """
 -------------------------------------------------------------------
@@ -103,7 +103,7 @@ WINE:
 """
 
 # use these to ensure models are running with the same parameters
-e = 0.01 # learning rate for wine
+e = 0.0001 # learning rate for wine
 i = 10000 # num iterations for wine
 
 ada = AdalineGD(eta=e, n_iter=i) # note that eta needs to be small here!
