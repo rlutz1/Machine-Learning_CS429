@@ -1,12 +1,11 @@
-"""
-general file for some helper methods to plot using 
-matplotlib.
-"""
-
 import numpy as np
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 
+"""
+general file for some helper methods to plot using 
+matplotlib.
+"""
 
 # can plot 1+ classes with colored decision regions
 # changed to allow for multiple classifiers to be given.

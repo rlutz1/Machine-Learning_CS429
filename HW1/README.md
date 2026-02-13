@@ -41,6 +41,12 @@ Then we will plot the decision boundaries between all 3 classes of iris based on
 
 ### P4.py 
 
+This driver begins by defining the needed methods to accomplish Stochastic Gradient Descent (SGD) and Mini-batch SGD. The methods are `fit_sgd` and `fit_mini_batch_sgd` respectively. These are then defined within the absorbed-bias Logistic Regression model.
+
+Then, on run, we will run all three methods with Class 1 and 2 from the wine dataset and all features: Full Batch Gradient Descent, SGD, and Mini Batch SGD.
+
+The figure this produces visuals on loss convergence, collecting the time it took to train, and final loss for each method.
+
 ## Helper Files
 
 All of these files can be found within the helper_code directory. They are to assist in keeping the project clean and separable. The following sections briefly describe each of their functions.
@@ -55,7 +61,7 @@ This contains the modifications made to absorb the bias into the weight vector f
 
 ### Plotters.py
 
-This contains helper methods for developing figures and plots for the report. For development use only.
+This contains helper methods for developing figures and plots for the report that are used more than once. For development use only.
 
 ### /unaltered_original_code/ Directory
 
