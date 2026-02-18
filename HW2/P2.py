@@ -29,15 +29,25 @@ rand_seed -> random seed for random generation; default is 1
 
 def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
   # (1) generate a d dimensional hyperplane 
-
+  a = np.random.uniform(-u, u, d)
+  # print(a)
 
   # (2) randomly select n samples from [-u, u] in all dimensions
-
   samples = [[] for _ in range(n)] # n empty samples
   for _ in range(d): # for each dimension
     new_samples = np.random.uniform(-u, u, n) # draw n features from -u to u from uniform distr
     for (i, sample) in zip(range(n), samples):
       sample.append(new_samples[i])
-  print(samples)
+  # print(samples)
+
+  # (3) give each `xi a label yi such that if `aT `x < 0 then yi = -1, otherwise yi = 1.
+  true_labels = []
+  for s in samples:
+    if np.dot(a, s) < 0: true_labels.append(-1)
+    elif np.dot(a, s) > 0: true_labels.append(1)
+    else: print("0!!!!!!!!!")
+
+  print(true_labels)
+
 
 generate_line_sep_data(d=2, n=3)
