@@ -19,6 +19,7 @@ specify the random seed such that the subdivision is reproducible.
 
 import numpy as np
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 """
 function to generate linerally separable data
@@ -62,17 +63,26 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
 
   # print(true_labels)
 
-  return(samples, true_labels)
+  return (a, samples, true_labels)
 
 """
 ---------------------------------------------------------------
 SCRIPT TO RUN
 ---------------------------------------------------------------
 """
-(samples, true_labels) = generate_line_sep_data(d=2, n=10) # generate test data
+# ease of change variables
+d = 2 
+n = 10
+u = 10
+
+(a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u) # generate test data
 
 X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 70/30
     samples, true_labels, test_size=0.30, random_state=42)
 
-# plot a demo of the generation
+if d == 2: # only if 2d, plot 2d demo
+  x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from 0 to 10
+  y_hyperplace = (-(a[0] / a[1])) * x_hyperplane 
+  plt.plot(x_hyperplane, y_hyperplace)
+  plt.show()
 
