@@ -34,7 +34,7 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
   rgen = np.random.RandomState() # random generator
   
   # (1) generate a d dimensional hyperplane 
-  a = rgen.uniform(-u, u, d) # generate d random values for a, b = 0
+  a = rgen.uniform(-u, u, d) # generate d random values for a, b = 0, using u for convenience
   print(a)
 
   # (2) randomly select n samples from [-u, u] in all dimensions
@@ -72,8 +72,8 @@ SCRIPT TO RUN
 """
 # ease of change variables
 d = 2 
-n = 10000
-u = 100
+n = 100
+u = 10
 
 (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u) # generate test data
 
@@ -81,7 +81,7 @@ X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 
     samples, true_labels, test_size=0.30, random_state=42)
 
 if d == 2: # only if 2d, plot 2d demo
-  x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from 0 to 10
+  x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from -u to u
   y_hyperplace = (-(a[0] / a[1])) * x_hyperplane 
   plt.plot(x_hyperplane, y_hyperplace)
 
