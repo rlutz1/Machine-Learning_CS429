@@ -31,7 +31,7 @@ rand_seed -> random seed for random generation; default is 1
 """
 
 def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
-  rgen = np.random.RandomState(rand_seed) # random generator
+  rgen = np.random.RandomState() # random generator
   
   # (1) generate a d dimensional hyperplane 
   a = rgen.uniform(-u, u, d) # generate d random values for a, b = 0
@@ -72,8 +72,8 @@ SCRIPT TO RUN
 """
 # ease of change variables
 d = 2 
-n = 10
-u = 10
+n = 10000
+u = 100
 
 (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u) # generate test data
 
@@ -84,5 +84,19 @@ if d == 2: # only if 2d, plot 2d demo
   x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from 0 to 10
   y_hyperplace = (-(a[0] / a[1])) * x_hyperplane 
   plt.plot(x_hyperplane, y_hyperplace)
+
+  # plot samples
+  for (i, s) in zip(range(n), samples):
+      plt.scatter(x=s[0],
+        y=s[1],
+        alpha=0.8,
+        c='red' if true_labels[i] == -1 else 'blue',
+        marker='o' if true_labels[i] == -1 else 's',
+        label= '-1' if true_labels[i] == -1 else '1',
+        edgecolor='black')
+  plt.ylim((-u, u))
+  plt.xlim((-u, u))
+  # plt.legend()
+
   plt.show()
 
