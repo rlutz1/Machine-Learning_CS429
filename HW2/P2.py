@@ -28,7 +28,7 @@ rand_seed -> random seed for random generation; default is 1
 """
 
 def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
-  rgen = np.random.RandomState(rand_seed)
+  rgen = np.random.RandomState()
   
   # (1) generate a d dimensional hyperplane 
   a = rgen.uniform(-u, u, d) # generate d random values for a, b = 0
@@ -40,16 +40,29 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
     new_samples = rgen.uniform(-u, u, n) # draw n features from -u to u from uniform distr
     for (i, sample) in zip(range(n), samples):
       sample.append(new_samples[i])
-  print(samples)
+  # print(samples)
 
   # (3) give each `xi a label yi such that if `aT `x < 0 then yi = -1, otherwise yi = 1.
+
+  # preprocess step: remove all samples with 0 dot prod for convenience
+  for (i, s) in zip(range(n), samples):
+    dot_prod = np.dot(a, s)
+
   true_labels = []
-  for s in samples:
-    if np.dot(a, s) < 0: true_labels.append(-1)
-    elif np.dot(a, s) > 0: true_labels.append(1)
-    else: print("0!!!!!!!!!") # TODO: regen the sample and test until a non-zero
+  for (i, s) in zip(range(n), samples):
+    dot_prod = np.dot(a, s)
+    if dot_prod < 0: true_labels.append(-1)
+    elif dot_prod > 0: true_labels.append(1)
+    else: # regen the sample and test until a non-zero
+      print("Conducting a dot prod 0 swap.")
+      while (dot_prod == 0):
+        new_sample = rgen.uniform(-u, u, 1) # make 1 new sample
+        dot_prod = np.dot(a, new_sample) # see what dot prod is now, break loop when not 0
+      samples[i] = new_sample # swap out this sample
+      if dot_prod < 0: true_labels.append(-1) # update the true labels
+      elif dot_prod > 0: true_labels.append(1)
 
   print(true_labels)
 
 
-generate_line_sep_data(d=2, n=3)
+generate_line_sep_data(d=2, n=10000)
