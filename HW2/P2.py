@@ -18,6 +18,8 @@ specify the random seed such that the subdivision is reproducible.
 """
 
 import numpy as np
+from sklearn.model_selection import train_test_split
+
 """
 function to generate linerally separable data
 
@@ -28,7 +30,7 @@ rand_seed -> random seed for random generation; default is 1
 """
 
 def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
-  rgen = np.random.RandomState()
+  rgen = np.random.RandomState(rand_seed) # random generator
   
   # (1) generate a d dimensional hyperplane 
   a = rgen.uniform(-u, u, d) # generate d random values for a, b = 0
@@ -44,10 +46,6 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
 
   # (3) give each `xi a label yi such that if `aT `x < 0 then yi = -1, otherwise yi = 1.
 
-  # preprocess step: remove all samples with 0 dot prod for convenience
-  for (i, s) in zip(range(n), samples):
-    dot_prod = np.dot(a, s)
-
   true_labels = []
   for (i, s) in zip(range(n), samples):
     dot_prod = np.dot(a, s)
@@ -62,7 +60,19 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
       if dot_prod < 0: true_labels.append(-1) # update the true labels
       elif dot_prod > 0: true_labels.append(1)
 
-  print(true_labels)
+  # print(true_labels)
 
+  return(samples, true_labels)
 
-generate_line_sep_data(d=2, n=10000)
+"""
+---------------------------------------------------------------
+SCRIPT TO RUN
+---------------------------------------------------------------
+"""
+(samples, true_labels) = generate_line_sep_data(d=2, n=10) # generate test data
+
+X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 70/30
+    samples, true_labels, test_size=0.30, random_state=42)
+
+# plot a demo of the generation
+
