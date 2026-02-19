@@ -35,33 +35,40 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
   
   # (1) generate a d dimensional hyperplane 
   a = rgen.uniform(-u, u, d) # generate d random values for a, b = 0, using u for convenience
-  print(a)
 
   # (2) randomly select n samples from [-u, u] in all dimensions
   samples = [[] for _ in range(n)] # n empty samples
   for _ in range(d): # for each dimension
     new_samples = rgen.uniform(-u, u, n) # draw n features from -u to u from uniform distr
+    
     for (i, sample) in zip(range(n), samples):
       sample.append(new_samples[i])
-  # print(samples)
+
+  # test: the dot prod zero regeneration
+  # samples[0] = [0 for i in range(d)]
+  # samples[1] = [0 for i in range(d)]
 
   # (3) give each `xi a label yi such that if `aT `x < 0 then yi = -1, otherwise yi = 1.
-
   true_labels = []
+
   for (i, s) in zip(range(n), samples):
-    dot_prod = np.dot(a, s)
+    dot_prod = np.dot(a, s) # ax = ?
+    
     if dot_prod < 0: true_labels.append(-1)
+    
     elif dot_prod > 0: true_labels.append(1)
-    else: # regen the sample and test until a non-zero
+    
+    else: # ax = 0, sample is on the line. regen the sample and test until a non-zero.
       print("Conducting a dot prod 0 swap.")
+      
       while (dot_prod == 0):
-        new_sample = rgen.uniform(-u, u, 1) # make 1 new sample
+        new_sample = rgen.uniform(-u, u, d) # make 1 new sample with d features
         dot_prod = np.dot(a, new_sample) # see what dot prod is now, break loop when not 0
-      samples[i] = new_sample # swap out this sample
+      
+      for j in range(d): samples[i][j] = new_sample[j] # replace these values with the new sample
+      
       if dot_prod < 0: true_labels.append(-1) # update the true labels
       elif dot_prod > 0: true_labels.append(1)
-
-  # print(true_labels)
 
   return (a, samples, true_labels)
 
@@ -71,32 +78,47 @@ SCRIPT TO RUN
 ---------------------------------------------------------------
 """
 # ease of change variables
-d = 2 
-n = 100
+d = 2
+n = 10
 u = 10
 
 (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u) # generate test data
+print(samples)
+print(true_labels)
 
 X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 70/30
     samples, true_labels, test_size=0.30, random_state=42)
 
+
+# plotting -- hardcoded for a 2d demo
 if d == 2: # only if 2d, plot 2d demo
   x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from -u to u
-  y_hyperplace = (-(a[0] / a[1])) * x_hyperplane 
-  plt.plot(x_hyperplane, y_hyperplace)
+  y_hyperplace = (-(a[0] / a[1])) * x_hyperplane  # y = (-a0/a1)x + 0 -> line equation
+  plt.plot(x_hyperplane, y_hyperplace, 'g') # plot the line
 
+  # x1 = []
+  # x2 = []
+  # for i in range(n): x1.append(samples[i][0])
+  # for i in range(n): x2.append(samples[i][1])
   # plot samples
-  for (i, s) in zip(range(n), samples):
-      plt.scatter(x=s[0],
-        y=s[1],
+  # for (i, s) in zip(range(n), samples):
+  samples = np.array(samples)
+  for idx, cl in enumerate(np.unique(true_labels)):
+      print(idx, cl)
+      plt.scatter(
+        x=samples[true_labels == cl, 0],
+        y=samples[true_labels == cl, 1],
         alpha=0.8,
-        c='red' if true_labels[i] == -1 else 'blue',
-        marker='o' if true_labels[i] == -1 else 's',
-        label= '-1' if true_labels[i] == -1 else '1',
+        c='red' if cl == -1 else 'blue',
+        marker='o' if cl == -1 else '^',
+        label= '-1' if cl == -1 else '1',
         edgecolor='black')
   plt.ylim((-u, u))
   plt.xlim((-u, u))
-  # plt.legend()
+  plt.xlabel("Feature 1")
+  plt.ylabel("Feature 2")
+  plt.title("Generic Linearly Separable Data")
+  plt.legend()
 
   plt.show()
 
