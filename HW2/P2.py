@@ -77,52 +77,49 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
 SCRIPT TO RUN
 ---------------------------------------------------------------
 """
-# ease of change variables
-d = 2
-n = 10
-u = 100
-rand_seed = 42
-
-(a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
-# print(samples)
-# print(true_labels)
 
 
-# plotting -- hardcoded for a 2d demo
-if d == 2: # only if 2d, plot 2d demo
-  x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from -u to u
-  y_hyperplace = (-(a[0] / a[1])) * x_hyperplane  # y = (-a0/a1)x + 0 -> line equation
-  plt.plot(x_hyperplane, y_hyperplace, 'g') # plot the line
+TEST_APPEND = "TEST"
+TRAIN_APPEND = "TRAIN"
 
-  samples = np.array(samples) # so i can use some special syntax below
-  for idx, cl in enumerate(np.unique(true_labels)):
-      print(idx, cl)
-      plt.scatter(
-        x=samples[true_labels == cl, 0],
-        y=samples[true_labels == cl, 1],
-        alpha=0.8,
-        c='red' if cl == -1 else 'blue',
-        marker='o' if cl == -1 else '^',
-        label= '-1' if cl == -1 else '1',
-        edgecolor='black')
-  plt.ylim((-u, u))
-  plt.xlim((-u, u))
-  plt.xlabel("Feature 1")
-  plt.ylabel("Feature 2")
-  plt.title("Generic Linearly Separable Data")
-  plt.legend()
 
-  plt.show()
 
-def generate_data_sets_to_file(filename, d=2, n=100, u=10, rand_seed=1):
 
-  (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
+def plot(d, u, samples, true_labels):
+  if d == 2: # only if 2d, plot 2d demo
+    x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from -u to u
+    y_hyperplace = (-(a[0] / a[1])) * x_hyperplane  # y = (-a0/a1)x + 0 -> line equation
+    plt.plot(x_hyperplane, y_hyperplace, 'g') # plot the line
+
+    samples = np.array(samples) # so i can use some special syntax below
+    for idx, cl in enumerate(np.unique(true_labels)):
+        print(idx, cl)
+        plt.scatter(
+          x=samples[true_labels == cl, 0],
+          y=samples[true_labels == cl, 1],
+          alpha=0.8,
+          c='red' if cl == -1 else 'blue',
+          marker='o' if cl == -1 else '^',
+          label= '-1' if cl == -1 else '1',
+          edgecolor='black')
+    plt.ylim((-u, u))
+    plt.xlim((-u, u))
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.title("Generic Linearly Separable Data")
+    plt.legend()
+
+    plt.show()
+
+def generate_data_sets_to_file(filename, samples, true_labels):
+
+  # (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
   X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 70/30
       samples, true_labels, test_size=0.30, random_state=rand_seed)
-  print(X_test)
-  print(y_test)
+  # print(X_test)
+  # print(y_test)
 
-  with open(f'datasets/{filename}_train.csv', 'w') as f:
+  with open(f'datasets/{filename}_{TRAIN_APPEND}.csv', 'w') as f:
       dataset_num = 0
       for sample in X_train:
         for s in sample:
@@ -130,7 +127,7 @@ def generate_data_sets_to_file(filename, d=2, n=100, u=10, rand_seed=1):
         print(y_train[dataset_num], file=f, end='\n')  
         dataset_num += 1
 
-  with open(f'datasets/{filename}_test.csv', 'w') as f:
+  with open(f'datasets/{filename}_{TEST_APPEND}.csv', 'w') as f:
       dataset_num = 0
       for sample in X_test:
         for s in sample:
@@ -139,29 +136,39 @@ def generate_data_sets_to_file(filename, d=2, n=100, u=10, rand_seed=1):
         dataset_num += 1
 
 
-generate_data_sets_to_file("test", d=d, n=n, u=u, rand_seed=rand_seed)
-
-class SampleReader():
-
-  def read(self, filename):
-    X = []
-    y = [] 
-    temp = []
-
-    with open(f'datasets/{filename}.csv', 'r') as f:
-      whole_file = f.read()
-      samples = whole_file.split("\n")
-      for s in samples:
-        if s:
-          features_and_class = s.split(",") 
-          for feature in features_and_class[:-1]:
-            temp.append(np.float64(feature))
-          X.append(temp)
-          y.append(int(features_and_class[-1]))
-          temp = []
-    
-    return X, y
 
 
-(X, y) = SampleReader().read("test_test")
+
+def read_data_sets(filename):
+  X = []
+  y = [] 
+  temp = []
+
+  with open(f'datasets/{filename}.csv', 'r') as f:
+    whole_file = f.read()
+    samples = whole_file.split("\n")
+    for s in samples:
+      if s:
+        features_and_class = s.split(",") 
+        for feature in features_and_class[:-1]:
+          temp.append(np.float64(feature))
+        X.append(temp)
+        y.append(int(features_and_class[-1]))
+        temp = []
+  
+  return X, y
+
+# ease of change variables
+d = 2
+n = 10
+u = 100
+rand_seed = 42
+
+(a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
+plot(d, u, samples, true_labels) # plot data, only if d = 2
+
+generate_data_sets_to_file("test", samples, true_labels)
+(X, y) = read_data_sets(f"test_{TEST_APPEND}")
+print(X, "\n", y)
+(X, y) = read_data_sets(f"test_{TRAIN_APPEND}")
 print(X, "\n", y)
