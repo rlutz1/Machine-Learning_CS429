@@ -31,7 +31,7 @@ rand_seed -> random seed for random generation; default is 1
 """
 
 def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
-  rgen = np.random.RandomState() # random generator
+  rgen = np.random.RandomState(rand_seed) # random generator
   
   # (1) generate a d dimensional hyperplane 
   a = rgen.uniform(-u, u, d) # generate d random values for a, b = 0, using u for convenience
@@ -79,15 +79,16 @@ SCRIPT TO RUN
 """
 # ease of change variables
 d = 2
-n = 10
-u = 10
+n = 100
+u = 100
+rand_seed = 42
 
-(a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u) # generate test data
-print(samples)
-print(true_labels)
+(a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
+# print(samples)
+# print(true_labels)
 
 X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 70/30
-    samples, true_labels, test_size=0.30, random_state=42)
+    samples, true_labels, test_size=0.30, random_state=rand_seed)
 
 
 # plotting -- hardcoded for a 2d demo
@@ -96,13 +97,7 @@ if d == 2: # only if 2d, plot 2d demo
   y_hyperplace = (-(a[0] / a[1])) * x_hyperplane  # y = (-a0/a1)x + 0 -> line equation
   plt.plot(x_hyperplane, y_hyperplace, 'g') # plot the line
 
-  # x1 = []
-  # x2 = []
-  # for i in range(n): x1.append(samples[i][0])
-  # for i in range(n): x2.append(samples[i][1])
-  # plot samples
-  # for (i, s) in zip(range(n), samples):
-  samples = np.array(samples)
+  samples = np.array(samples) # so i can use some special syntax below
   for idx, cl in enumerate(np.unique(true_labels)):
       print(idx, cl)
       plt.scatter(
