@@ -34,7 +34,7 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
   rgen = np.random.RandomState(rand_seed) # random generator
   
   # (1) generate a d dimensional hyperplane 
-  a = rgen.uniform(-u, u, d) # generate d random values for a, b = 0, using u for convenience
+  a = rgen.uniform(-1, 1, d) # generate d random values for a, b = 0
 
   # (2) randomly select n samples from [-u, u] in all dimensions
   samples = [[] for _ in range(n)] # n empty samples
@@ -79,16 +79,13 @@ SCRIPT TO RUN
 """
 # ease of change variables
 d = 2
-n = 100
+n = 10
 u = 100
 rand_seed = 42
 
 (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
 # print(samples)
 # print(true_labels)
-
-X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 70/30
-    samples, true_labels, test_size=0.30, random_state=rand_seed)
 
 
 # plotting -- hardcoded for a 2d demo
@@ -117,3 +114,54 @@ if d == 2: # only if 2d, plot 2d demo
 
   plt.show()
 
+def generate_data_sets_to_file(filename, d=2, n=100, u=10, rand_seed=1):
+
+  (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
+  X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 70/30
+      samples, true_labels, test_size=0.30, random_state=rand_seed)
+  print(X_test)
+  print(y_test)
+
+  with open(f'datasets/{filename}_train.csv', 'w') as f:
+      dataset_num = 0
+      for sample in X_train:
+        for s in sample:
+          print(s, file=f, end=',')
+        print(y_train[dataset_num], file=f, end='\n')  
+        dataset_num += 1
+
+  with open(f'datasets/{filename}_test.csv', 'w') as f:
+      dataset_num = 0
+      for sample in X_test:
+        for s in sample:
+          print(s, file=f, end=',')
+        print(y_test[dataset_num], file=f, end='\n')  
+        dataset_num += 1
+
+
+generate_data_sets_to_file("test", d=d, n=n, u=u, rand_seed=rand_seed)
+
+class SampleReader():
+
+  def read(self, filename):
+    X = []
+    y = [] 
+    temp = []
+
+    with open(f'datasets/{filename}.csv', 'r') as f:
+      whole_file = f.read()
+      samples = whole_file.split("\n")
+      for s in samples:
+        if s:
+          features_and_class = s.split(",") 
+          for feature in features_and_class[:-1]:
+            temp.append(np.float64(feature))
+          X.append(temp)
+          y.append(int(features_and_class[-1]))
+          temp = []
+    
+    return X, y
+
+
+(X, y) = SampleReader().read("test_test")
+print(X, "\n", y)
