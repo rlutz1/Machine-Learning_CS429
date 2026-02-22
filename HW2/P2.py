@@ -20,6 +20,21 @@ specify the random seed such that the subdivision is reproducible.
 import numpy as np
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+from helper_code.DatasetGenerator import generate_data_sets_to_file
+
+"""
+---------------------------------------------------------------
+CONSTANTS
+---------------------------------------------------------------
+"""
+
+GEN_TO_FILE = True
+
+"""
+---------------------------------------------------------------
+UTILITY FUNCTIONS
+---------------------------------------------------------------
+"""
 
 """
 function to generate linerally separable data
@@ -29,7 +44,6 @@ n         -> number of samples to generate with d features; default 100
 u         -> defines range of [-u, u] in EACH dimension to generate samples in; default [-10, 10]
 rand_seed -> random seed for random generation; default is 1
 """
-
 def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
   rgen = np.random.RandomState(rand_seed) # random generator
   
@@ -72,19 +86,15 @@ def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
 
   return (a, samples, true_labels)
 
+
 """
----------------------------------------------------------------
-SCRIPT TO RUN
----------------------------------------------------------------
+function to plot a 2D demo of the separabale data.
+this is hardcoded to only work if d = 2.
+d           -> dimensions, or number features used for training
+u           -> range used for sample generation
+samples     -> samples for the 
+true_labels ->  
 """
-
-
-TEST_APPEND = "TEST"
-TRAIN_APPEND = "TRAIN"
-
-
-
-
 def plot(d, u, samples, true_labels):
   if d == 2: # only if 2d, plot 2d demo
     x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from -u to u
@@ -111,64 +121,24 @@ def plot(d, u, samples, true_labels):
 
     plt.show()
 
-def generate_data_sets_to_file(filename, samples, true_labels):
-
-  # (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
-  X_train, X_test, y_train, y_test = train_test_split( # split with scikit learn, 70/30
-      samples, true_labels, test_size=0.30, random_state=rand_seed)
-  # print(X_test)
-  # print(y_test)
-
-  with open(f'datasets/{filename}_{TRAIN_APPEND}.csv', 'w') as f:
-      dataset_num = 0
-      for sample in X_train:
-        for s in sample:
-          print(s, file=f, end=',')
-        print(y_train[dataset_num], file=f, end='\n')  
-        dataset_num += 1
-
-  with open(f'datasets/{filename}_{TEST_APPEND}.csv', 'w') as f:
-      dataset_num = 0
-      for sample in X_test:
-        for s in sample:
-          print(s, file=f, end=',')
-        print(y_test[dataset_num], file=f, end='\n')  
-        dataset_num += 1
 
 
 
-
-
-def read_data_sets(filename):
-  X = []
-  y = [] 
-  temp = []
-
-  with open(f'datasets/{filename}.csv', 'r') as f:
-    whole_file = f.read()
-    samples = whole_file.split("\n")
-    for s in samples:
-      if s:
-        features_and_class = s.split(",") 
-        for feature in features_and_class[:-1]:
-          temp.append(np.float64(feature))
-        X.append(temp)
-        y.append(int(features_and_class[-1]))
-        temp = []
-  
-  return X, y
+"""
+---------------------------------------------------------------
+SCRIPT TO RUN
+---------------------------------------------------------------
+"""
 
 # ease of change variables
-d = 2
-n = 10
+d = 50
+n = 50000
 u = 100
 rand_seed = 42
 
 (a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
 plot(d, u, samples, true_labels) # plot data, only if d = 2
 
-generate_data_sets_to_file("test", samples, true_labels)
-(X, y) = read_data_sets(f"test_{TEST_APPEND}")
-print(X, "\n", y)
-(X, y) = read_data_sets(f"test_{TRAIN_APPEND}")
-print(X, "\n", y)
+# used for dataset generation for P3 and P4
+if GEN_TO_FILE:
+  generate_data_sets_to_file(f"d{d}n{n}", samples, true_labels, rand_seed)
