@@ -20,7 +20,7 @@ specify the random seed such that the subdivision is reproducible.
 import numpy as np
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from helper_code.DatasetGenerator import generate_data_sets_to_file
+from helper_code.DatasetGenerator import generate_data_sets_to_file, read_data_sets
 
 """
 ---------------------------------------------------------------
@@ -140,3 +140,8 @@ plot(d, u, samples, true_labels) # plot data, only if d = 2
 # used for dataset generation for P3 and P4
 if GEN_TO_FILE:
   generate_data_sets_to_file(f"d{d}n{n}", samples, true_labels, rand_seed)
+  
+  # testing code:
+  # (X_train, Y_train) = read_data_sets("tester_TRAIN")
+  # (X_test, Y_test) = read_data_sets("tester_TEST")
+  # plot(d, u, X_train+X_test, Y_train+Y_test)
