@@ -28,7 +28,7 @@ CONSTANTS
 ---------------------------------------------------------------
 """
 
-GEN_TO_FILE = True
+GEN_TO_FILE = False # turn this on to make 70/30 split files from the data generated
 
 """
 ---------------------------------------------------------------
@@ -129,8 +129,8 @@ SCRIPT TO RUN
 """
 
 # ease of change variables
-d = 100
-n = 50000
+d = 2
+n = 100
 u = 100
 rand_seed = 42
 
