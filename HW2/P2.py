@@ -122,8 +122,6 @@ def plot(d, u, samples, true_labels):
     plt.show()
 
 
-
-
 """
 ---------------------------------------------------------------
 SCRIPT TO RUN
@@ -131,7 +129,7 @@ SCRIPT TO RUN
 """
 
 # ease of change variables
-d = 50
+d = 100
 n = 50000
 u = 100
 rand_seed = 42
