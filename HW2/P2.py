@@ -20,7 +20,7 @@ specify the random seed such that the subdivision is reproducible.
 import numpy as np
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from helper_code.DatasetGenerator import generate_data_sets_to_file
+from helper_code.DatasetGenerator import generate_data_sets_to_file, read_data_sets
 
 """
 ---------------------------------------------------------------

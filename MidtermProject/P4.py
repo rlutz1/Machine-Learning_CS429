@@ -10,3 +10,6 @@ The final prediction for an image is obtained via voting. Please use the three k
 along with their best hyperparameters you found in the previous task. 
 Please do not use sklearn.ensemble.
 """
+
+from MNISTReader import MNISTReader
+from MNISTFashionReader import MNISTFashionReader
