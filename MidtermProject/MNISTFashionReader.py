@@ -18,7 +18,7 @@ import idx2numpy
 import numpy as np
 
 """
-EXAMPLE USEAGE:
+EXAMPLE USAGE:
 
 # creating a new reader will automatically read in the data set and flatten
 reader = MNISTFashionReader() # create a new reader
