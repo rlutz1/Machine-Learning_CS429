@@ -98,7 +98,7 @@ class MNISTReader:
       print(f"Received an unknown dataset: {dataset}. Try {MNISTReader.TRAIN_DATASET} or {MNISTReader.TEST_DATASET}")
       return ""
 
-    # following readable names as per documentation: https://github.com/zalandoresearch/fashion-mnist?tab=readme-ov-file
+    # following readable names as is dictated by mnist set
     if (image_num < set_to_grab.size):
    
       match set_to_grab[image_num]:
