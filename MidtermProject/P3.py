@@ -26,3 +26,6 @@ hyperparameters:
 You are required to tune the hyperparameters and choose the best setting for each kernel. When tuning
 the parameters, you need to measure the prediction error on both training set and test set.
 """
+
+from MNISTReader import MNISTReader
+from MNISTFashionReader import MNISTFashionReader

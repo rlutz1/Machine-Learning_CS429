@@ -17,7 +17,33 @@ import matplotlib.pyplot as plt
 import idx2numpy
 import numpy as np
 
-# print(path)
+"""
+EXAMPLE USEAGE:
+
+# creating a new reader will automatically read in the data set and flatten
+reader = MNISTFashionReader() # create a new reader
+
+# this is accessible to simply get a printable string name for a specfic image
+# from a specific dataset. image numbers are ZERO indexed.
+# example: print label from image 1678 from test dataset:
+print(reader.label_to_readable_name(1678, MNISTFashionReader.TEST_DATASET))
+# do the same with image 1678 from training dataset
+print(reader.label_to_readable_name(1678, MNISTFashionReader.TRAIN_DATASET))
+
+# this is another accessible way to simply view the image. this will
+# create a black and white plot of the image as a form of sanity checking/as needed.
+reader.display_image(1678, MNISTFashionReader.TEST_DATASET)
+# do the same with the training set:
+reader.display_image(1678, MNISTFashionReader.TRAIN_DATASET)
+
+# to grab the 1D flattened training data and corresponding labels:
+reader.train_images
+reader.train_labels
+
+# to grab the 1D flattened testing data and corresponding labels:
+reader.test_images
+reader.test_labels
+"""
 
 class MNISTFashionReader:
 
@@ -46,7 +72,7 @@ class MNISTFashionReader:
     self.test_labels = idx2numpy.convert_from_file(os.path.join(MNISTFashionReader.path, 't10k-labels-idx1-ubyte'))
     
   # convenience method to display the image very basically as a sanity check
-  def display_train_image(self, image_num, dataset):
+  def display_image(self, image_num, dataset):
     if (dataset == MNISTFashionReader.TRAIN_DATASET): set_to_grab = self.train_images
     elif (dataset == MNISTFashionReader.TEST_DATASET): set_to_grab = self.test_images
     else: 
@@ -100,13 +126,3 @@ class MNISTFashionReader:
     else:
       print(f"Image number must be no larger than {set_to_grab.shape[0]}.")
       return ""
-    
-   
-
-
-
-reader = MNISTFashionReader()
-print(reader.label_to_readable_name(1678, MNISTFashionReader.TEST_DATASET))
-reader.display_train_image(1678, MNISTFashionReader.TEST_DATASET)
-
-  
