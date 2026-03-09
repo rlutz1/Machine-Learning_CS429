@@ -24,7 +24,11 @@ class MNISTFashionReader:
   # the path to the data sets -- assuming you're running from MidtermProject directory
   # this is shared by ALL instances of this reader
   path = os.path.join(os.getcwd(), "datasets", "mnist-fashion")
+  # constants for readability
+  TRAIN_DATASET = "train" 
+  TEST_DATASET = "test"
 
+  # class constructor
   def __init__(self):
     # read in the training images from idx files, convert to np
     train_images = idx2numpy.convert_from_file(os.path.join(MNISTFashionReader.path, 'train-images-idx3-ubyte'))
@@ -41,22 +45,68 @@ class MNISTFashionReader:
     # grab testing labels
     self.test_labels = idx2numpy.convert_from_file(os.path.join(MNISTFashionReader.path, 't10k-labels-idx1-ubyte'))
     
-
-  def display_train_image(self, image_num):
-    if (image_num >= 0 and image_num < self.train_images.shape[0]):
-      print(self.train_images.size)
-      plt.imshow(self.train_images.reshape(self.train_images.shape[0], 28, 28)[image_num], cmap='gray')
+  # convenience method to display the image very basically as a sanity check
+  def display_train_image(self, image_num, dataset):
+    if (dataset == MNISTFashionReader.TRAIN_DATASET): set_to_grab = self.train_images
+    elif (dataset == MNISTFashionReader.TEST_DATASET): set_to_grab = self.test_images
+    else: 
+      print(f"Received an unknown dataset: {dataset}. Try {MNISTFashionReader.TRAIN_DATASET} or {MNISTFashionReader.TEST_DATASET}")
+      return
+    
+    if (image_num < set_to_grab.shape[0]):
+      # print(set_to_grab.size)
+      plt.title(self.label_to_readable_name(image_num, dataset))
+      plt.imshow(set_to_grab.reshape(set_to_grab.shape[0], 28, 28)[image_num], cmap='gray')
       plt.show()
     else:
-      print(f"Image number must be on interval [0, {self.train_images.shape[0]})")
+      print(f"Image number must be no larger than {set_to_grab.shape[0]}.")
 
+  # convenience method to grab the readable name of a specific image number
+  # in a specific dataset.
+  def label_to_readable_name(self, image_num, dataset):
 
-    
+    # distinguish between datasets
+    if (dataset == MNISTFashionReader.TRAIN_DATASET): set_to_grab = self.train_labels
+    elif (dataset == MNISTFashionReader.TEST_DATASET): set_to_grab = self.test_labels
+    else: 
+      print(f"Received an unknown dataset: {dataset}. Try {MNISTFashionReader.TRAIN_DATASET} or {MNISTFashionReader.TEST_DATASET}")
+      return ""
+
+    # following readable names as per documentation: https://github.com/zalandoresearch/fashion-mnist?tab=readme-ov-file
+    if (image_num < set_to_grab.size):
+   
+      match set_to_grab[image_num]:
+        case 0:
+          return "T-Shirt/Top"
+        case 1:
+          return "Trouser"
+        case 2:
+          return "Pullover"
+        case 3:
+          return "Dress"
+        case 4:
+          return "Coat"
+        case 5:
+          return "Sandal"
+        case 6:
+          return "Shirt"
+        case 7:
+          return "Sneaker"
+        case 8:
+          return "Bag"
+        case 9:
+          return "Ankle Boot"
+        
+    else:
+      print(f"Image number must be no larger than {set_to_grab.shape[0]}.")
+      return ""
     
    
 
 
 
 reader = MNISTFashionReader()
+print(reader.label_to_readable_name(1678, MNISTFashionReader.TEST_DATASET))
+reader.display_train_image(1678, MNISTFashionReader.TEST_DATASET)
 
-reader.display_train_image(0)
+  
