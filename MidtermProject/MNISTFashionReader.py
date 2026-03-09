@@ -12,6 +12,11 @@ Task 2:
 Perform a data format transformation by flattening each image to a 1-D NumPy array. You may
 use the NumPy function reshape
 """
+import os
+
+path = os.path.join(os.getcwd(), "datasets", "mnist-fashion")
+
+# print(path)
 
 class MNISTFashionReader:
 
