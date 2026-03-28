@@ -9,7 +9,7 @@ PARAMETER(S) V TEST/TRAIN ACCURACY
 
 linear kernel -> 
   x-axis: C
-  y-axis: test/train accuracy  TODO color? bar graph? so its consistent with rest
+  y-axis: test/train accuracy  
 
 rbf kernel ->
   x-axis: C
