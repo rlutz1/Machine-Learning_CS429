@@ -1,4 +1,7 @@
-from MNISTReader import MNISTReader
+"""
+file to handselect targeting of poly parameters for further tuning and analysis
+"""
+
 from MNISTFashionReader import MNISTFashionReader
 from helpers.TimeWrappers import TimedTransform, TimedClassifier
 from sklearn.preprocessing import StandardScaler 
@@ -55,9 +58,9 @@ dim_reducers = [
 ]
 
 
-# # =========================================================
-# # LINEAR KERNEL
-# # =========================================================
+# =========================================================
+# LINEAR KERNEL
+# =========================================================
 
 """
 For larger values of C, a smaller margin will be accepted if the decision function is 

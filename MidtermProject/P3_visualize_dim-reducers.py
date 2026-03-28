@@ -1,3 +1,13 @@
+"""
+this file was the main way to generate plots for the dim
+reduction method comparisons.
+
+this was built as the report was written, and is by no
+means intended to be a good practice coding example!
+it serves only the purpose of a growable, extending script!
+
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.layout_engine as le
@@ -53,17 +63,6 @@ acc_fashion_entries = acc_mnist_fashion.loc[
   (acc_mnist_fashion["num iterations"] == 5000) 
   ]
 
-# we will also pull the accuracy to compare through reductions
-acc_mnist_entries_10000 = acc_mnist.loc[
-  (acc_mnist["kernel"] == "linear") &
-  (acc_mnist["num iterations"] == 10000) 
-  ]
-
-acc_fashion_entries_10000 = acc_mnist_fashion.loc[
-  (acc_mnist_fashion["kernel"] == "linear") &
-  (acc_mnist_fashion["num iterations"] == 10000) 
-  ]
-
 # plot for times
 fig, ax = plt.subplots(2, 1, figsize=(15, 8), layout='constrained')
 
@@ -100,7 +99,7 @@ multiplier = 0
 
 for attribute, time in times.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, time, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -145,7 +144,7 @@ multiplier = 0
 
 for attribute, time in times.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, time, width, label=attribute)
     ax[1].bar_label(rects, padding=3)
     multiplier += 1
@@ -184,7 +183,7 @@ for p in parameters:
       (acc_mnist_entries["dim reducer"] == csv_col) &
       (acc_mnist_entries["C"] == p)
     ]
-    print(acc["test acc"].values[0])
+    # print(acc["test acc"].values[0])
     accs[bar_name].append(acc["test acc"].values[0]) # round by 2, cleaner
 
 x = np.arange(len(parameters))  # the label locations
@@ -193,7 +192,7 @@ multiplier = 0
 
 for attribute, acc in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, acc, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -228,7 +227,7 @@ for p in parameters:
       (acc_fashion_entries["dim reducer"] == csv_col) &
       (acc_fashion_entries["C"] == p)
     ]
-    print(acc["test acc"].values[0])
+    # print(acc["test acc"].values[0])
     accs[bar_name].append(acc["test acc"].values[0]) # round by 2, cleaner
 
 x = np.arange(len(parameters))  # the label locations
@@ -237,7 +236,7 @@ multiplier = 0
 
 for attribute, acc in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, acc, width, label=attribute)
     ax[1].bar_label(rects, padding=5)
     multiplier += 1
@@ -291,7 +290,6 @@ fig, ax = plt.subplots(2, 1, figsize=(15, 8), layout='constrained')
 # -------------------------------------
 
 
-
 # we're going to hand select a few combos from RBF because too many will be a mess.
 # 7 groups worked nicely for linear, so we will choose:
 parameters = [
@@ -331,7 +329,7 @@ multiplier = 0
 
 for attribute, time in times.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, time, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -385,7 +383,7 @@ multiplier = 0
 
 for attribute, time in times.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, time, width, label=attribute)
     ax[1].bar_label(rects, padding=3)
     multiplier += 1
@@ -406,7 +404,7 @@ fig, ax = plt.subplots(2, 1, figsize=(15, 8), layout='constrained')
 # test acc for rbf, mnist
 # -------------------------------------
 
-# we're going to hand select a few combos from RBF because too many will be a mess.
+# we're going to hand select a few combos from poly because too many will be a mess.
 # 7 groups worked nicely for linear, so we will choose:
 parameters = [
  # (C, gamma)
@@ -445,7 +443,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, time, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -487,7 +485,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, time, width, label=attribute)
     ax[1].bar_label(rects, padding=3)
     multiplier += 1
@@ -541,7 +539,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, time, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -583,7 +581,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, time, width, label=attribute)
     ax[1].bar_label(rects, padding=3)
     multiplier += 1
@@ -677,7 +675,7 @@ multiplier = 0
 
 for attribute, time in times.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, time, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -736,7 +734,7 @@ multiplier = 0
 
 for attribute, time in times.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, time, width, label=attribute)
     ax[1].bar_label(rects, padding=3)
     multiplier += 1
@@ -798,7 +796,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, time, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -842,7 +840,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, time, width, label=attribute)
     ax[1].bar_label(rects, padding=3)
     multiplier += 1
@@ -904,7 +902,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, time, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -948,7 +946,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, time, width, label=attribute)
     ax[1].bar_label(rects, padding=3)
     multiplier += 1
@@ -1010,7 +1008,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[0].bar(x + offset, time, width, label=attribute)
     ax[0].bar_label(rects, padding=3)
     multiplier += 1
@@ -1054,7 +1052,7 @@ multiplier = 0
 
 for attribute, time in accs.items():
     offset = width * multiplier
-    print(x + offset)
+    # print(x + offset)
     rects = ax[1].bar(x + offset, time, width, label=attribute)
     ax[1].bar_label(rects, padding=3)
     multiplier += 1

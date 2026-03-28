@@ -1,4 +1,8 @@
-from MNISTReader import MNISTReader
+"""
+file to handselect targeting of linear parameters for further tuning and analysis
+"""
+
+
 from MNISTFashionReader import MNISTFashionReader
 from helpers.TimeWrappers import TimedTransform, TimedClassifier
 from sklearn.preprocessing import StandardScaler 
@@ -6,7 +10,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.svm import SVC
-import time 
 import os
 import pandas as pd
 import warnings
