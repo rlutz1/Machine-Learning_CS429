@@ -7,31 +7,11 @@ we will primarily visualize:
 PARAMETER(S) V TEST/TRAIN ACCURACY
 =========================================================
 
-linear kernel -> 
-  x-axis: C
-  y-axis: test/train accuracy  
-
 rbf kernel ->
   x-axis: C
   y-axis: gamma
   color: test/train accuracy
 
-poly kernel ->
-  x-axis: C
-  y-axis: gamma
-  z-axis: degree
-  color: test/train accuracy
-
-=========================================================
-PARAMETER(S) V MODEL FIT TIME*
-*with a special mention of LDA transformation time vs the others.
-=========================================================
-
-+ number of features v time fit
-+ c for all 3 v time fit
-+ gamma for rbf, poly v time fit
-+ degree for poly v time fit 
-+ transformation time for all 3 dim reducers (average? in bar graph?)
 """
 
 import pandas as pd
@@ -45,26 +25,11 @@ import os
 # setting up paths for data read
 MNIST_DATA_PATH = os.path.join(os.getcwd(), "data", "P3", "mnist") # directory to write data to for collection
 MNIST_FASHION_DATA_PATH = os.path.join(os.getcwd(), "data", "P3", "mnist-fashion") # directory to write data to for collection
-INITIAL_FIT_TIMES = "initial-fit-times.csv" # for the initial fit times of everything in the pipeline
 TEST_AND_TRAIN_ACC = "test-train-acc.csv" # for the accuracy of final SVC on test, then train data
-# FINAL_TIMES = "final-times.csv" # for the final times, that includes final transforms of test data
-
-# time collection of each primary dataset run
-times_mnist = pd.read_csv(os.path.join(MNIST_DATA_PATH, INITIAL_FIT_TIMES))
-times_mnist_fashion = pd.read_csv(os.path.join(MNIST_FASHION_DATA_PATH, INITIAL_FIT_TIMES))
 
 # accuracy collection of each primary dataset run
 acc_mnist = pd.read_csv(os.path.join(MNIST_DATA_PATH, TEST_AND_TRAIN_ACC))
 acc_mnist_fashion = pd.read_csv(os.path.join(MNIST_FASHION_DATA_PATH, TEST_AND_TRAIN_ACC))
-
-# reduction_methods = acc_mnist.iloc[0:, 0] # grab the reduction method
-# kernels = acc_mnist.iloc[0:, 1] # grab the kernels used
-# C_vals = acc_mnist.iloc[0:, 2] # grab the values of C
-# gamma_vals = acc_mnist.iloc[0:, 3] # grab the values of gamma
-# degree_vals = acc_mnist.iloc[0:, 4] # grab the values of degree
-# num_iterations = acc_mnist.iloc[0:, 5] # grab the number of iterations
-# test_acc = acc_mnist.iloc[0:, 6] # grab test set accuracy score
-# train_acc = acc_mnist.iloc[0:, 7] # grab train set accuracy score
 
 # mnist
 
@@ -86,7 +51,7 @@ for row, dim_reducer in zip(range(0, len(dim_reducers)), dim_reducers): # for ea
 
     test_scores = np.array(relevent_entries.iloc[0:, 6])
     test_scores = test_scores.reshape(7, 7) # C values stay same per row
-    print(test_scores)
+
     C_vals = np.unique(relevent_entries.iloc[0:, 2]) # grab the values of C
     gamma_vals = np.unique(relevent_entries.iloc[0:, 3]) # grab the values of gamma
 
@@ -95,8 +60,7 @@ for row, dim_reducer in zip(range(0, len(dim_reducers)), dim_reducers): # for ea
         test_scores,
         interpolation="nearest",
         cmap=plt.cm.plasma,
-        aspect="auto",
-        # norm=color.Normalize(vmin=0.2, vmax=1.0)
+        aspect="auto"
     )
 
     # subplot metadata
@@ -136,7 +100,6 @@ for row, dim_reducer in zip(range(0, len(dim_reducers)), dim_reducers): # for ea
         interpolation="nearest",
         cmap=plt.cm.plasma,
         aspect="auto"
-        # norm=MidpointNormalize(vmin=0.2, midpoint=0.92)
     )
 
     # subplot metadata
