@@ -8,7 +8,7 @@ To run any of the following scripts, you must be in the top level directory (`Mi
 
 ### MNISTReader.py, MNISTFashionReader.py
 
-These files accomplish Tasks 1 and 2 within the `__init__` construction. We use Idx2Numpy to conver the files to Numpy arrays, followed by flattening them to one dimension with Numpy's `reshape()`. After that, all calls to grab the training and testing images and labels are as simple accessing the field, and they will be correctly formatted to use for all fittings.
+These files accomplish Tasks 1 and 2 within the `__init__` construction. We use Idx2Numpy to convert the files to Numpy arrays, followed by flattening them to one dimension with Numpy's `reshape()`. After that, all calls to grab the training and testing images and labels are as simple accessing the field, and they will be correctly formatted to use for all fittings.
 
 ### P3_*.py Files
 
