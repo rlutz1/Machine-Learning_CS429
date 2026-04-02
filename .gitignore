@@ -214,6 +214,9 @@ high-acc-polys.py
 quick-pull/
 trash/
 
+# for Assign 3 -> extraction of tar!! huge folder!
+HW3/data/.extract
+
 # venv files
 Scripts/
 Include/
