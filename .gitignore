@@ -213,3 +213,8 @@ test
 high-acc-polys.py
 quick-pull/
 trash/
+
+# venv files
+Scripts/
+Include/
+pyvenv.cfg
