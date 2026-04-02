@@ -218,3 +218,4 @@ trash/
 Scripts/
 Include/
 pyvenv.cfg
+share/
