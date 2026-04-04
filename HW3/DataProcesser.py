@@ -17,10 +17,13 @@ class DataProcessor:
     self._extraction_path = os.path.join("data", "extract") # extraction folder, to be ignored by git
     self._csv_path = os.path.join("data", "csv_data.csv") # path to write all reviews to as a csv
     self._clean_csv_path =  os.path.join("data", "csv_clean_data.csv") # path to write the cleaned reviews to
-    self.train_reviews = []
-    self.train_sentiments = []
-    self.test_reviews = []
-    self.test_sentiments = []
+    
+    self.train_reviews_str = None # string version if needed for training
+    self.train_reviews = None # tf-idf version for training
+    self.train_sentiments = None # training "labels", pos == 1, neg == 0
+    self.test_reviews_str = None # string version if needed for testing
+    self.test_reviews = None # tf-idf version for testing
+    self.test_sentiments = None # testing "labels", pos == 1, neg == 0
 
   # method to extract the files from the tar file
   def extract(self):
@@ -98,10 +101,25 @@ class DataProcessor:
     text = (re.sub(r'[\W]+', ' ', text.lower()) + ' '.join(emoticons).replace('-', ''))
     return text
 
+  # split into 70/30 train/test sets
   def split(self):
-    # TODO to be the 70/30 splitter
-    # train_review, sent, test_review, sent
-    pass
+    if os.path.exists(self._clean_csv_path): 
+      df = pd.read_csv(self._clean_csv_path) # read in the cleaned data
+      
+      # 35000 -> 70% of 50000
+      # note: loc is end-inclusive with slice notation! fun fact!
+      self.train_reviews_str = df.loc[:34999, 'review'].values
+      self.train_sentiments  = df.loc[:34999, 'sentiment'].values
+      
+      # 15000 -> 30% of 50000
+      self.test_reviews_str = df.loc[35000:, 'review'].values
+      self.test_sentiments  = df.loc[35000:, 'sentiment'].values
+     
+      # sanity checking
+      # print(self.train_reviews_str.size)
+      # print(self.test_reviews_str.size)
+    else: 
+      print(f"Cleaned version of CSV reviews not found. Need {self._clean_csv_path}")
 
   # conduct all steps needed in order to process the reviews
   def process(self):
