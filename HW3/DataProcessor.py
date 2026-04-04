@@ -185,17 +185,17 @@ class DataProcessor:
     self.split()
 
 # testing as coding:
-dp = DataProcessor()
+# dp = DataProcessor()
 # dp.process() # process the data into usable.
 
 # np.set_printoptions(threshold=sys.maxsize) # for seeing more of that array
 
-print(dp.train_reviews_str[:3])
-print(dp.train_reviews.toarray()[:3])
-print(dp.train_sentiments[:3])
+# print(dp.train_reviews_str[:3])
+# print(dp.train_reviews.toarray()[:3])
+# print(dp.train_sentiments[:3])
 
-print("=========")
+# print("=========")
 
-print(dp.test_reviews_str[:3])
-print(dp.test_reviews.toarray()[:3])
-print(dp.test_sentiments[:3])
+# print(dp.test_reviews_str[:3])
+# print(dp.test_reviews.toarray()[:3])
+# print(dp.test_sentiments[:3])
