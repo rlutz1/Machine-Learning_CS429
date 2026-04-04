@@ -17,6 +17,10 @@ class DataProcessor:
     self._extraction_path = os.path.join("data", "extract") # extraction folder, to be ignored by git
     self._csv_path = os.path.join("data", "csv_data.csv") # path to write all reviews to as a csv
     self._clean_csv_path =  os.path.join("data", "csv_clean_data.csv") # path to write the cleaned reviews to
+    self.train_reviews = []
+    self.train_sentiments = []
+    self.test_reviews = []
+    self.test_sentiments = []
 
   # method to extract the files from the tar file
   def extract(self):
@@ -76,6 +80,9 @@ class DataProcessor:
       print("CSV data already created. If want to recreate, delete data/csv_data.csv and rerun this process.")
 
   def clean(self):
+    # TODO read in the uncleaned csv and apply cleaner to all reviews:
+    # df['review'] = df['review'].apply(clean_line)
+    pass
 
 
   # method to read and then clean specific line of text from html and emoticons
@@ -86,9 +93,20 @@ class DataProcessor:
     text = (re.sub('[\W]+', ' ', text.lower()) + ' '.join(emoticons).replace('-', ''))
     return text
 
+  def split(self):
+    # TODO to be the 70/30 splitter
+    # train_review, sent, test_review, sent
+    pass
+
+  # conduct all steps needed in order to process the reviews
+  def process(self):
+    dp.extract()
+    dp.to_csv()
+    dp.clean()
+    dp.split()
+
 
 
 
 dp = DataProcessor()
-dp.extract()
-dp.to_csv()
+dp.process() # process the data into usable.
