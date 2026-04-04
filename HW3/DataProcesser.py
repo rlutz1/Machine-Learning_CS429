@@ -25,7 +25,7 @@ class DataProcessor:
   # method to extract the files from the tar file
   def extract(self):
 
-    if not os.path.exists(self._csv_path):
+    if not os.path.isdir(self._extraction_path):
       print("Extraction path not made. Creating")
 
       # extraction script alone, better in a class method for use
@@ -43,7 +43,7 @@ class DataProcessor:
   # method to process the extracted text files into single, shuffled csv
   def to_csv(self, shuffle_seed=42):
 
-    if not os.path.isdir(self._extraction_path):
+    if not os.path.exists(self._csv_path):
       print("Extraction path not made. Creating")
 
       labels = {'pos': 1, 'neg': 0} # positive vibes == 1, negative is 0
@@ -79,18 +79,23 @@ class DataProcessor:
     else:
       print("CSV data already created. If want to recreate, delete data/csv_data.csv and rerun this process.")
 
+  # read in the uncleaned csv and apply cleaner to all reviews
   def clean(self):
-    # TODO read in the uncleaned csv and apply cleaner to all reviews:
-    # df['review'] = df['review'].apply(clean_line)
-    pass
+    if not os.path.exists(self._clean_csv_path): 
+      print("Creating a cleaned data CSV.")
+      df = pd.read_csv(self._csv_path)
+      df['review'] = df['review'].apply(self.clean_line)
+      df.to_csv(self._clean_csv_path, index=False, encoding="utf-8")# write to CSV
+    else:
+      print("Clean CSV data already created. If want to recreate, delete data/csv_clean_data.csv and rerun this process.")
 
 
   # method to read and then clean specific line of text from html and emoticons
   def clean_line(self, text):
     text = re.sub('<[^>]*>', '', text) # remove the html markup
     # find emoticons and put them at the end, removing noses
-    emoticons = re.findall('(?::|;|=)(?:-)?(?:\)|\(|D|P)', text) 
-    text = (re.sub('[\W]+', ' ', text.lower()) + ' '.join(emoticons).replace('-', ''))
+    emoticons = re.findall(r'(?::|;|=)(?:-)?(?:\)|\(|D|P)', text) 
+    text = (re.sub(r'[\W]+', ' ', text.lower()) + ' '.join(emoticons).replace('-', ''))
     return text
 
   def split(self):
