@@ -4,7 +4,11 @@ import pyprind
 import pandas as pd
 import sys
 import numpy as np
+import re
 
+"""
+class to encapsulate all pre-processing that occurs
+"""
 
 class DataProcessor:
 
@@ -12,7 +16,9 @@ class DataProcessor:
     self._tar_file_path = os.path.join("data", "aclImdb_v1.tar.gz") # relative path name
     self._extraction_path = os.path.join("data", "extract") # extraction folder, to be ignored by git
     self._csv_path = os.path.join("data", "csv_data.csv") # path to write all reviews to as a csv
+    self._clean_csv_path =  os.path.join("data", "csv_clean_data.csv") # path to write the cleaned reviews to
 
+  # method to extract the files from the tar file
   def extract(self):
 
     if not os.path.exists(self._csv_path):
@@ -30,7 +36,8 @@ class DataProcessor:
     else:
       print("Extraction path already created. If want to re-extract, delete /data/extract and re-run this extraction.")
 
-  def process(self, shuffle_seed=42):
+  # method to process the extracted text files into single, shuffled csv
+  def to_csv(self, shuffle_seed=42):
 
     if not os.path.isdir(self._extraction_path):
       print("Extraction path not made. Creating")
@@ -68,9 +75,20 @@ class DataProcessor:
     else:
       print("CSV data already created. If want to recreate, delete data/csv_data.csv and rerun this process.")
 
+  def clean(self):
+
+
+  # method to read and then clean specific line of text from html and emoticons
+  def clean_line(self, text):
+    text = re.sub('<[^>]*>', '', text) # remove the html markup
+    # find emoticons and put them at the end, removing noses
+    emoticons = re.findall('(?::|;|=)(?:-)?(?:\)|\(|D|P)', text) 
+    text = (re.sub('[\W]+', ' ', text.lower()) + ' '.join(emoticons).replace('-', ''))
+    return text
+
 
 
 
 dp = DataProcessor()
 dp.extract()
-dp.process()
+dp.to_csv()
