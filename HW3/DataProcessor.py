@@ -149,27 +149,35 @@ class DataProcessor:
 
   # split into 70/30 train/test sets
   def split(self):
-    if os.path.exists(self._clean_csv_path): 
+    if os.path.exists(self._clean_csv_path):
       df = pd.read_csv(self._clean_csv_path) # read in the cleaned data
-      
+
       # 35000 -> 70% of 50000
       # note: loc is end-inclusive with slice notation! fun fact!
       self.train_reviews_str = df.loc[:34999, 'review'].values
-      self.train_reviews = self.tf_idf_transform(self.train_reviews_str)
       self.train_sentiments  = df.loc[:34999, 'sentiment'].values
-      
+
       # 15000 -> 30% of 50000
       self.test_reviews_str = df.loc[35000:, 'review'].values
-      self.test_reviews = self.tf_idf_transform(self.test_reviews_str)
       self.test_sentiments  = df.loc[35000:, 'sentiment'].values
-     
+
+      # Fit on training data only, then transform both train and test
+      self.count_vectorizer = CountVectorizer()
+      self.tfidf_transformer = TfidfTransformer()
+
+      train_counts = self.count_vectorizer.fit_transform(self.train_reviews_str)
+      self.train_reviews = self.tfidf_transformer.fit_transform(train_counts)
+
+      test_counts = self.count_vectorizer.transform(self.test_reviews_str)
+      self.test_reviews = self.tfidf_transformer.transform(test_counts)
+
       # sanity checking
       # print(self.train_reviews_str.size)
       # print(self.test_reviews_str.size)
-    else: 
+    else:
       print(f"Cleaned version of CSV reviews not found. Need {self._clean_csv_path}")
 
-  # method to use for (1) producing a bag of words and then (2) transforming to a tf-idf 
+  # method to use for (1) producing a bag of words and then (2) transforming to a tf-idf
   def tf_idf_transform(self, text_reviews):
     count = CountVectorizer()
     bag_of_words = count.fit_transform(text_reviews) # get the bag of words
