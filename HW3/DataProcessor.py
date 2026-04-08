@@ -222,8 +222,8 @@ class DataProcessor:
     self.split()
 
 # testing as coding:
-dp = DataProcessor()
-dp.process() # process the data into usable.
+# dp = DataProcessor()
+# dp.process() # process the data into usable.
 
 # np.set_printoptions(threshold=sys.maxsize) # for seeing more of that array
 
