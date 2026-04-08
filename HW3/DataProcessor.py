@@ -7,6 +7,10 @@ import numpy as np
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+import nltk
+from nltk.stem.porter import PorterStemmer
+from nltk.corpus import stopwords
+
 
 """
 class to encapsulate all pre-processing that occurs.
@@ -134,10 +138,33 @@ class DataProcessor:
       print("Creating a cleaned data CSV.")
       df = pd.read_csv(self._csv_path)
       df['review'] = df['review'].apply(self.clean_line) # remove html and clean emoticons
+      print(df['review'].head(3))
+      df['review'] = df['review'].apply(self.stem)
+      print(df['review'].head(3))
+      nltk.download('stopwords') # only call once lmao
+      df['review'] = df['review'].apply(self.stop_word_removal)
+      print(df['review'].head(3))
+      df['review'] = df['review'].apply(self.join)
+      print(df['review'].head(3))
+
+      # for rev in zip(range(50000), df['review']):
+
+      # df['review'] = df['review'].apply(join)
       # any other cleaning here if desired (stopwords?)
       df.to_csv(self._clean_csv_path, index=False, encoding="utf-8")# write to CSV
     else:
       print("Clean CSV data already created. If want to recreate, delete data/csv_clean_data.csv and rerun this process.")
+
+  def join(self, text):
+    return " ".join(text)
+
+  def stop_word_removal(self, text):
+    stop = stopwords.words('english')
+    return [word for word in text if word not in stop]
+
+  def stem(self, text):
+    porter = PorterStemmer()
+    return [porter.stem(word) for word in text.split()]
 
   # method to read and then clean specific line of text from html and emoticons
   def clean_line(self, text):
@@ -146,6 +173,8 @@ class DataProcessor:
     emoticons = re.findall(r'(?::|;|=)(?:-)?(?:\)|\(|D|P)', text) 
     text = (re.sub(r'[\W]+', ' ', text.lower()) + ' '.join(emoticons).replace('-', ''))
     return text
+  
+ 
 
   # split into 70/30 train/test sets
   def split(self):
@@ -193,8 +222,8 @@ class DataProcessor:
     self.split()
 
 # testing as coding:
-# dp = DataProcessor()
-# dp.process() # process the data into usable.
+dp = DataProcessor()
+dp.process() # process the data into usable.
 
 # np.set_printoptions(threshold=sys.maxsize) # for seeing more of that array
 
