@@ -23,7 +23,7 @@ class FeedForwardNN(nn.Module):
         for hidden_size in hidden_layers:
             layers.append(nn.Linear(input_size, hidden_size))
             layers.append(nn.ReLU()) # Use ReLU but may change to sigmoid for tuning
-            layers.append(nn.Dropout(dropout))
+            # layers.append(nn.Dropout(dropout)) # TODO commenting JUST to be safe
             input_size = hidden_size
 
         # Output layer
@@ -81,8 +81,11 @@ class NeuralNetworkClassifier:
             X = X.toarray()
 
         # Copies to ensure arrays are writable (got a warning i dont like)
-        X = np.array(X, copy=True)
+        X = np.array(X, copy=True) # NOTE: i got an error on laptop since it was trying to allocate 23.3 GB, lmao, and couldn't
         y = np.array(y, copy=True)
+        # looking further: potentially very bad idea -- since we are testing accuracy on this array later and python passes addresses. moral: try running elsewhere, ha
+        # X.setflags(write=True) # NOTE: i see the warning, potential fix to avoid a huge copy. sounds like numpy, torch share the memory and that's why its a big scary warning.
+        # y.setflags(write=True) # so maybe undefined behaviour is if you're looking at the data later? and things were overwritten? need more research
 
         # Convert to PyTorch tensors
         X_tensor = torch.FloatTensor(X).to(self.device)
@@ -171,7 +174,7 @@ if __name__ == "__main__":
         eta=0.001, # Learning rate
         n_iter=30, # Epochs
         batch_size=128, # Mini-batch size
-        dropout=0.3, # Dropout rate
+        dropout=0.0, # Dropout rate # TODO: ZEROING OUT FOR TESTING BASELINE
         random_state=42
     )
 
