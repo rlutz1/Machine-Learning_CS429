@@ -7,6 +7,10 @@ import numpy as np
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+import nltk
+from nltk.stem.porter import PorterStemmer
+from nltk.corpus import stopwords
+
 
 """
 class to encapsulate all pre-processing that occurs.
@@ -134,10 +138,33 @@ class DataProcessor:
       print("Creating a cleaned data CSV.")
       df = pd.read_csv(self._csv_path)
       df['review'] = df['review'].apply(self.clean_line) # remove html and clean emoticons
+      print(df['review'].head(3))
+      df['review'] = df['review'].apply(self.stem)
+      print(df['review'].head(3))
+      nltk.download('stopwords') # only call once lmao
+      df['review'] = df['review'].apply(self.stop_word_removal)
+      print(df['review'].head(3))
+      df['review'] = df['review'].apply(self.join)
+      print(df['review'].head(3))
+
+      # for rev in zip(range(50000), df['review']):
+
+      # df['review'] = df['review'].apply(join)
       # any other cleaning here if desired (stopwords?)
       df.to_csv(self._clean_csv_path, index=False, encoding="utf-8")# write to CSV
     else:
       print("Clean CSV data already created. If want to recreate, delete data/csv_clean_data.csv and rerun this process.")
+
+  def join(self, text):
+    return " ".join(text)
+
+  def stop_word_removal(self, text):
+    stop = stopwords.words('english')
+    return [word for word in text if word not in stop]
+
+  def stem(self, text):
+    porter = PorterStemmer()
+    return [porter.stem(word) for word in text.split()]
 
   # method to read and then clean specific line of text from html and emoticons
   def clean_line(self, text):
@@ -146,30 +173,40 @@ class DataProcessor:
     emoticons = re.findall(r'(?::|;|=)(?:-)?(?:\)|\(|D|P)', text) 
     text = (re.sub(r'[\W]+', ' ', text.lower()) + ' '.join(emoticons).replace('-', ''))
     return text
+  
+ 
 
   # split into 70/30 train/test sets
   def split(self):
-    if os.path.exists(self._clean_csv_path): 
+    if os.path.exists(self._clean_csv_path):
       df = pd.read_csv(self._clean_csv_path) # read in the cleaned data
-      
+
       # 35000 -> 70% of 50000
       # note: loc is end-inclusive with slice notation! fun fact!
       self.train_reviews_str = df.loc[:34999, 'review'].values
-      self.train_reviews = self.tf_idf_transform(self.train_reviews_str)
       self.train_sentiments  = df.loc[:34999, 'sentiment'].values
-      
+
       # 15000 -> 30% of 50000
       self.test_reviews_str = df.loc[35000:, 'review'].values
-      self.test_reviews = self.tf_idf_transform(self.test_reviews_str)
       self.test_sentiments  = df.loc[35000:, 'sentiment'].values
-     
+
+      # Fit on training data only, then transform both train and test
+      self.count_vectorizer = CountVectorizer(max_features=10000)
+      self.tfidf_transformer = TfidfTransformer()
+
+      train_counts = self.count_vectorizer.fit_transform(self.train_reviews_str)
+      self.train_reviews = self.tfidf_transformer.fit_transform(train_counts)
+
+      test_counts = self.count_vectorizer.transform(self.test_reviews_str)
+      self.test_reviews = self.tfidf_transformer.transform(test_counts)
+
       # sanity checking
       # print(self.train_reviews_str.size)
       # print(self.test_reviews_str.size)
-    else: 
+    else:
       print(f"Cleaned version of CSV reviews not found. Need {self._clean_csv_path}")
 
-  # method to use for (1) producing a bag of words and then (2) transforming to a tf-idf 
+  # method to use for (1) producing a bag of words and then (2) transforming to a tf-idf
   def tf_idf_transform(self, text_reviews):
     count = CountVectorizer()
     bag_of_words = count.fit_transform(text_reviews) # get the bag of words
