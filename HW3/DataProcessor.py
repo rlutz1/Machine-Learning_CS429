@@ -191,7 +191,7 @@ class DataProcessor:
       self.test_sentiments  = df.loc[35000:, 'sentiment'].values
 
       # Fit on training data only, then transform both train and test
-      self.count_vectorizer = CountVectorizer()
+      self.count_vectorizer = CountVectorizer(max_features=10000)
       self.tfidf_transformer = TfidfTransformer()
 
       train_counts = self.count_vectorizer.fit_transform(self.train_reviews_str)

@@ -14,6 +14,7 @@ class Bagger:
     def __init__(self, num_models):
         self.training_time_ = 0 # init to 0 for clarity
         self.num_models = num_models # hold on to this value
+        self.nns = []
 
         for _ in range(num_models): # init n models
             nn = NeuralNetworkClassifier(
@@ -34,17 +35,17 @@ class Bagger:
         random_selections = np.random.permutation(num_samples) # generate random selections
         # sanity checks
         print(random_selections.shape)
-        print(random_selections.head(10))
+        print(random_selections[:10])
 
         training_sets = np.array_split(
             random_selections,
             self.num_models
             ) # split into parts for my sons to use
 
-        for training_set, model in zip(training_sets, self.nns):
+        for training_set, nn in zip(training_sets, self.nns):
             X_train = X[training_set] # grab the training indeces
             y_train = y[training_set] # grab corresponding labels
-            self.nn.fit(X_train, y_train) # fit this model
+            nn.fit(X_train, y_train) # fit this model
 
         self.set_total_train_time() # get the total train time of all models
 
@@ -55,10 +56,11 @@ class Bagger:
         for sample in X: # for each sample
             predictions = [] # empty it out
             for nn in self.nns: # for each model
-                predictions.append(nn.predict(sample)) # predict this sample
+                predictions.append(nn.predict(sample)[0]) # predict this sample
             # gathered all preds, take majority vote
+            
             c = Counter(predictions)
-            majority_votes.append(c.mmost_common(1)[0]) # return the most common value
+            majority_votes.append(c.most_common(1)[0][0]) # return the most common value
 
         return majority_votes
 
@@ -117,10 +119,11 @@ if __name__ == "__main__":
     print(f"Test Evaluation Time: {test_eval_time:.4f} seconds")
 
     # Plot loss convergence
-    plt.figure(figsize=(10, 6))
-    plt.plot(range(1, len(nn.losses_) + 1), nn.losses_, marker='o')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss (Binary Cross-Entropy)')
-    plt.title('Training Loss Convergence')
-    plt.grid(True)
-    plt.show()
+    # NOTE: commenting for this one since this plot is not as straight forward
+    # plt.figure(figsize=(10, 6))
+    # plt.plot(range(1, len(nn.losses_) + 1), nn.losses_, marker='o')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss (Binary Cross-Entropy)')
+    # plt.title('Training Loss Convergence')
+    # plt.grid(True)
+    # plt.show()
