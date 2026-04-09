@@ -12,6 +12,7 @@ class Bagger:
     
     def __init__(self, num_models):
         self.training_time_ = 0 # init to 0 for clarity
+        self.num_models = num_models # hold on to this value
 
         for _ in range(num_models): # init n models
             nn = NeuralNetworkClassifier(
@@ -23,13 +24,26 @@ class Bagger:
                 dropout=0.0, # Dropout rate # TODO: ZEROING OUT FOR TESTING BASELINE
                 random_state=42
             )
-            self.nns.append(nn)
-        pass
+            self.nns.append(nn) # add to collection
     
     # fit the neurals with 
-    def fit(self, X, y):
-        # for nn in self.nns:
-        self.nn.fit(X, y)
+    def fit(self, X, y, seed=42):
+        num_samples = X.shape[0] # number of samples passed
+        np.random.seed(seed) # for reproducability
+        random_selections = np.random.permutation(num_samples) # generate random selections
+        # sanity checks
+        print(random_selections.shape)
+        print(random_selections.head(10))
+
+        training_sets = np.array_split(
+            random_selections,
+            self.num_models
+            ) # split into parts for my sons to use
+
+        for training_set, model in zip(training_sets, self.nns):
+            X_train = X[training_set] # grab the training indeces
+            y_train = y[training_set] # grab corresponding labels
+            self.nn.fit(X_train, y_train) # fit this model
 
         self.set_total_train_time() # get the total train time of all models
 

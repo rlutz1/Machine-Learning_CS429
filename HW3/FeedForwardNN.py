@@ -23,7 +23,7 @@ class FeedForwardNN(nn.Module):
         for hidden_size in hidden_layers:
             layers.append(nn.Linear(input_size, hidden_size))
             layers.append(nn.ReLU()) # Use ReLU but may change to sigmoid for tuning
-            # layers.append(nn.Dropout(dropout)) # TODO commenting JUST to be safe
+            layers.append(nn.Dropout(dropout)) # dropout prob
             input_size = hidden_size
 
         # Output layer
