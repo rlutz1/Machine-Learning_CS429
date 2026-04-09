@@ -34,8 +34,8 @@ class Bagger:
         np.random.seed(seed) # for reproducability
         random_selections = np.random.permutation(num_samples) # generate random selections
         # sanity checks
-        print(random_selections.shape)
-        print(random_selections[:10])
+        # print(random_selections.shape)
+        # print(random_selections[:10])
 
         training_sets = np.array_split(
             random_selections,
