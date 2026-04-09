@@ -1,7 +1,7 @@
 """
 Write a Python function make classification which generates a set of linearly separable data
 based on a random separation hyperplane. We learned that an (d - 1)-dimensional hyperplane can be defined
-as the set of points in Rd satisfying an equation `aT `x = b, i.e., {`x ∈ Rd | `aT `x = b}. For simplicity, we
+as the set of points in R^d satisfying an equation `aT `x = b, i.e., {`x ∈ Rd | `aT `x = b}. For simplicity, we
 assume that b = 0, then the hyperplane can be determined by a random vector `a. We use this idea to design
 the following algorithm to generate random data which are linearly separable regarding to any number and
 dimension:
@@ -16,3 +16,132 @@ random seed for reproducing the data. You need to additionally subdivide the dat
 (70%) and a test dataset (30%). You may use the scikit-learn function to do so, but make sure that you
 specify the random seed such that the subdivision is reproducible.
 """
+
+import numpy as np
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from helper_code.DatasetGenerator import generate_data_sets_to_file, read_data_sets
+
+"""
+---------------------------------------------------------------
+CONSTANTS
+---------------------------------------------------------------
+"""
+
+GEN_TO_FILE = False # turn this on to make 70/30 split files from the data generated
+
+"""
+---------------------------------------------------------------
+UTILITY FUNCTIONS
+---------------------------------------------------------------
+"""
+
+"""
+function to generate linerally separable data
+
+d         -> dimensions, or number features used for training; default 2
+n         -> number of samples to generate with d features; default 100
+u         -> defines range of [-u, u] in EACH dimension to generate samples in; default [-10, 10]
+rand_seed -> random seed for random generation; default is 1
+"""
+def generate_line_sep_data(d=2, n=100, u=10, rand_seed=1):
+  rgen = np.random.RandomState(rand_seed) # random generator
+  
+  # (1) generate a d dimensional hyperplane 
+  a = rgen.uniform(-1, 1, d) # generate d random values for a, b = 0
+
+  # (2) randomly select n samples from [-u, u] in all dimensions
+  samples = [[] for _ in range(n)] # n empty samples
+  for _ in range(d): # for each dimension
+    new_samples = rgen.uniform(-u, u, n) # draw n features from -u to u from uniform distr
+    
+    for (i, sample) in zip(range(n), samples):
+      sample.append(new_samples[i])
+
+  # test: the dot prod zero regeneration
+  # samples[0] = [0 for i in range(d)]
+  # samples[1] = [0 for i in range(d)]
+
+  # (3) give each `xi a label yi such that if `aT `x < 0 then yi = -1, otherwise yi = 1.
+  true_labels = []
+
+  for (i, s) in zip(range(n), samples):
+    dot_prod = np.dot(a, s) # ax = ?
+    
+    if dot_prod < 0: true_labels.append(-1)
+    
+    elif dot_prod > 0: true_labels.append(1)
+    
+    else: # ax = 0, sample is on the line. regen the sample and test until a non-zero.
+      print("Conducting a dot prod 0 swap.")
+      
+      while (dot_prod == 0):
+        new_sample = rgen.uniform(-u, u, d) # make 1 new sample with d features
+        dot_prod = np.dot(a, new_sample) # see what dot prod is now, break loop when not 0
+      
+      for j in range(d): samples[i][j] = new_sample[j] # replace these values with the new sample
+      
+      if dot_prod < 0: true_labels.append(-1) # update the true labels
+      elif dot_prod > 0: true_labels.append(1)
+
+  return (a, samples, true_labels)
+
+
+"""
+function to plot a 2D demo of the separabale data.
+this is hardcoded to only work if d = 2.
+d           -> dimensions, or number features used for training
+u           -> range used for sample generation
+samples     -> samples for the 
+true_labels ->  
+"""
+def plot(d, u, samples, true_labels):
+  if d == 2: # only if 2d, plot 2d demo
+    x_hyperplane = np.linspace(-u, u, 100) # Creates 100 evenly spaced points from -u to u
+    y_hyperplace = (-(a[0] / a[1])) * x_hyperplane  # y = (-a0/a1)x + 0 -> line equation
+    plt.plot(x_hyperplane, y_hyperplace, 'g') # plot the line
+
+    samples = np.array(samples) # so i can use some special syntax below
+    for idx, cl in enumerate(np.unique(true_labels)):
+        print(idx, cl)
+        plt.scatter(
+          x=samples[true_labels == cl, 0],
+          y=samples[true_labels == cl, 1],
+          alpha=0.8,
+          c='red' if cl == -1 else 'blue',
+          marker='o' if cl == -1 else '^',
+          label= '-1' if cl == -1 else '1',
+          edgecolor='black')
+    plt.ylim((-u, u))
+    plt.xlim((-u, u))
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.title("Generic Linearly Separable Data")
+    plt.legend()
+
+    plt.show()
+
+
+"""
+---------------------------------------------------------------
+SCRIPT TO RUN
+---------------------------------------------------------------
+"""
+
+# ease of change variables
+d = 2
+n = 100
+u = 100
+rand_seed = 42
+
+(a, samples, true_labels) = generate_line_sep_data(d=d, n=n, u=u, rand_seed=rand_seed) # generate test data
+plot(d, u, samples, true_labels) # plot data, only if d = 2
+
+# used for dataset generation for P3 and P4
+if GEN_TO_FILE:
+  generate_data_sets_to_file(f"d{d}n{n}", samples, true_labels, rand_seed)
+
+  # testing code:
+  # (X_train, Y_train) = read_data_sets("tester_TRAIN")
+  # (X_test, Y_test) = read_data_sets("tester_TEST")
+  # plot(d, u, X_train+X_test, Y_train+Y_test)

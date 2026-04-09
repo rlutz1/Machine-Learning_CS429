@@ -11,6 +11,10 @@ regularization parameter as a hyperparameter.
 """
 import numpy as np
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7f3dd4e5d08f1b42a0066262199339fa84d299a7
 class LinearSVC:
     """
     Linear Support Vector Classifier (soft-margin)
@@ -44,7 +48,11 @@ class LinearSVC:
         rgen = np.random.RandomState(self.random_state)
         self.w_ = rgen.normal(loc=0.0, scale=0.01, size=X.shape[1])
         self.b_ = 0.
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 7f3dd4e5d08f1b42a0066262199339fa84d299a7
         self.losses_ = []
 
         for _ in range(self.epochs):
