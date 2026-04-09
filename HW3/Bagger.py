@@ -5,6 +5,7 @@ from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
 import time
 from FeedForwardNN import NeuralNetworkClassifier
+from collections import Counter
 
 
 # class to wrap around bagging 5+ networks
@@ -47,14 +48,30 @@ class Bagger:
 
         self.set_total_train_time() # get the total train time of all models
 
+    # predict via majority vote from my boys
+    def predict(self, X):
+        majority_votes = []
+
+        for sample in X: # for each sample
+            predictions = [] # empty it out
+            for nn in self.nns: # for each model
+                predictions.append(nn.predict(sample)) # predict this sample
+            # gathered all preds, take majority vote
+            c = Counter(predictions)
+            majority_votes.append(c.mmost_common(1)[0]) # return the most common value
+
+        return majority_votes
+
+    # wrapper for scoring
     def score(self, X, y):
-        return self.nn.score(X, y)
-    
+        predictions = self.predict(X)
+        return np.mean(predictions == y)
+
+
     # sum up all the training times of the little guys
     def set_total_train_time(self):
         for nn in self.nns:
             self.training_time_ += nn.training_time_
-
 
 
 if __name__ == "__main__":
