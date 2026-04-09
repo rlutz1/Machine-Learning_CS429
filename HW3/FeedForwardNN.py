@@ -66,7 +66,8 @@ class NeuralNetworkClassifier:
 
         # Loss and optimizer
         self.criterion = nn.BCELoss()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=eta)
+        # weight decay 0 is default, but explicit for clarity
+        self.optimizer = optim.Adam(self.model.parameters(), lr=eta, weight_decay=0)
 
         # Track losses and timing
         self.losses_ = []
@@ -167,10 +168,10 @@ if __name__ == "__main__":
     # Initialize neural network
     nn = NeuralNetworkClassifier(
         n_features=dp.train_reviews.shape[1],
-        hidden_layers=[256, 128, 64], # Three hidden layers
-        eta=0.001, # Learning rate
-        n_iter=30, # Epochs
-        batch_size=128, # Mini-batch size
+        hidden_layers=[650, 650], # Three hidden layers
+        eta=0.0001, # Learning rate
+        n_iter=1, # Epochs
+        batch_size=50, # Mini-batch size
         dropout=0.0, # Dropout rate # TODO: ZEROING OUT FOR TESTING BASELINE
         random_state=42
     )
