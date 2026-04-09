@@ -19,7 +19,7 @@ class Bagger:
         for _ in range(num_models): # init n models
             nn = NeuralNetworkClassifier(
                 n_features=dp.train_reviews.shape[1],
-                hidden_layers=[650, 650], # Three hidden layers
+                hidden_layers=[450, 450], # Three hidden layers
                 eta=0.0001, # Learning rate
                 n_iter=1, # Epochs
                 batch_size=50, # Mini-batch size
