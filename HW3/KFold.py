@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score
 from torch.utils.data import TensorDataset, DataLoader
 
 
-DATA_PATH = "HW3/data/csv_clean_data.csv"
+DATA_PATH = "data/csv_clean_data.csv"
 
 BATCH_SIZE = 128
 MAX_EPOCHS = 15
