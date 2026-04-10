@@ -113,7 +113,7 @@ class DataProcessor:
           path = os.path.join(os.getcwd(), self._extraction_path, "aclImdb", s, l) # build path to reviews
         
           with os.scandir(path) as files:
-            for file in files: # for each sorted file in path?
+            for file in files: # for each file in path
               if file.is_file():
                 with open(os.path.join(path, file), 'r', encoding='utf-8') as infile:
                   txt = infile.read() # read in this review file
@@ -138,30 +138,32 @@ class DataProcessor:
       print("Creating a cleaned data CSV.")
       df = pd.read_csv(self._csv_path)
       df['review'] = df['review'].apply(self.clean_line) # remove html and clean emoticons
-      print(df['review'].head(3))
-      df['review'] = df['review'].apply(self.stem)
-      print(df['review'].head(3))
-      nltk.download('stopwords') # only call once lmao
-      df['review'] = df['review'].apply(self.stop_word_removal)
-      print(df['review'].head(3))
-      df['review'] = df['review'].apply(self.join)
-      print(df['review'].head(3))
+      
+      # following was used to apply further cleaning as a potential accuracy boost.
+      # is not used in the actual report numbers do to accuracy dropping.
+      
+      # df['review'] = df['review'].apply(self.stem)
+      # print(df['review'].head(3))
+      # nltk.download('stopwords') # only call once lmao
+      # df['review'] = df['review'].apply(self.stop_word_removal)
+      # print(df['review'].head(3))
+      # df['review'] = df['review'].apply(self.join)
+      # print(df['review'].head(3))
 
-      # for rev in zip(range(50000), df['review']):
-
-      # df['review'] = df['review'].apply(join)
-      # any other cleaning here if desired (stopwords?)
       df.to_csv(self._clean_csv_path, index=False, encoding="utf-8")# write to CSV
     else:
       print("Clean CSV data already created. If want to recreate, delete data/csv_clean_data.csv and rerun this process.")
 
+  # convenience function to be able to join list of strings in stemm/stopword removal process.
   def join(self, text):
     return " ".join(text)
 
+  # remove stopwords from a line of text
   def stop_word_removal(self, text):
     stop = stopwords.words('english')
     return [word for word in text if word not in stop]
 
+  # apply stemming to a line of text
   def stem(self, text):
     porter = PorterStemmer()
     return [porter.stem(word) for word in text.split()]
@@ -173,8 +175,6 @@ class DataProcessor:
     emoticons = re.findall(r'(?::|;|=)(?:-)?(?:\)|\(|D|P)', text) 
     text = (re.sub(r'[\W]+', ' ', text.lower()) + ' '.join(emoticons).replace('-', ''))
     return text
-  
- 
 
   # split into 70/30 train/test sets
   def split(self):

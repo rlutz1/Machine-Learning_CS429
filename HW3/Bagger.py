@@ -7,11 +7,16 @@ import time
 from FeedForwardNN import NeuralNetworkClassifier
 from collections import Counter
 
+"""
 
-# class to wrap around bagging 5+ networks
+class to wrap around bagging 5+ networks
+
+"""
+
 class Bagger:
     
-    def __init__(self, num_models):
+    # constructor
+    def __init__(self, num_models=5):
         self.training_time_ = 0 # init to 0 for clarity
         self.num_models = num_models # hold on to this value
         self.nns = []
@@ -19,7 +24,7 @@ class Bagger:
         for _ in range(num_models): # init n models
             nn = NeuralNetworkClassifier(
                 n_features=dp.train_reviews.shape[1],
-                hidden_layers=[650, 650], # Three hidden layers
+                hidden_layers=[475, 450], # Three hidden layers
                 eta=0.0001, # Learning rate
                 n_iter=1, # Epochs
                 batch_size=50, # Mini-batch size
@@ -54,7 +59,7 @@ class Bagger:
         majority_votes = []
 
         for sample in X: # for each sample
-            predictions = [] # empty it out
+            predictions = [] # empty out old preds
             for nn in self.nns: # for each model
                 predictions.append(nn.predict(sample)[0]) # predict this sample
             # gathered all preds, take majority vote
@@ -87,43 +92,21 @@ if __name__ == "__main__":
     print(f"Feature dimension: {dp.train_reviews.shape[1]}")
 
     # Initialize neural network
-    bagger = Bagger(8) # 8 models
-    # nn = NeuralNetworkClassifier(
-    #     n_features=dp.train_reviews.shape[1],
-    #     hidden_layers=[256, 128, 64], # Three hidden layers
-    #     eta=0.001, # Learning rate
-    #     n_iter=30, # Epochs
-    #     batch_size=128, # Mini-batch size
-    #     dropout=0.0, # Dropout rate # TODO: ZEROING OUT FOR TESTING BASELINE
-    #     random_state=42
-    # )
+    bagger = Bagger(num_models=5) 
 
+    # fit all models in the bag
     bagger.fit(dp.train_reviews, dp.train_sentiments)
-    # nn.fit(dp.train_reviews, dp.train_sentiments)
 
     train_start = time.time()
     train_acc = bagger.score(dp.train_reviews, dp.train_sentiments)
-    # train_acc = nn.score(dp.train_reviews, dp.train_sentiments)
     train_eval_time = time.time() - train_start
 
     test_start = time.time()
     test_acc = bagger.score(dp.test_reviews, dp.test_sentiments)
-    # test_acc = nn.score(dp.test_reviews, dp.test_sentiments)
     test_eval_time = time.time() - test_start
 
     print(f"Training Accuracy: {train_acc:.4f}")
     print(f"Test Accuracy: {test_acc:.4f}")
-    print(f"\nTraining Time: {bagger.training_time_:.2f} seconds") #TODO
-    # print(f"\nTraining Time: {nn.training_time_:.2f} seconds") #TODO
+    print(f"\nTraining Time: {bagger.training_time_:.2f} seconds") 
     print(f"Train Evaluation Time: {train_eval_time:.4f} seconds")
     print(f"Test Evaluation Time: {test_eval_time:.4f} seconds")
-
-    # Plot loss convergence
-    # NOTE: commenting for this one since this plot is not as straight forward
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(range(1, len(nn.losses_) + 1), nn.losses_, marker='o')
-    # plt.xlabel('Epoch')
-    # plt.ylabel('Loss (Binary Cross-Entropy)')
-    # plt.title('Training Loss Convergence')
-    # plt.grid(True)
-    # plt.show()
