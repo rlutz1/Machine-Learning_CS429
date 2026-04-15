@@ -36,13 +36,23 @@ class DataProcessor:
     # print(" ".join(list(self.company_symbols.values())))
 
     # select a time frame/period to shoot for
-    self.time_frame = "1y" # 1 year to start
+    # self.time_frame = "1y" # 1 year to start
+    self.time_frame = "1mo" # testing
 
-    # tickers = yf.Tickers(" ".join(list(self.company_symbols.values())))
-    # print(tickers.tickers[self.company_symbols["Google"]].info)
-    # df = yf.download(list(self.company_symbols.values()), period=self.time_frame)
-    meta = yf.Ticker("META")
-    print(meta.info)
+    # path for the raw data dump, NO cleaning
+    self.raw_csv_dir = os.path.join("data", "raw")
+
+    # encapsulate the data pull from yahoo finance
+    self._get_init_data()
+
+
+
+  def _get_init_data(self):
+    for symbol in self.company_symbols.values():
+      print(f"pinging for {symbol} data over {self.time_frame}")
+      df = yf.download(symbol, period=self.time_frame)
+      print(df[:3]) # print first 3 things
+      df.to_csv(os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv"), index=False, encoding="utf-8")# wwite ALL to a csv
     
 
 # ===========================================
