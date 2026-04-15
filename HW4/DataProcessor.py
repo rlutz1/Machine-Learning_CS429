@@ -89,17 +89,18 @@ class DataProcessor:
   # thats the second row: SYMBOL, SYMBOL, ... SYMBOL
   # want to remove that IF it is there.
   def _remove_yfinance_header(self, df, symbol):
+    original_num_rows = df.shape[0] # for printing
     df = df[df["Close"] != symbol]
-    print(f"head of df now for {symbol}")
+    print(f"head of df now for {symbol}, removed {original_num_rows - df.shape[0]} rows.")
     print(df[0:3])
     return df
 
   # remove all rows with missing values.
   # do not guess/back/forward fill values.
   def _remove_missing(self, df):
-    print(f"shape prior to drop: {df.shape}")
+    original_num_samples = df.shape[0] # for printing
     df_drop = df.dropna()
-    print(f"shape after to drop: {df_drop.shape}")
+    print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
   def _remove_outliers(self, df):
