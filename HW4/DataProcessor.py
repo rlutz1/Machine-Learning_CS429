@@ -56,12 +56,18 @@ class DataProcessor:
     if data_grab:
       self._get_raw_data()
 
+
+    # split the data into test and train
+    self._split() # TODO: should be splitting first, and cleaning the training data, transforming test with THAT
+
+    
+
     # clean the data, overwriting the current csv
     if clean:
       self._clean()
 
-    # split the data into test and train
-    self._split()
+    
+
     # convenience wrapper to remember to convert np to pytorch tensor
     self._to_tensor()
 
@@ -75,6 +81,7 @@ class DataProcessor:
       df.to_csv(os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv"), index=False, encoding="utf-8")# write ALL to a csv
 
   # clean the raw text using various methods
+  # TODO: this should only be first two ops, move the other two to a new method: scale/standardize
   def _clean(self):
     for symbol in self.company_symbols.values():
       path = os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv")
