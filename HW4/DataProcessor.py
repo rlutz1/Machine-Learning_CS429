@@ -20,5 +20,13 @@ USAGE NOTES
 
 class DataProcessor:
 
-  def __init__():
-    pass # TODO
+  def __init__(self):
+
+    # set up key pair of readable name to stock symbol
+    self.company_symbols = {
+      "OpenAI": "OPAI.PVT",
+      "Anthropic": "ANTH.PVT",
+      "NVIDIA": "NVDA",
+      "Google": "GOOG" # GOOGL is also an option. not literate enough to know the distict diff yet
+    }
+    
