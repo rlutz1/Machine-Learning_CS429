@@ -13,6 +13,7 @@ import os
 import yfinance as yf
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
+from scipy import stats
 
 
 """
@@ -91,6 +92,7 @@ class DataProcessor:
   def _remove_yfinance_header(self, df, symbol):
     original_num_rows = df.shape[0] # for printing
     df = df[df["Close"] != symbol]
+    df = df.reset_index(drop=True)
     print(f"head of df now for {symbol}, removed {original_num_rows - df.shape[0]} rows.")
     print(df[0:3])
     return df
@@ -99,12 +101,22 @@ class DataProcessor:
   # do not guess/back/forward fill values.
   def _remove_missing(self, df):
     original_num_samples = df.shape[0] # for printing
-    df_drop = df.dropna()
+    df_drop = df.dropna(ignore_index=True)
     print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
   def _remove_outliers(self, df):
-    pass
+    # df = df.astype({""})
+    df = df.astype(float)
+    z = np.abs(stats.zscore(df['Close']))
+    print(z)    
+    z = np.abs(stats.zscore(df['High']))
+    print(z)  
+    z = np.abs(stats.zscore(df['Low']))
+    print(z)  
+    z = np.abs(stats.zscore(df['Open']))
+    print(z) 
+    return df
 
   def _normalize(self, df):
     # fit on training, transform it (fit_transform)
