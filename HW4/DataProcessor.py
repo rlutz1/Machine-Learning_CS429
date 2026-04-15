@@ -105,18 +105,63 @@ class DataProcessor:
     print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
-  def _remove_outliers(self, df):
-    # df = df.astype({""})
-    df = df.astype(float)
-    z = np.abs(stats.zscore(df['Close']))
-    print(z)    
-    z = np.abs(stats.zscore(df['High']))
-    print(z)  
-    z = np.abs(stats.zscore(df['Low']))
-    print(z)  
-    z = np.abs(stats.zscore(df['Open']))
-    print(z) 
+
+ 
+
+
+  # method to remove outliers using Z score dropping qualification
+  def _remove_outliers(self, df, auto_drop=True):
+
+    # helper function to be able to id potential
+    # outlier samples per column
+    probs = self._find_outlier_samples(
+      df=df,
+      col_labels=df.columns.values, 
+      num_samples=df.shape[0]
+      )
+    
+    # sanity checking
+    print("outlier rows per column:")
+    print(probs)
+    
+    # for controlling this in case you want to look at the rows FIRST
+    # you should likely do this before scaling, since scaling 
+    # is sensitive to these outliers
+    if auto_drop: 
+
+      # get ALL outlier rows
+      all_probs = []
+      for row_indeces in probs.values():
+        all_probs += row_indeces
+
+      # remove duplicates
+      all_unique_probs = np.unique(all_probs) 
+
+      # sanity checking
+      print(f"removing outlier samples: {all_unique_probs}")
+      print(all_unique_probs)
+
+      # actual dropping
+      df = df.drop(df.index[all_unique_probs])
+      df = df.reset_index(drop=True)
+
     return df
+
+  #  helper function to identify all outlier samples as qualified by each column
+  def _find_outlier_samples(self, df, col_labels, num_samples, sd_threshold=3):
+    df = df.astype(float)
+    problems_per_col = {} # for holding issues per column for clarity/debugging
+
+    for label in col_labels: # for each column
+      z = np.abs(stats.zscore(df[label])) # get the z score of each sample for this column
+      outlier_rows = []
+      for i in range(num_samples): # for each sample
+        # for each corresponding sample, see if within 3 sd's in col
+        if not np.isnan(z[i]) and z[i] > sd_threshold: outlier_rows.append(i)
+      
+      problems_per_col[label] = outlier_rows # add to the problem children
+
+    return problems_per_col
 
   def _normalize(self, df):
     # fit on training, transform it (fit_transform)
