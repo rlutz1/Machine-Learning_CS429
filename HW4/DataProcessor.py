@@ -78,16 +78,29 @@ class DataProcessor:
     for symbol in self.company_symbols.values():
       path = os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv")
       df = pd.read_csv(path) # read in the raw data for this symbol
+      df = self._remove_yfinance_header(df, symbol)# remove the weird row that fucking yfinance adds
       df = self._remove_missing(df) # drop missing values
       df = self._remove_outliers(df) # remove outliers--scalers are very sensitive to these
       df = self._normalize(df) # standardize the set with stdscaler or minmax
-      df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")) # write to the clean dir
+      # TODO uncomment
+      # df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")) # write to the clean dir
   
+  # there's a header row yfinance yields a header row for pulling multiple tickers
+  # thats the second row: SYMBOL, SYMBOL, ... SYMBOL
+  # want to remove that IF it is there.
+  def _remove_yfinance_header(self, df, symbol):
+    df = df[df["Close"] != symbol]
+    print(f"head of df now for {symbol}")
+    print(df[0:3])
+    return df
 
   # remove all rows with missing values.
   # do not guess/back/forward fill values.
   def _remove_missing(self, df):
-    return df.dropna()
+    print(f"shape prior to drop: {df.shape}")
+    df_drop = df.dropna()
+    print(f"shape after to drop: {df_drop.shape}")
+    return df_drop
 
   def _remove_outliers(self, df):
     pass
@@ -115,7 +128,7 @@ class DataProcessor:
 # TESTING
 
 dp = DataProcessor(
-  data_grab=True, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
+  data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
   clean=True # TRUE: clean the raw data and overwrite the existing CSVs
   ) # TODO set to false before any usage so they don't have to repull crap 
 
