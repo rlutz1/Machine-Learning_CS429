@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 import os
 import yfinance as yf
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 
 """
@@ -82,13 +84,19 @@ class DataProcessor:
       df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")) # write to the clean dir
   
 
-  def _remove_missing():
+  # remove all rows with missing values.
+  # do not guess/back/forward fill values.
+  def _remove_missing(self, df):
+    return df.dropna()
+
+  def _remove_outliers(self, df):
     pass
 
-  def _remove_outliers():
-    pass
-
-  def _normalize():
+  def _normalize(self, df):
+    # fit on training, transform it (fit_transform)
+    # transform test data only
+    # this needs to be done carefully--the paper mentioned only normalizing the 
+    # closing cost (and sentiment in their case.) 
     pass
 
   # split into test and training sets.
