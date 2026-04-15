@@ -12,6 +12,7 @@ import pandas as pd
 import os
 import yfinance as yf
 
+
 """
 USAGE NOTES
 
@@ -22,15 +23,7 @@ USAGE NOTES
 
 class DataProcessor:
 
-  def __init__(self, data_grab=True, clean=True):
-
-    # set up key pair of readable name to stock symbol
-    self.company_symbols = {
-      "OpenAI": "OPAI.PVT",
-      "Anthropic": "ANTH.PVT",
-      "NVIDIA": "NVDA",
-      "Google": "GOOG" # GOOGL is also an option. not literate enough to know the distict diff yet
-    }
+  def __init__(self, data_grab=False, clean=False):
 
     # initialize the training and testing arrays
     self.X_train = np.array([])
@@ -38,12 +31,23 @@ class DataProcessor:
     self.X_test = np.array([])
     self.y_test = np.array([])
 
+    # set up key pair of readable name to stock symbol
+    # (legit just look up the symbols on the internet, ha)
+    self.company_symbols = {
+      "OpenAI": "OPAI.PVT",
+      "Anthropic": "ANTH.PVT",
+      "NVIDIA": "NVDA",
+      "Google": "GOOG" # GOOGL is also an option. not literate enough to know the distict diff yet
+    }
+
     # select a time frame/period to shoot for
     self.time_frame = "1y" # 1 year to start
     # self.time_frame = "1mo" # testing
 
     # path for the raw data dump, NO cleaning
     self.raw_csv_dir = os.path.join("data", "raw")
+    # path for CLEAN data dump
+    self.clean_csv_dir = os.path.join("data", "clean")
 
     # encapsulate the data pull from yahoo finance, overwriting the current csv
     if data_grab:
@@ -64,11 +68,27 @@ class DataProcessor:
     for symbol in self.company_symbols.values():
       print(f"pinging for {symbol} data over {self.time_frame}")
       df = yf.download(symbol, period=self.time_frame)
-      print(df[:3]) # print first 3 things
+      print(df[:3]) # print first 3 things for confirmation
       df.to_csv(os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv"), index=False, encoding="utf-8")# write ALL to a csv
 
   # clean the raw text using various methods
   def _clean(self):
+    for symbol in self.company_symbols.values():
+      path = os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv")
+      df = pd.read_csv(path) # read in the raw data for this symbol
+      df = self._remove_missing(df) # drop missing values
+      df = self._remove_outliers(df) # remove outliers--scalers are very sensitive to these
+      df = self._normalize(df) # standardize the set with stdscaler or minmax
+      df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")) # write to the clean dir
+  
+
+  def _remove_missing():
+    pass
+
+  def _remove_outliers():
+    pass
+
+  def _normalize():
     pass
 
   # split into test and training sets.
