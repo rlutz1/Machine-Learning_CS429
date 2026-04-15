@@ -46,13 +46,13 @@ class DataProcessor:
     self._get_init_data()
 
 
-
+  # method to pull the raw data initially
   def _get_init_data(self):
     for symbol in self.company_symbols.values():
       print(f"pinging for {symbol} data over {self.time_frame}")
       df = yf.download(symbol, period=self.time_frame)
       print(df[:3]) # print first 3 things
-      df.to_csv(os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv"), index=False, encoding="utf-8")# wwite ALL to a csv
+      df.to_csv(os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv"), index=False, encoding="utf-8")# write ALL to a csv
     
 
 # ===========================================
