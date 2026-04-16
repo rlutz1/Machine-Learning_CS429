@@ -134,13 +134,25 @@ class DataProcessor:
 
       # print(df[:3])
 
-      # create windows in both train/test of M size, with the "label" being the next day's closing cost
-      X_windows, y_windows = self._create_windows(df)
+      
       # X_testing_windows, y_testing_windows = self._create_windows(testing_set_scaled)
 
       # print(X_windows[:3])
       # print(y_windows[:3])
 
+      # extremely convoluted, but hold on bucko
+      # scaling
+      num_samples = df.shape[0]
+      # testing
+      samples_in_training_window = round((0.8 * num_samples) + (0.2 * self.window_size))
+      scaler = MinMaxScaler()
+      scaler = scaler.fit(df[:samples_in_training_window]) # fit_transform a scaler to the training set
+
+      df = scaler.transform(df) # transform all samples
+
+
+      # create windows in both train/test of M size, with the "label" being the next day's closing cost
+      X_windows, y_windows = self._create_windows(df)
 
       # next steps
       # SPLIT the test and train set
@@ -154,26 +166,8 @@ class DataProcessor:
       X_test = X_windows[num_train_samples:]
       y_test = y_windows[num_train_samples:]
 
-      
-      # training_set = df.loc[:num_train_samples - 1].astype(float).values
-      # testing_set = df.loc[num_train_samples:].astype(float).values
-      # print(f"splitting dataset into {training_set.shape[0]} trainers and {testing_set.shape[0]} testers.")
-
-      # # sanity 
-      # print("unscaled, training, testing")
-      # print(training_set[:3]) #
-      # print(testing_set[:3])
-
-      # # scaling
-      # # for now, i am scaling ALL columns. note that the paper scaled only the closing 
-      # # and i'm not sure why. this may be worth toying with.
-      # scaler = MinMaxScaler()
-      # training_set_scaled = scaler.fit_transform(training_set) # fit_transform a scaler to the training set
-      # testing_set_scaled = scaler.transform(testing_set) # transform the testing set with the scaler
-  
-      # print("scaled, training, testing")
-      # print(training_set_scaled[:3])
-      # print(testing_set_scaled[:3])
+      print(X_train[:3])
+      print(y_train[:3])
 
       
 
