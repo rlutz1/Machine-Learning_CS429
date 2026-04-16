@@ -130,15 +130,7 @@ class DataProcessor:
 
       df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
 
-      df = df.to_numpy()
-
-      # print(df[:3])
-
-      
-      # X_testing_windows, y_testing_windows = self._create_windows(testing_set_scaled)
-
-      # print(X_windows[:3])
-      # print(y_windows[:3])
+      df = df.to_numpy() # for ease of use, values only
 
       # extremely convoluted, but hold on bucko
       # scaling
@@ -149,7 +141,6 @@ class DataProcessor:
       scaler = scaler.fit(df[:samples_in_training_window]) # fit_transform a scaler to the training set
 
       df = scaler.transform(df) # transform all samples
-
 
       # create windows in both train/test of M size, with the "label" being the next day's closing cost
       X_windows, y_windows = self._create_windows(df)
@@ -166,8 +157,8 @@ class DataProcessor:
       X_test = X_windows[num_train_samples:]
       y_test = y_windows[num_train_samples:]
 
-      print(X_train[:3])
-      print(y_train[:3])
+      # print(X_train[:3])
+      # print(y_train[:3])
 
       
 
