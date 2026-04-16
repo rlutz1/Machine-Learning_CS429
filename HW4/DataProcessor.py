@@ -142,7 +142,7 @@ class DataProcessor:
 
       # sanity 
       print("unscaled, training, testing")
-      print(training_set[:3])
+      print(training_set[:3]) #
       print(testing_set[:3])
 
       # scaling
