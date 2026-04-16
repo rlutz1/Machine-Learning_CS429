@@ -135,6 +135,8 @@ class DataProcessor:
       print(testing_set[:3])
 
       # scaling
+      # for now, i am scaling ALL columns. note that the paper scaled only the closing 
+      # and i'm not sure why. this may be worth toying with.
       scaler = MinMaxScaler()
       training_set_scaled = scaler.fit_transform(training_set) # fit_transform a scaler to the training set
       testing_set_scaled = scaler.transform(testing_set) # transform the testing set with the scaler
@@ -211,7 +213,7 @@ class DataProcessor:
 # TESTING
 
 dp = DataProcessor(
-  data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
+  data_grab=True, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
   clean=True # TRUE: clean the raw data and overwrite the existing CSVs
   ) # TODO set to false before any usage so they don't have to repull crap 
 
