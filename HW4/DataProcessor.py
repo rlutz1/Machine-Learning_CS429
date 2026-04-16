@@ -14,6 +14,10 @@ import yfinance as yf
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from scipy import stats
+from helper_code.TesterRNN import SimpleRNNModel
+import torch.optim as optim # testing only
+import torch
+import torch.nn as nn
 
 
 """
@@ -118,8 +122,6 @@ class DataProcessor:
     print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
-  
-
   # split into test and training sets.
   # this will create M length windows that overlap of all the data, 
   # and then setting the "true" label to the next closing price
@@ -128,12 +130,15 @@ class DataProcessor:
       path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
       df = pd.read_csv(path) # read in the raw data for this symbol
 
+      # uncomment below to remove outliers
+      # outliers ==============================================
       df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
+      # outliers ==============================================
 
       df = df.to_numpy() # for ease of use, values only
 
-      # extremely convoluted, but hold on bucko
-      # scaling
+      # uncomment below to scale
+      # scaling ==============================================
       num_samples = df.shape[0]
       # testing
       samples_in_training_window = round((0.8 * num_samples) + (0.2 * self.window_size))
@@ -141,6 +146,7 @@ class DataProcessor:
       scaler = scaler.fit(df[:samples_in_training_window]) # fit_transform a scaler to the training set
 
       df = scaler.transform(df) # transform all samples
+      # scaling ==============================================
 
       # create windows in both train/test of M size, with the "label" being the next day's closing cost
       X_windows, y_windows = self._create_windows(df)
@@ -157,6 +163,13 @@ class DataProcessor:
       X_test = X_windows[num_train_samples:]
       y_test = y_windows[num_train_samples:]
 
+      print(X_train.shape[0], X_train.shape[1], df.shape[1])
+      # shape to: num samples * size of sequence * num features in a sample
+      self.X_train = torch.tensor(X_train, dtype=torch.float32).view(X_train.shape[0], X_train.shape[1], df.shape[1])
+      self.y_train = y_train
+
+      self.X_test = torch.tensor(X_test, dtype=torch.float32).view(X_test.shape[0], X_test.shape[1], df.shape[1])
+      self.y_test = y_test
       # print(X_train[:3])
       # print(y_train[:3])
 
@@ -242,4 +255,54 @@ dp = DataProcessor(
   clean=False # TRUE: clean the raw data and overwrite the existing CSVs
   ) # TODO set to false before any usage so they don't have to repull crap 
 
+# Define RNN model
+input_size = 5
+hidden_size = 10
+output_size = 1
+model = SimpleRNNModel(input_size, hidden_size, output_size)
+
+
+# Define loss function and optimizer
+criterion = nn.MSELoss()  # Mean Squared Error loss for regression tasks
+optimizer = optim.Adam(model.parameters(), lr=0.001)  # Adam optimizer for updating model weights
+
+# Training loop parameters
+epochs = 25
+batch_size = 16
+
+# List to store loss values for each epoch (for plotting later)
+losses = []
+
+for epoch in range(epochs):
+    model.train()  # Set the model to training mode
+    epoch_loss = 0  # Track loss for this epoch
+
+    # Loop over the training data in batches
+    for i in range(0, len(dp.X_train), batch_size):
+        # Prepare batch data as PyTorch tensors
+        X_batch = torch.tensor(dp.X_train[i:i+batch_size], dtype=torch.float32)
+        y_batch = torch.tensor(dp.y_train[i:i+batch_size], dtype=torch.float32)
+        # print(X_batch)
+        # ---- Forward Pass ----
+        # Pass the input batch through the model to get predictions
+        outputs = model.forward(X_batch)
+
+        # Compute the loss between predictions and actual values
+        loss = criterion(outputs, y_batch)
+
+        # ---- Backpropagation ----
+        # Zero the gradients from the previous step
+        optimizer.zero_grad()
+        # Compute gradients of the loss with respect to model parameters
+        loss.backward()
+        # Update model parameters using the optimizer
+        optimizer.step()
+
+        # Accumulate loss for this batch
+        epoch_loss += loss.item()
+
+    # Calculate average loss for the epoch and store it
+    avg_loss = epoch_loss / (len(dp.X_train) // batch_size)
+    losses.append(avg_loss)
+    print(f'Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}')
 # ===========================================
