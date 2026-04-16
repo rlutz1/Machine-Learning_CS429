@@ -37,9 +37,16 @@ class DataProcessor:
     self.test_percent = 1 - self.train_percent
     self.window_size = 50 # start with 50 "timesteps"; our M; ie: 50 == one training window is 50 days long
     self.overlap_step = 5 # allowable overlap of windows
-    self.prediction_timesteps = 1 # start with 1 "timestep"; our n; ie: 1 == predict next 1 day target
+    # self.prediction_timesteps = 1 # start with 1 "timestep"; our n; ie: 1 == predict next 1 day target
     self.target = "Close" # target predication is the closing price
-
+    # for maleability of changing target without having to change the splitting function
+    self.target_indeces = { # Close,High,Low,Open,Volume
+      "Close": 0,
+      "High": 1, 
+      "Low": 2,
+      "Open": 3, 
+      "Volume": 4
+    }
 
     # set up key pair of readable name to stock symbol
     # (legit just look up the symbols on the internet, ha)
@@ -155,7 +162,15 @@ class DataProcessor:
 
   # helper method to create the sliding windows to training and testing
   def _create_windows(self, dataset):
-    
+    X = [] # containers for windows -> sequence of M days
+    y = [] # containers for windows -> the next n days "label" of close price 
+
+    # shift 1 day over for each window
+    for i in range(len(dataset) - self.window_size):
+      X.append(dataset[i:i + self.window_size]) # grab the next window_size rows
+      y.append(dataset[i + self.window_size, self.target_indeces[self.target]]) # grab the NEXT ROW'S target value
+
+    return np.array(X), np.array(y) # return the sliding windows.
 
   # method to remove outliers using Z score dropping qualification
   def _remove_outliers(self, df, auto_drop=True):
