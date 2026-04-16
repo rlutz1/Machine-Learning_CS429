@@ -28,13 +28,17 @@ class DataProcessor:
 
   def __init__(self, data_grab=False, clean=False):
 
-    # initialize the training and testing arrays
+    # initialize the training and testing arrays, all meta for training sets
     self.X_train = np.array([])
     self.y_train = np.array([])
     self.X_test = np.array([])
     self.y_test = np.array([])
     self.train_percent = 0.8 # convenience only
-    self.test_percent = 0.2
+    self.test_percent = 1 - self.train_percent
+    self.window_size = 50 # start with 50 "timesteps"; our M; ie: 50 == one training window is 50 days long
+    self.overlap_step = 5 # allowable overlap of windows
+    self.prediction_timesteps = 1 # start with 1 "timestep"; our n; ie: 1 == predict next 1 day target
+    self.target = "Close" # target predication is the closing price
 
 
     # set up key pair of readable name to stock symbol
@@ -145,10 +149,15 @@ class DataProcessor:
       print(training_set_scaled[:3])
       print(testing_set_scaled[:3])
 
-      # 4. create windows in both train/test of M size, with the "label" being the next day's closing cost
-      # TODO
+      # create windows in both train/test of M size, with the "label" being the next day's closing cost
+      X_training_windows, y_training_windows = self._create_windows(training_set_scaled)
+      X_testing_windows, y_testing_windows = self._create_windows(testing_set_scaled)
 
-    # method to remove outliers using Z score dropping qualification
+  # helper method to create the sliding windows to training and testing
+  def _create_windows(self, dataset):
+    
+
+  # method to remove outliers using Z score dropping qualification
   def _remove_outliers(self, df, auto_drop=True):
 
     # helper function to be able to id potential
