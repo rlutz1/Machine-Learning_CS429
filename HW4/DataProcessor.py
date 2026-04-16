@@ -33,6 +33,9 @@ class DataProcessor:
     self.y_train = np.array([])
     self.X_test = np.array([])
     self.y_test = np.array([])
+    self.train_percent = 0.8 # convenience only
+    self.test_percent = 0.2
+
 
     # set up key pair of readable name to stock symbol
     # (legit just look up the symbols on the internet, ha)
@@ -83,7 +86,7 @@ class DataProcessor:
       df = self._remove_yfinance_header(df, symbol)# remove the weird row that fucking yfinance adds
       df = self._remove_missing(df) # drop missing values
       # TODO uncomment
-      df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")) # write to the clean dir
+      df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv"), index=False, encoding="utf-8") # write to the clean dir
   
   # there's a header row yfinance yields a header row for pulling multiple tickers
   # thats the second row: SYMBOL, SYMBOL, ... SYMBOL
@@ -104,7 +107,29 @@ class DataProcessor:
     print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
-  # method to remove outliers using Z score dropping qualification
+  
+
+  # split into test and training sets.
+  # this will create M length windows that overlap of all the data, 
+  # and then setting the "true" label to the next closing price
+  def _split(self):
+    for symbol in self.company_symbols.values():
+      path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
+      df = pd.read_csv(path) # read in the raw data for this symbol
+
+      df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
+      # next steps
+      # 1. SPLIT the test and train set
+      num_samples = df.shape[0]
+      num_train_samples = round(num_samples * self.train_percent) # get the training portion
+      num_test_samples = num_samples - num_train_samples # get the testing portion
+      print(f"splitting dataset into {num_train_samples} trainers and {num_test_samples} testers.")
+      # X_train = 
+      # 2. fit_transform a scaler to the training set 
+      # 3. transform the testing set with the scaler -- maybe try both
+      # 4. create windows in both train/test of M size, with the "label" being the next day's closing cost
+
+    # method to remove outliers using Z score dropping qualification
   def _remove_outliers(self, df, auto_drop=True):
 
     # helper function to be able to id potential
@@ -158,24 +183,6 @@ class DataProcessor:
       problems_per_col[label] = outlier_rows # add to the problem children
 
     return problems_per_col
-
-  # split into test and training sets.
-  # this will create M length windows that overlap of all the data, 
-  # and then setting the "true" label to the next closing price
-  def _split(self):
-    for symbol in self.company_symbols.values():
-      path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
-      df = pd.read_csv(path) # read in the raw data for this symbol
-
-      df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
-      # next steps
-      # 1. SPLIT the test and train set
-      # num_samples = df.shape[0]
-      # X_train = 
-      # 2. fit_transform a scaler to the training set 
-      # 3. transform the testing set with the scaler -- maybe try both
-      # 4. create windows in both train/test of M size, with the "label" being the next day's closing cost
-
 
   # convenience wrapper method to convert the split
   # sets into pytorch tensors after splitting
