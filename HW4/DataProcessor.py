@@ -56,21 +56,15 @@ class DataProcessor:
     if data_grab:
       self._get_raw_data()
 
-
-    # split the data into test and train
-    self._split() # TODO: should be splitting first, and cleaning the training data, transforming test with THAT
-
-    
-
     # clean the data, overwriting the current csv
     if clean:
       self._clean()
 
-    
+    # split the data into test and train
+    self._split() # TODO: should be splitting first, and cleaning the training data, transforming test with THAT
 
     # convenience wrapper to remember to convert np to pytorch tensor
     self._to_tensor()
-
 
   # method to pull the raw data initially
   def _get_raw_data(self):
@@ -88,10 +82,8 @@ class DataProcessor:
       df = pd.read_csv(path) # read in the raw data for this symbol
       df = self._remove_yfinance_header(df, symbol)# remove the weird row that fucking yfinance adds
       df = self._remove_missing(df) # drop missing values
-      df = self._remove_outliers(df) # remove outliers--scalers are very sensitive to these
-      df = self._normalize(df) # standardize the set with stdscaler or minmax
       # TODO uncomment
-      # df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")) # write to the clean dir
+      df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")) # write to the clean dir
   
   # there's a header row yfinance yields a header row for pulling multiple tickers
   # thats the second row: SYMBOL, SYMBOL, ... SYMBOL
@@ -112,10 +104,6 @@ class DataProcessor:
     print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
-
- 
-
-
   # method to remove outliers using Z score dropping qualification
   def _remove_outliers(self, df, auto_drop=True):
 
@@ -133,7 +121,8 @@ class DataProcessor:
     
     # for controlling this in case you want to look at the rows FIRST
     # you should likely do this before scaling, since scaling 
-    # is sensitive to these outliers
+    # is sensitive to these outliers.
+    # however, it is possible that an outlier is important info, so, leaving room
     if auto_drop: 
 
       # get ALL outlier rows
@@ -170,18 +159,23 @@ class DataProcessor:
 
     return problems_per_col
 
-  def _normalize(self, df):
-    # fit on training, transform it (fit_transform)
-    # transform test data only
-    # this needs to be done carefully--the paper mentioned only normalizing the 
-    # closing cost (and sentiment in their case.) 
-    pass
-
   # split into test and training sets.
   # this will create M length windows that overlap of all the data, 
   # and then setting the "true" label to the next closing price
   def _split(self):
-    pass
+    for symbol in self.company_symbols.values():
+      path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
+      df = pd.read_csv(path) # read in the raw data for this symbol
+
+      df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
+      # next steps
+      # 1. SPLIT the test and train set
+      # num_samples = df.shape[0]
+      # X_train = 
+      # 2. fit_transform a scaler to the training set 
+      # 3. transform the testing set with the scaler -- maybe try both
+      # 4. create windows in both train/test of M size, with the "label" being the next day's closing cost
+
 
   # convenience wrapper method to convert the split
   # sets into pytorch tensors after splitting
