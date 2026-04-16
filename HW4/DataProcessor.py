@@ -129,36 +129,53 @@ class DataProcessor:
       df = pd.read_csv(path) # read in the raw data for this symbol
 
       df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
-      # next steps
-      # 1. SPLIT the test and train set
-      num_samples = df.shape[0]
-      num_train_samples = round(num_samples * self.train_percent) # get the training portion
-      num_test_samples = num_samples - num_train_samples # get the testing portion
-      
-      # get numpy arrays of these samples, split
-      training_set = df.loc[:num_train_samples - 1].astype(float).values
-      testing_set = df.loc[num_train_samples:].astype(float).values
-      print(f"splitting dataset into {training_set.shape[0]} trainers and {testing_set.shape[0]} testers.")
 
-      # sanity 
-      print("unscaled, training, testing")
-      print(training_set[:3]) #
-      print(testing_set[:3])
+      df = df.to_numpy()
 
-      # scaling
-      # for now, i am scaling ALL columns. note that the paper scaled only the closing 
-      # and i'm not sure why. this may be worth toying with.
-      scaler = MinMaxScaler()
-      training_set_scaled = scaler.fit_transform(training_set) # fit_transform a scaler to the training set
-      testing_set_scaled = scaler.transform(testing_set) # transform the testing set with the scaler
-  
-      print("scaled, training, testing")
-      print(training_set_scaled[:3])
-      print(testing_set_scaled[:3])
+      # print(df[:3])
 
       # create windows in both train/test of M size, with the "label" being the next day's closing cost
-      X_training_windows, y_training_windows = self._create_windows(training_set_scaled)
-      X_testing_windows, y_testing_windows = self._create_windows(testing_set_scaled)
+      X_windows, y_windows = self._create_windows(df)
+      # X_testing_windows, y_testing_windows = self._create_windows(testing_set_scaled)
+
+      # print(X_windows[:3])
+      # print(y_windows[:3])
+
+
+      # next steps
+      # SPLIT the test and train set
+      num_samples = X_windows.shape[0]
+      num_train_samples = round(num_samples * self.train_percent) # get the training portion
+      
+      # actual splitting
+      X_train = X_windows[:num_train_samples]
+      y_train = y_windows[:num_train_samples]
+
+      X_test = X_windows[num_train_samples:]
+      y_test = y_windows[num_train_samples:]
+
+      
+      # training_set = df.loc[:num_train_samples - 1].astype(float).values
+      # testing_set = df.loc[num_train_samples:].astype(float).values
+      # print(f"splitting dataset into {training_set.shape[0]} trainers and {testing_set.shape[0]} testers.")
+
+      # # sanity 
+      # print("unscaled, training, testing")
+      # print(training_set[:3]) #
+      # print(testing_set[:3])
+
+      # # scaling
+      # # for now, i am scaling ALL columns. note that the paper scaled only the closing 
+      # # and i'm not sure why. this may be worth toying with.
+      # scaler = MinMaxScaler()
+      # training_set_scaled = scaler.fit_transform(training_set) # fit_transform a scaler to the training set
+      # testing_set_scaled = scaler.transform(testing_set) # transform the testing set with the scaler
+  
+      # print("scaled, training, testing")
+      # print(training_set_scaled[:3])
+      # print(testing_set_scaled[:3])
+
+      
 
   # helper method to create the sliding windows to training and testing
   def _create_windows(self, dataset):
@@ -203,7 +220,6 @@ class DataProcessor:
 
       # sanity checking
       print(f"removing outlier samples: {all_unique_probs}")
-      print(all_unique_probs)
 
       # actual dropping
       df = df.drop(df.index[all_unique_probs])
@@ -237,8 +253,8 @@ class DataProcessor:
 # TESTING
 
 dp = DataProcessor(
-  data_grab=True, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
-  clean=True # TRUE: clean the raw data and overwrite the existing CSVs
+  data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
+  clean=False # TRUE: clean the raw data and overwrite the existing CSVs
   ) # TODO set to false before any usage so they don't have to repull crap 
 
 # ===========================================
