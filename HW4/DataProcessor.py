@@ -123,11 +123,28 @@ class DataProcessor:
       num_samples = df.shape[0]
       num_train_samples = round(num_samples * self.train_percent) # get the training portion
       num_test_samples = num_samples - num_train_samples # get the testing portion
-      print(f"splitting dataset into {num_train_samples} trainers and {num_test_samples} testers.")
-      # X_train = 
-      # 2. fit_transform a scaler to the training set 
-      # 3. transform the testing set with the scaler -- maybe try both
+      
+      # get numpy arrays of these samples, split
+      training_set = df.loc[:num_train_samples - 1].astype(float).values
+      testing_set = df.loc[num_train_samples:].astype(float).values
+      print(f"splitting dataset into {training_set.shape[0]} trainers and {testing_set.shape[0]} testers.")
+
+      # sanity 
+      print("unscaled, training, testing")
+      print(training_set[:3])
+      print(testing_set[:3])
+
+      # scaling
+      scaler = MinMaxScaler()
+      training_set_scaled = scaler.fit_transform(training_set) # fit_transform a scaler to the training set
+      testing_set_scaled = scaler.transform(testing_set) # transform the testing set with the scaler
+  
+      print("scaled, training, testing")
+      print(training_set_scaled[:3])
+      print(testing_set_scaled[:3])
+
       # 4. create windows in both train/test of M size, with the "label" being the next day's closing cost
+      # TODO
 
     # method to remove outliers using Z score dropping qualification
   def _remove_outliers(self, df, auto_drop=True):
