@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import torch.optim as optim
-
+from sklearn.metrics import mean_absolute_percentage_error
 
 class SimpleRNNModel(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -77,7 +77,7 @@ class SimpleRNNModel(nn.Module):
     def predict(self, X):
         return self.forward(X)
 
-    def score(self, X, y):
+    def score(self, X, y, epsilon=1e-8):
         self.eval() # hypothetically good, need to research
         torch.no_grad()
 
@@ -86,9 +86,19 @@ class SimpleRNNModel(nn.Module):
 
         mape = 0
         for actual, p in zip(y, predictions):
+          # mape += abs((actual - p) / (actual + epsilon)) # idk wtf is going on with the training data
           if (actual != 0):
-            mape += abs((actual - p) / actual) 
+            mape += abs((actual - p) / (actual))
         mape = (mape / y.shape[0]) * 100
 
+        # mape = np.mean(np.abs((y - predictions) / y)) * 100
+        # mape = mean_absolute_percentage_error(y, predictions)
+
         return mape
+    
+    def mape_loss(y_pred, y_true, epsilon=1e-8):
+      # Calculate absolute relative error
+      absolute_percentage_error = torch.abs((y_true - y_pred) / (y_true + epsilon))
+      # Return mean across all samples
+      return torch.mean(absolute_percentage_error) * 100
         

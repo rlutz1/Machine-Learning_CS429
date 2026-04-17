@@ -123,64 +123,90 @@ class DataProcessor:
     print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
-  # split into test and training sets.
-  # this will create M length windows that overlap of all the data, 
-  # and then setting the "true" label to the next closing price
+  # trying something else because this scaling is making me very nervous
   def split(self, symbol):
     path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
     df = pd.read_csv(path) # read in the raw data for this symbol
 
-    # uncomment below to remove outliers
-    # outliers ==============================================
-    df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
-    # outliers ==============================================
-
     df = df.to_numpy() # for ease of use, values only
 
-    # uncomment below to scale
-    # scaling ==============================================
-    num_samples = df.shape[0]
-    # testing
-    samples_in_training_window = round((0.8 * num_samples) + (0.2 * self.window_size))
-    scaler = MinMaxScaler()
-    scaler = scaler.fit(df[:samples_in_training_window]) # fit_transform a scaler to the training set
-
-    df = scaler.transform(df) # transform all samples
-    # scaling ==============================================
-
-    # create windows in both train/test of M size, with the "label" being the next day's closing cost
-    X_windows, y_windows = self._create_windows(df)
-
     # find how many windows in our training set
-    num_samples = X_windows.shape[0]
+    num_samples = df.shape[0]
     num_train_samples = round(num_samples * self.train_percent) # get the training portion
-
-    # scaling ==============================================
-    # num_samples = df.shape[0]
-    # # testing
-    # samples_in_training_window = round((0.8 * num_samples) + (0.2 * self.window_size))
-    # scaler = MinMaxScaler()
-    # scaler = scaler.fit(df[:samples_in_training_window]) # fit_transform a scaler to the training set
-
-    # df = scaler.transform(df) # transform all samples
-    # scaling ==============================================
     
-    # actual splitting
-    X_train = X_windows[:num_train_samples]
-    y_train = y_windows[:num_train_samples]
+    # splitting
+    train_set = df[:num_train_samples]
+    test_set = df[num_train_samples:]
 
-    X_test = X_windows[num_train_samples:]
-    y_test = y_windows[num_train_samples:]
+    # scale
+    scaler = MinMaxScaler()
+    train_set_scaled = scaler.fit_transform(train_set) # fit_transform a scaler to the training set
+    test_set_scaled = scaler.transform(test_set) # fit_transform a scaler to the training set
 
-    print(X_train.shape[0], X_train.shape[1], df.shape[1])
-    # shape to: num samples * size of sequence * num features in a sample
+    # create windows
+    X_train, y_train = self._create_windows(train_set_scaled)
+    X_test, y_test = self._create_windows(test_set_scaled)
+
+    # TODO: removing outliers for a moment
+    
+    print(f"shape we're changing too for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
+    # shape to: num samples * size of sequence * num features in a sample (columns)
     self.X_train = torch.tensor(X_train, dtype=torch.float32).view(X_train.shape[0], X_train.shape[1], df.shape[1])
     self.y_train = y_train
 
     self.X_test = torch.tensor(X_test, dtype=torch.float32).view(X_test.shape[0], X_test.shape[1], df.shape[1])
     self.y_test = y_test
-    # print(X_train[:3])
-    # print(y_train[:3])
+
+
+  # split into test and training sets.
+  # this will create M length windows that overlap of all the data, 
+  # and then setting the "true" label to the next closing price
+  # def split(self, symbol):
+  #   path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
+  #   df = pd.read_csv(path) # read in the raw data for this symbol
+
+  #   # uncomment below to remove outliers
+  #   # outliers ==============================================
+  #   df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
+  #   # outliers ==============================================
+
+  #   df = df.to_numpy() # for ease of use, values only
+
+  #   # uncomment below to scale
+  #   # scaling ==============================================
+  #   num_samples = df.shape[0]
+  #   # testing
+  #   samples_in_training_window = round((0.8 * num_samples) + (0.2 * self.window_size))
+  #   scaler = MinMaxScaler()
+  #   scaler = scaler.fit(df[:samples_in_training_window]) # fit_transform a scaler to the training set
+
+  #   df = scaler.transform(df) # transform all samples
+  #   # scaling ==============================================
+
+  #   # create windows in both train/test of M size, with the "label" being the next day's closing cost
+  #   X_windows, y_windows = self._create_windows(df)
+
+  #   # find how many windows in our training set
+  #   num_samples = X_windows.shape[0]
+  #   num_train_samples = round(num_samples * self.train_percent) # get the training portion
+    
+  #   # actual splitting
+  #   X_train = X_windows[:num_train_samples]
+  #   y_train = y_windows[:num_train_samples]
+
+  #   X_test = X_windows[num_train_samples:]
+  #   y_test = y_windows[num_train_samples:]
+
+    
+    # print(f"shape we're changing too for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
+    # # shape to: num samples * size of sequence * num features in a sample (columns)
+    # self.X_train = torch.tensor(X_train, dtype=torch.float32).view(X_train.shape[0], X_train.shape[1], df.shape[1])
+    # self.y_train = y_train
+
+    # self.X_test = torch.tensor(X_test, dtype=torch.float32).view(X_test.shape[0], X_test.shape[1], df.shape[1])
+    # self.y_test = y_test
+    # # print(X_train[:3])
+    # # print(y_train[:3])
 
   # helper method to create the sliding windows to training and testing
   def _create_windows(self, dataset):
