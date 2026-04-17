@@ -225,7 +225,9 @@ class DataProcessor:
 
     return problems_per_col
 
-  # inversion for mape statistics
+  # inversion for mape statistics.
+  # essentialy allows to get the original (or close enough) target value 
+  # by inverting the scaling. 
   def inverse_target(self, y_scaled):
     dummy = np.zeros((len(y_scaled), 5))  # y size * 5 features 2d array with 0s
     # print(dummy)
