@@ -150,64 +150,14 @@ class DataProcessor:
 
     # TODO: removing outliers for a moment
     
-    print(f"shape we're changing too for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
+    print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
     # shape to: num samples * size of sequence * num features in a sample (columns)
     self.X_train = torch.tensor(X_train, dtype=torch.float32).view(X_train.shape[0], X_train.shape[1], df.shape[1])
     self.y_train = y_train
 
+    print(f"shape we're changing to for training for pytorch: {X_test.shape[0]}, {X_test.shape[1]}, {df.shape[1]}")
     self.X_test = torch.tensor(X_test, dtype=torch.float32).view(X_test.shape[0], X_test.shape[1], df.shape[1])
     self.y_test = y_test
-
-
-  # split into test and training sets.
-  # this will create M length windows that overlap of all the data, 
-  # and then setting the "true" label to the next closing price
-  # def split(self, symbol):
-  #   path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
-  #   df = pd.read_csv(path) # read in the raw data for this symbol
-
-  #   # uncomment below to remove outliers
-  #   # outliers ==============================================
-  #   df = self._remove_outliers(df, auto_drop=True) # remove outliers--scalers are very sensitive to these
-  #   # outliers ==============================================
-
-  #   df = df.to_numpy() # for ease of use, values only
-
-  #   # uncomment below to scale
-  #   # scaling ==============================================
-  #   num_samples = df.shape[0]
-  #   # testing
-  #   samples_in_training_window = round((0.8 * num_samples) + (0.2 * self.window_size))
-  #   scaler = MinMaxScaler()
-  #   scaler = scaler.fit(df[:samples_in_training_window]) # fit_transform a scaler to the training set
-
-  #   df = scaler.transform(df) # transform all samples
-  #   # scaling ==============================================
-
-  #   # create windows in both train/test of M size, with the "label" being the next day's closing cost
-  #   X_windows, y_windows = self._create_windows(df)
-
-  #   # find how many windows in our training set
-  #   num_samples = X_windows.shape[0]
-  #   num_train_samples = round(num_samples * self.train_percent) # get the training portion
-    
-  #   # actual splitting
-  #   X_train = X_windows[:num_train_samples]
-  #   y_train = y_windows[:num_train_samples]
-
-  #   X_test = X_windows[num_train_samples:]
-  #   y_test = y_windows[num_train_samples:]
-
-    
-    # print(f"shape we're changing too for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
-    # # shape to: num samples * size of sequence * num features in a sample (columns)
-    # self.X_train = torch.tensor(X_train, dtype=torch.float32).view(X_train.shape[0], X_train.shape[1], df.shape[1])
-    # self.y_train = y_train
-
-    # self.X_test = torch.tensor(X_test, dtype=torch.float32).view(X_test.shape[0], X_test.shape[1], df.shape[1])
-    # self.y_test = y_test
-    # # print(X_train[:3])
-    # # print(y_train[:3])
 
   # helper method to create the sliding windows to training and testing
   def _create_windows(self, dataset):
@@ -286,10 +236,14 @@ class DataProcessor:
 
 dp = DataProcessor(
   data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
-  clean=False # TRUE: clean the raw data and overwrite the existing CSVs
+  clean=False, # TRUE: clean the raw data and overwrite the existing CSVs
+  start_date="2020-01-01",
+  end_date="2024-01-02",
+  window_size=50
   ) # TODO set to false before any usage so they don't have to repull crap 
 
-dp.split(dp.company_symbols["NVIDIA"]) # get ready for training
+
+dp.split(dp.company_symbols["Microsoft"]) # get ready for training
 
 # enforce reproducability
 torch.manual_seed(42)

@@ -33,7 +33,7 @@ class SimpleRNNModel(nn.Module):
       optimizer = optim.Adam(self.parameters(), lr=0.001)  # Adam optimizer for updating model weights
 
       # Training loop parameters
-      epochs = 50
+      epochs = 30
       batch_size = 16
 
       # List to store loss values for each epoch (for plotting later)
