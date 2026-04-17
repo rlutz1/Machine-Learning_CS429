@@ -43,10 +43,10 @@ class DataProcessor:
       ):
 
     # initialize the training and testing arrays, all meta for training sets
-    self.X_train = np.array([])
-    self.y_train = np.array([])
-    self.X_test = np.array([])
-    self.y_test = np.array([])
+    self.X_train = None
+    self.y_train = None
+    self.X_test = None
+    self.y_test = None
     self.train_percent = training_percent 
     self.test_percent = 1 - self.train_percent # convenience only
     self.window_size = window_size 
@@ -151,10 +151,19 @@ class DataProcessor:
     # create windows in both train/test of M size, with the "label" being the next day's closing cost
     X_windows, y_windows = self._create_windows(df)
 
-    # next steps
-    # SPLIT the test and train set
+    # find how many windows in our training set
     num_samples = X_windows.shape[0]
     num_train_samples = round(num_samples * self.train_percent) # get the training portion
+
+    # scaling ==============================================
+    # num_samples = df.shape[0]
+    # # testing
+    # samples_in_training_window = round((0.8 * num_samples) + (0.2 * self.window_size))
+    # scaler = MinMaxScaler()
+    # scaler = scaler.fit(df[:samples_in_training_window]) # fit_transform a scaler to the training set
+
+    # df = scaler.transform(df) # transform all samples
+    # scaling ==============================================
     
     # actual splitting
     X_train = X_windows[:num_train_samples]
@@ -253,7 +262,7 @@ dp = DataProcessor(
   clean=False # TRUE: clean the raw data and overwrite the existing CSVs
   ) # TODO set to false before any usage so they don't have to repull crap 
 
-dp.split(dp.company_symbols["NVIDIA"]) # get msft ready for training
+dp.split(dp.company_symbols["NVIDIA"]) # get ready for training
 
 # enforce reproducability
 torch.manual_seed(42)

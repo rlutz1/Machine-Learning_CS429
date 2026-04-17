@@ -21,7 +21,8 @@ class SimpleRNNModel(nn.Module):
         self.linear = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        out, _ = self.rnn(x)
+        out, hidden = self.rnn(x)
+        # print(f"out: {out}\n hidden: {hidden}")
         out = self.linear(out[:, -1, :])  # Take the last output of the sequence
         return out
     
