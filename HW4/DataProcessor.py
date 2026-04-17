@@ -148,7 +148,7 @@ class DataProcessor:
     X_train, y_train = self._create_windows(train_set_scaled)
     X_test, y_test = self._create_windows(test_set_scaled)
 
-    # TODO: removing outliers for a moment
+    # TODO: removing outlier detection for a moment
     
     print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
     # shape to: num samples * size of sequence * num features in a sample (columns)
@@ -239,11 +239,11 @@ dp = DataProcessor(
   clean=False, # TRUE: clean the raw data and overwrite the existing CSVs
   start_date="2020-01-01",
   end_date="2024-01-02",
-  window_size=50
+  window_size=60
   ) # TODO set to false before any usage so they don't have to repull crap 
 
 
-dp.split(dp.company_symbols["Microsoft"]) # get ready for training
+dp.split(dp.company_symbols["Amazon"]) # get ready for training
 
 # enforce reproducability
 torch.manual_seed(42)
