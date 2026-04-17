@@ -51,6 +51,7 @@ class DataProcessor:
     self.test_percent = 1 - self.train_percent # convenience only
     self.window_size = window_size 
     self.target = target 
+    self.scaler = None
     # for maleability of changing target without having to change the splitting function
     self.target_indeces = { # Close,High,Low,Open,Volume
       "Close": 0,
@@ -139,9 +140,9 @@ class DataProcessor:
     test_set = df[num_train_samples:]
 
     # scale
-    scaler = MinMaxScaler()
-    train_set_scaled = scaler.fit_transform(train_set) # fit_transform a scaler to the training set
-    test_set_scaled = scaler.transform(test_set) # fit_transform a scaler to the training set
+    self.scaler = MinMaxScaler((0.1, 1.1)) # this range is instilled for MAPE for right now, which is STRUGGLING with near 0 vals
+    train_set_scaled = self.scaler.fit_transform(train_set) # fit_transform a scaler to the training set
+    test_set_scaled = self.scaler.transform(test_set) # fit_transform a scaler to the training set
 
     # create windows
     X_train, y_train = self._create_windows(train_set_scaled)
@@ -302,6 +303,6 @@ model = SimpleRNNModel(input_size, hidden_size, output_size)
 
 model.fit(dp.X_train, dp.y_train) # quick fit
 
-print(f"MAPE score on train: {model.score(dp.X_train, dp.y_train)}%")
-print(f"MAPE score on test: {model.score(dp.X_test, dp.y_test)}%")
+print(f"MAPE score on train: {model.mape(dp.X_train, dp.y_train)}%")
+print(f"MAPE score on test: {model.mape(dp.X_test, dp.y_test)}%")
 # ===========================================

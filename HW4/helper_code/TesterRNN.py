@@ -77,22 +77,27 @@ class SimpleRNNModel(nn.Module):
     def predict(self, X):
         return self.forward(X)
 
-    def score(self, X, y, epsilon=1e-8):
+    def mape(self, X, y, epsilon=1e-8):
         self.eval() # hypothetically good, need to research
-        torch.no_grad()
+        with torch.no_grad():
 
-        # use MAPE for testing
-        predictions = self.predict(X).detach().numpy().reshape(-1)
+          # use MAPE for testing
+          predictions = self.predict(X).detach().numpy().reshape(-1)
 
-        mape = 0
-        for actual, p in zip(y, predictions):
-          # mape += abs((actual - p) / (actual + epsilon)) # idk wtf is going on with the training data
-          if (actual != 0):
-            mape += abs((actual - p) / (actual))
-        mape = (mape / y.shape[0]) * 100
 
-        # mape = np.mean(np.abs((y - predictions) / y)) * 100
-        # mape = mean_absolute_percentage_error(y, predictions)
+        # heads up that mape is VERY sensitive to near 0 values. 
+        # either we can change the scale range to something like (0.01, 1.01) 
+        # with accuracy impacts OR deal with the 0's here.
+        # caution suggested lol
+        # mape = 0
+        # for actual, p in zip(y, predictions):
+        #   mape += abs((actual - p) / (actual)) # idk wtf is going on with the training data
+        #   # if (actual != 0):
+        #   #   mape += abs((actual - p) / (actual))
+        # mape = (mape / y.shape[0]) * 100
+
+        # another way to get mape, yields same as above
+        mape = np.mean(np.abs((y - predictions) / y)) * 100
 
         return mape
     
