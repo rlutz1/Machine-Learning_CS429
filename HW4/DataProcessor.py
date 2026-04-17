@@ -15,16 +15,43 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from scipy import stats
 from helper_code.TesterRNN import SimpleRNNModel
-import torch.optim as optim # testing only
 import torch
-import torch.nn as nn
-import random
+
 
 
 """
 USAGE NOTES
 
+the defaults on initialization are as follows
 
+dp = DataProcessor(
+    start_date="2020-01-01", # inclusive, yyyy-mm-dd, start date of data
+    end_date="2021-01-02", # exclusive, yyyy-mm-dd, end date of data
+    target="Close", # target prediction column, should ref a df column name; close price makes most sense
+    window_size=50, # window size (M value, how many days to use for training)
+    training_percent=0.8, # percent of raw data to use for training
+    scaler=MinMaxScaler(), # the default scaling tactic
+    data_grab=False, # grab data and download from yfinance, RAW data, uncleaned, run _get_raw_data() on init
+    clean=False # clean the RAW data and re-write csv, run _clean() on init
+  )  
+
+getting the data prepped for the model can be done by: 
+
+dp.split(dp.company_symbols["Microsoft"]) # get microsoft ready for training
+model.fit(dp.X_train, dp.y_train) # quick fit, for example
+
+dp.split(dp.company_symbols["Google"]) # get google ready for training
+model.fit(dp.X_train, dp.y_train) # quick fit, for example
+
+dp.split(dp.company_symbols["NVIDIA"]) # get nvidia ready for training
+model.fit(dp.X_train, dp.y_train) # quick fit, for example
+
+dp.split(dp.company_symbols["Amazon"]) # get amazon ready for training
+model.fit(dp.X_train, dp.y_train) # quick fit, for example
+
+you may change the above companies in __init__, see dictionary company_symbols. this
+can be changed in order to pull new data from different companies. in that case--you'll want to 
+set data_grab && clean to True.
 """
 
 
@@ -37,9 +64,10 @@ class DataProcessor:
       end_date="2021-01-02", # exclusive, yyyy-mm-dd
       target="Close", # target prediction column, should ref a df column name; close price makes most sense
       window_size=50, # window size (M value, how many days to use for training)
-      training_percent=0.8, # percent of windows to use for training
-      data_grab=False, # grab data and download from yfinance, RAW data, uncleaned, run _get_raw_data()
-      clean=False # clean the RAW data and re-write csv, run _clean()
+      training_percent=0.8, # percent of raw data to use for training
+      scaler=MinMaxScaler(), # the default scaling tactic
+      data_grab=False, # grab data and download from yfinance, RAW data, uncleaned, run _get_raw_data() on init
+      clean=False # clean the RAW data and re-write csv, run _clean() on init
       ):
 
     # initialize the training and testing arrays, all meta for training sets
@@ -51,7 +79,7 @@ class DataProcessor:
     self.test_percent = 1 - self.train_percent # convenience only
     self.window_size = window_size 
     self.target = target 
-    self.scaler = None
+    self.scaler = scaler # (0, 1) default range scaling
     # for maleability of changing target without having to change the splitting function
     self.target_indeces = { # Close,High,Low,Open,Volume
       "Close": 0,
@@ -96,7 +124,6 @@ class DataProcessor:
       df.to_csv(os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv"), index=False, encoding="utf-8")# write ALL to a csv
 
   # clean the raw text using various methods
-  # TODO: this should only be first two ops, move the other two to a new method: scale/standardize
   def _clean(self):
     for symbol in self.company_symbols.values():
       path = os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv")
@@ -110,8 +137,8 @@ class DataProcessor:
   # want to remove that IF it is there.
   def _remove_yfinance_header(self, df, symbol):
     original_num_rows = df.shape[0] # for printing
-    df = df[df["Close"] != symbol]
-    df = df.reset_index(drop=True)
+    df = df[df["Close"] != symbol] # Close is just the first col, arbitrary choice
+    df = df.reset_index(drop=True) # reset the index to 0
     print(f"head of df now for {symbol}, removed {original_num_rows - df.shape[0]} rows.")
     print(df[0:3])
     return df
@@ -125,39 +152,56 @@ class DataProcessor:
     return df_drop
 
   # trying something else because this scaling is making me very nervous
+  # unless xin tells me no, it is a LOT safer to split the raw data FIRST
+  # and then scale, then windows. trying to make windows, split, then scale
+  # is a messy mess that i could do, but it needs to be done VERY carefully.
+  # in the name of time, let us have more data and split this way for now.
   def split(self, symbol):
     path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
     df = pd.read_csv(path) # read in the raw data for this symbol
 
     df = df.to_numpy() # for ease of use, values only
 
-    # find how many windows in our training set
+    # find number of training samples
     num_samples = df.shape[0]
-    num_train_samples = round(num_samples * self.train_percent) # get the training portion
+    # num_train_samples = round(num_samples * self.train_percent) # get the training portion
+    # simple algebra to see what the percentage is of the RAW samples we need to 
+    # dedication to training set in order to ensure the trainin percentage specified is
+    # of WINDOWS, which are the real testing set.
+    percent_needed_to_split_windows_correctly = self.train_percent - ((self.window_size * ((2 * self.train_percent) - 1)) / num_samples)
+    num_train_samples = round(num_samples * percent_needed_to_split_windows_correctly) # get the training portion
     
     # splitting
     train_set = df[:num_train_samples]
     test_set = df[num_train_samples:]
 
+    print(f"splitting {num_samples} raw data samples by {percent_needed_to_split_windows_correctly * 100} to ensure good percentage of windows.")
+    print(f"total num of windows: {num_samples - (2 * self.window_size)}")
+    print(f"{self.train_percent * 100}% of windows: {self.train_percent * (num_samples - (2 * self.window_size))}")
+    print(f"training set windows: {train_set.shape[0] - self.window_size}")
+
     # scale
-    self.scaler = MinMaxScaler() # this range is instilled for MAPE for right now, which is STRUGGLING with near 0 vals
     train_set_scaled = self.scaler.fit_transform(train_set) # fit_transform a scaler to the training set
-    test_set_scaled = self.scaler.transform(test_set) # fit_transform a scaler to the training set
+    test_set_scaled = self.scaler.transform(test_set) # transform tester
 
     # create windows
     X_train, y_train = self._create_windows(train_set_scaled)
     X_test, y_test = self._create_windows(test_set_scaled)
 
-    # TODO: removing outlier detection for a moment
+    print(f"how many windows ended up in training: {X_train.shape[0]}")
+    print(f"how many windows ended up in testing: {X_test.shape[0]}")
+    print(f"final total windows: {X_train.shape[0] + X_test.shape[0]}")
+
+    # TODO: removing outlier detection for a moment due to reordering
     
     print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
     # shape to: num samples * size of sequence * num features in a sample (columns)
     self.X_train = torch.tensor(X_train, dtype=torch.float32).view(X_train.shape[0], X_train.shape[1], df.shape[1])
-    self.y_train = y_train
+    self.y_train = torch.tensor(y_train, dtype=torch.float32)
 
     print(f"shape we're changing to for training for pytorch: {X_test.shape[0]}, {X_test.shape[1]}, {df.shape[1]}")
     self.X_test = torch.tensor(X_test, dtype=torch.float32).view(X_test.shape[0], X_test.shape[1], df.shape[1])
-    self.y_test = y_test
+    self.y_test = torch.tensor(y_test, dtype=torch.float32)
 
   # helper method to create the sliding windows to training and testing
   def _create_windows(self, dataset):
@@ -168,6 +212,13 @@ class DataProcessor:
     for i in range(len(dataset) - self.window_size):
       X.append(dataset[i:i + self.window_size]) # grab the next window_size rows
       y.append(dataset[i + self.window_size, self.target_indeces[self.target]]) # grab the NEXT ROW'S target value
+    
+    # ensuring we're grabbing the right thing lmfao
+    # print("first window")
+    # print(dataset[0:60])
+    # print("target val")
+    # print(y[0])
+    # print(dataset[60][0])
 
     return np.array(X), np.array(y) # return the sliding windows.
 
@@ -243,13 +294,19 @@ class DataProcessor:
 dp = DataProcessor(
   data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
   clean=False, # TRUE: clean the raw data and overwrite the existing CSVs
+  target="Close",
   start_date="2020-01-01",
   end_date="2024-01-02",
+  scaler=MinMaxScaler(),
+  training_percent=0.8,
   window_size=60
   ) # TODO set to false before any usage so they don't have to repull crap 
 
 
 dp.split(dp.company_symbols["Microsoft"]) # get ready for training
+# dp.split(dp.company_symbols["Google"]) # get ready for training
+# dp.split(dp.company_symbols["Amazon"]) # get ready for training
+# dp.split(dp.company_symbols["NVIDIA"]) # get ready for training
 
 # enforce reproducability
 torch.manual_seed(42)
