@@ -254,62 +254,20 @@ dp = DataProcessor(
   clean=False # TRUE: clean the raw data and overwrite the existing CSVs
   ) # TODO set to false before any usage so they don't have to repull crap 
 
+dp.split(dp.company_symbols["Google"]) # get msft ready for training
+
 # enforce reproducability
 torch.manual_seed(42)
 np.random.seed(42)
 
 # Define RNN model
-input_size = 5
+input_size = 5 # 5 features--cols 
 hidden_size = 10
 output_size = 1
 model = SimpleRNNModel(input_size, hidden_size, output_size)
 
+model.fit(dp.X_train, dp.y_train) # quick fit
 
-# Define loss function and optimizer
-criterion = nn.MSELoss()  # Mean Squared Error loss for regression tasks
-optimizer = optim.Adam(model.parameters(), lr=0.001)  # Adam optimizer for updating model weights
-
-# Training loop parameters
-epochs = 25
-batch_size = 16
-
-# List to store loss values for each epoch (for plotting later)
-losses = []
-
-for epoch in range(epochs):
-    model.train()  # Set the model to training mode
-    epoch_loss = 0  # Track loss for this epoch
-
-    # Loop over the training data in batches
-    for i in range(0, len(dp.X_train), batch_size):
-        # Prepare batch data as PyTorch tensors
-        X_batch = torch.tensor(dp.X_train[i:i+batch_size], dtype=torch.float32)
-        y_batch = torch.tensor(dp.y_train[i:i+batch_size], dtype=torch.float32)
-        # print(X_batch)
-        # ---- Forward Pass ----
-        # Pass the input batch through the model to get predictions
-        outputs = model.forward(X_batch)
-        # outputs = model(X_batch)
-
-        # Compute the loss between predictions and actual values
-        # print(outputs.size())
-        loss = criterion(outputs.squeeze(-1), y_batch)
-
-        # ---- Backpropagation ----
-        # Zero the gradients from the previous step
-        optimizer.zero_grad()
-        # Compute gradients of the loss with respect to model parameters
-        loss.backward()
-        # Update model parameters using the optimizer
-        optimizer.step()
-
-        # Accumulate loss for this batch
-        epoch_loss += loss.item()
-
-    # Calculate average loss for the epoch and store it
-    avg_loss = epoch_loss / (len(dp.X_train) // batch_size)
-    losses.append(avg_loss)
-    print(f'Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}')
-
-print(f"accuracy score: {model.score(dp.X_test, dp.y_test)}%")
+print(f"MAPE score on train: {model.score(dp.X_train, dp.y_train)}%")
+print(f"MAPE score on test: {model.score(dp.X_test, dp.y_test)}%")
 # ===========================================
