@@ -31,19 +31,26 @@ USAGE NOTES
 
 class DataProcessor:
 
-  def __init__(self, data_grab=False, clean=False):
+  def __init__(
+      self, 
+      start_date="2020-01-01", # inclusive, yyyy-mm-dd
+      end_date="2021-01-02", # exclusive, yyyy-mm-dd
+      target="Close", # target prediction column, should ref a df column name; close price makes most sense
+      window_size=50, # window size (M value, how many days to use for training)
+      training_percent=0.8, # percent of windows to use for training
+      data_grab=False, # grab data and download from yfinance, RAW data, uncleaned, run _get_raw_data()
+      clean=False # clean the RAW data and re-write csv, run _clean()
+      ):
 
     # initialize the training and testing arrays, all meta for training sets
     self.X_train = np.array([])
     self.y_train = np.array([])
     self.X_test = np.array([])
     self.y_test = np.array([])
-    self.train_percent = 0.8 # convenience only
-    self.test_percent = 1 - self.train_percent
-    self.window_size = 50 # start with 50 "timesteps"; our M; ie: 50 == one training window is 50 days long
-    self.overlap_step = 5 # allowable overlap of windows
-    # self.prediction_timesteps = 1 # start with 1 "timestep"; our n; ie: 1 == predict next 1 day target
-    self.target = "Close" # target predication is the closing price
+    self.train_percent = training_percent 
+    self.test_percent = 1 - self.train_percent # convenience only
+    self.window_size = window_size 
+    self.target = target 
     # for maleability of changing target without having to change the splitting function
     self.target_indeces = { # Close,High,Low,Open,Volume
       "Close": 0,
@@ -56,15 +63,15 @@ class DataProcessor:
     # set up key pair of readable name to stock symbol
     # (legit just look up the symbols on the internet, ha)
     self.company_symbols = {
-      "OpenAI": "OPAI.PVT",
-      "Anthropic": "ANTH.PVT",
+      "Microsoft": "MSFT",
+      "Amazon": "AMZN",
       "NVIDIA": "NVDA",
       "Google": "GOOG" # GOOGL is also an option. not literate enough to know the distict diff yet
     }
 
     # select a time frame/period to shoot for
-    self.time_frame = "1y" # 1 year to start
-    # self.time_frame = "1mo" # testing
+    self.start_date = start_date
+    self.end_date = end_date
 
     # path for the raw data dump, NO cleaning
     self.raw_csv_dir = os.path.join("data", "raw")
@@ -78,13 +85,6 @@ class DataProcessor:
     # clean the data, overwriting the current csv
     if clean:
       self._clean()
-
-    # TODO: need to add specific symbol for this
-    # split the data into test and train
-    self._split() # TODO: should be splitting first, and cleaning the training data, transforming test with THAT
-
-    # convenience wrapper to remember to convert np to pytorch tensor
-    self._to_tensor()
 
   # method to pull the raw data initially
   def _get_raw_data(self):
