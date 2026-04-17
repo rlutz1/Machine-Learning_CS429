@@ -164,12 +164,8 @@ class DataProcessor:
 
     # find number of training samples
     num_samples = df.shape[0]
-    # num_train_samples = round(num_samples * self.train_percent) # get the training portion
-    # simple algebra to see what the percentage is of the RAW samples we need to 
-    # dedication to training set in order to ensure the trainin percentage specified is
-    # of WINDOWS, which are the real testing set.
     percent_needed_to_split_windows_correctly = self.train_percent - ((self.window_size * ((2 * self.train_percent) - 1)) / num_samples)
-    num_train_samples = round(num_samples * percent_needed_to_split_windows_correctly) # get the training portion
+    num_train_samples = round(num_samples * percent_needed_to_split_windows_correctly)
     
     # splitting
     train_set = df[:num_train_samples]
