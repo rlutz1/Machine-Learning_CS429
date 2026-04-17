@@ -74,9 +74,6 @@ class SimpleRNNModel(nn.Module):
           print(f'Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}')
 
     def predict(self, X):
-        # probabilities = self.predict_proba(X)
-        # return (probabilities >= 0.5).astype(int)
-        # pass
         return self.forward(X)
 
     def score(self, X, y):
