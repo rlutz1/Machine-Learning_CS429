@@ -102,7 +102,6 @@ class DataProcessor:
       df = pd.read_csv(path) # read in the raw data for this symbol
       df = self._remove_yfinance_header(df, symbol)# remove the weird row that fucking yfinance adds
       df = self._remove_missing(df) # drop missing values
-      # TODO uncomment
       df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv"), index=False, encoding="utf-8") # write to the clean dir
   
   # there's a header row yfinance yields a header row for pulling multiple tickers
@@ -254,7 +253,7 @@ dp = DataProcessor(
   clean=False # TRUE: clean the raw data and overwrite the existing CSVs
   ) # TODO set to false before any usage so they don't have to repull crap 
 
-dp.split(dp.company_symbols["Google"]) # get msft ready for training
+dp.split(dp.company_symbols["NVIDIA"]) # get msft ready for training
 
 # enforce reproducability
 torch.manual_seed(42)

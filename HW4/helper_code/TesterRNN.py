@@ -32,7 +32,7 @@ class SimpleRNNModel(nn.Module):
       optimizer = optim.Adam(self.parameters(), lr=0.001)  # Adam optimizer for updating model weights
 
       # Training loop parameters
-      epochs = 25
+      epochs = 50
       batch_size = 16
 
       # List to store loss values for each epoch (for plotting later)
@@ -85,7 +85,8 @@ class SimpleRNNModel(nn.Module):
 
         mape = 0
         for actual, p in zip(y, predictions):
-          mape += abs((actual - p) / actual) 
+          if (actual != 0):
+            mape += abs((actual - p) / actual) 
         mape = (mape / y.shape[0]) * 100
 
         return mape
