@@ -189,6 +189,8 @@ class DataProcessor:
     X_test, y_test = self._create_windows(test_set_scaled)
 
     print(f"how many windows ended up in training: {X_train.shape[0]}")
+    print(f"how many windows ended up in testing: {X_test.shape[0]}")
+    print(f"final total windows: {X_train.shape[0] + X_test.shape[0]}")
 
     # TODO: removing outlier detection for a moment due to reordering
     
@@ -290,14 +292,14 @@ class DataProcessor:
 # TESTING
 
 dp = DataProcessor(
-  data_grab=True, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
-  clean=True, # TRUE: clean the raw data and overwrite the existing CSVs
+  data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
+  clean=False, # TRUE: clean the raw data and overwrite the existing CSVs
   target="Close",
   start_date="2020-01-01",
   end_date="2024-01-02",
   scaler=MinMaxScaler(),
   training_percent=0.8,
-  window_size=50
+  window_size=60
   ) # TODO set to false before any usage so they don't have to repull crap 
 
 
