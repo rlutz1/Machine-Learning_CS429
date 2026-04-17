@@ -188,6 +188,8 @@ class DataProcessor:
     X_train, y_train = self._create_windows(train_set_scaled)
     X_test, y_test = self._create_windows(test_set_scaled)
 
+    print(f"how many windows ended up in training: {X_train.shape[0]}")
+
     # TODO: removing outlier detection for a moment due to reordering
     
     print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
