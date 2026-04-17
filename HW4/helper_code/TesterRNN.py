@@ -77,7 +77,7 @@ class SimpleRNNModel(nn.Module):
     def predict(self, X):
         return self.forward(X)
 
-    def mape(self, X, y, epsilon=1e-8):
+    def mape(self, X, y, dp, epsilon=1e-8):
         self.eval() # hypothetically good, need to research
         with torch.no_grad():
 
@@ -96,8 +96,12 @@ class SimpleRNNModel(nn.Module):
         #   #   mape += abs((actual - p) / (actual))
         # mape = (mape / y.shape[0]) * 100
 
+        # invert the scaled costs back to originals due to MAPE sensitivity
+        predictions_orginals = dp.inverse_target(predictions) 
+        y_orginals = dp.inverse_target(y)
+
         # another way to get mape, yields same as above
-        mape = np.mean(np.abs((y - predictions) / y)) * 100
+        mape = np.mean(np.abs((y_orginals - predictions_orginals) / y_orginals)) * 100
 
         return mape
     

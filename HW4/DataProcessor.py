@@ -140,7 +140,7 @@ class DataProcessor:
     test_set = df[num_train_samples:]
 
     # scale
-    self.scaler = MinMaxScaler((0.1, 1.1)) # this range is instilled for MAPE for right now, which is STRUGGLING with near 0 vals
+    self.scaler = MinMaxScaler() # this range is instilled for MAPE for right now, which is STRUGGLING with near 0 vals
     train_set_scaled = self.scaler.fit_transform(train_set) # fit_transform a scaler to the training set
     test_set_scaled = self.scaler.transform(test_set) # fit_transform a scaler to the training set
 
@@ -225,11 +225,15 @@ class DataProcessor:
 
     return problems_per_col
 
-  # convenience wrapper method to convert the split
-  # sets into pytorch tensors after splitting
-  def _to_tensor(self):
-    pass
-    
+  # inversion for mape statistics
+  def inverse_target(self, y_scaled):
+    dummy = np.zeros((len(y_scaled), 5))  # y size * 5 features 2d array with 0s
+    # print(dummy)
+    dummy[:, self.target_indeces[self.target]] = y_scaled # put y scaled into correct col
+    # print(dummy)
+    original_targets = self.scaler.inverse_transform(dummy)[:, self.target_indeces[self.target]] # return only the rescaled target
+    # print(original_targets)
+    return original_targets
 
 # ===========================================
 # TESTING
@@ -243,7 +247,7 @@ dp = DataProcessor(
   ) # TODO set to false before any usage so they don't have to repull crap 
 
 
-dp.split(dp.company_symbols["Amazon"]) # get ready for training
+dp.split(dp.company_symbols["Microsoft"]) # get ready for training
 
 # enforce reproducability
 torch.manual_seed(42)
@@ -257,6 +261,6 @@ model = SimpleRNNModel(input_size, hidden_size, output_size)
 
 model.fit(dp.X_train, dp.y_train) # quick fit
 
-print(f"MAPE score on train: {model.mape(dp.X_train, dp.y_train)}%")
-print(f"MAPE score on test: {model.mape(dp.X_test, dp.y_test)}%")
+print(f"MAPE score on train: {model.mape(dp.X_train, dp.y_train, dp)}%")
+print(f"MAPE score on test: {model.mape(dp.X_test, dp.y_test, dp)}%")
 # ===========================================
