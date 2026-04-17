@@ -18,6 +18,7 @@ from helper_code.TesterRNN import SimpleRNNModel
 import torch.optim as optim # testing only
 import torch
 import torch.nn as nn
+import random
 
 
 """
@@ -78,6 +79,7 @@ class DataProcessor:
     if clean:
       self._clean()
 
+    # TODO: need to add specific symbol for this
     # split the data into test and train
     self._split() # TODO: should be splitting first, and cleaning the training data, transforming test with THAT
 
@@ -255,6 +257,10 @@ dp = DataProcessor(
   clean=False # TRUE: clean the raw data and overwrite the existing CSVs
   ) # TODO set to false before any usage so they don't have to repull crap 
 
+# enforce reproducability
+torch.manual_seed(42)
+np.random.seed(42)
+
 # Define RNN model
 input_size = 5
 hidden_size = 10
@@ -286,9 +292,11 @@ for epoch in range(epochs):
         # ---- Forward Pass ----
         # Pass the input batch through the model to get predictions
         outputs = model.forward(X_batch)
+        # outputs = model(X_batch)
 
         # Compute the loss between predictions and actual values
-        loss = criterion(outputs, y_batch)
+        # print(outputs.size())
+        loss = criterion(outputs.squeeze(-1), y_batch)
 
         # ---- Backpropagation ----
         # Zero the gradients from the previous step
@@ -305,4 +313,6 @@ for epoch in range(epochs):
     avg_loss = epoch_loss / (len(dp.X_train) // batch_size)
     losses.append(avg_loss)
     print(f'Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}')
+
+print(f"accuracy score: {model.score(dp.X_test, dp.y_test)}%")
 # ===========================================
