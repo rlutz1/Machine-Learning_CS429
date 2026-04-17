@@ -23,7 +23,7 @@ class FeedForwardNN(nn.Module):
         for hidden_size in hidden_layers:
             layers.append(nn.Linear(input_size, hidden_size))
             layers.append(nn.ReLU()) # Use ReLU but may change to sigmoid for tuning
-            layers.append(nn.Dropout(dropout))
+            layers.append(nn.Dropout(dropout)) # dropout prob
             input_size = hidden_size
 
         # Output layer
@@ -66,7 +66,8 @@ class NeuralNetworkClassifier:
 
         # Loss and optimizer
         self.criterion = nn.BCELoss()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=eta)
+        # weight decay 0 is default, but explicit for clarity
+        self.optimizer = optim.Adam(self.model.parameters(), lr=eta, weight_decay=0)
 
         # Track losses and timing
         self.losses_ = []
@@ -81,9 +82,9 @@ class NeuralNetworkClassifier:
             X = X.toarray()
 
         # Copies to ensure arrays are writable (got a warning i dont like)
-        X = np.array(X, copy=True)
+        X = np.array(X, copy=True) # NOTE: i got an error on laptop since it was trying to allocate 23.3 GB, lmao, and couldn't
         y = np.array(y, copy=True)
-
+       
         # Convert to PyTorch tensors
         X_tensor = torch.FloatTensor(X).to(self.device)
         y_tensor = torch.FloatTensor(y).unsqueeze(1).to(self.device)
@@ -156,6 +157,7 @@ class NeuralNetworkClassifier:
 
 if __name__ == "__main__":
     from DataProcessor import DataProcessor
+    from sklearn.linear_model import LogisticRegression
     import matplotlib.pyplot as plt
 
     dp = DataProcessor()
@@ -164,14 +166,27 @@ if __name__ == "__main__":
     print(f"Test samples: {dp.test_reviews.shape[0]}")
     print(f"Feature dimension: {dp.train_reviews.shape[1]}")
 
-    # Initialize neural network
+    # Logistic Regression baseline
+    print("\n--- Logistic Regression Baseline ---")
+    lr_start = time.time()
+    lr = LogisticRegression(max_iter=1000, random_state=42)
+    lr.fit(dp.train_reviews, dp.train_sentiments)
+    lr_train_time = time.time() - lr_start
+
+    lr_train_acc = lr.score(dp.train_reviews, dp.train_sentiments)
+    lr_test_acc  = lr.score(dp.test_reviews,  dp.test_sentiments)
+    print(f"Training Accuracy : {lr_train_acc:.4f}")
+    print(f"Test Accuracy     : {lr_test_acc:.4f}")
+    print(f"Training Time     : {lr_train_time:.2f} seconds")
+
+    print("\n--- Feed-Forward Neural Network ---")
     nn = NeuralNetworkClassifier(
         n_features=dp.train_reviews.shape[1],
-        hidden_layers=[256, 128, 64], # Three hidden layers
-        eta=0.001, # Learning rate
-        n_iter=30, # Epochs
-        batch_size=128, # Mini-batch size
-        dropout=0.3, # Dropout rate
+        hidden_layers=[475, 450],
+        eta=0.0001,
+        n_iter=1,
+        batch_size=50,
+        dropout=0.0,
         random_state=42
     )
 
@@ -185,17 +200,26 @@ if __name__ == "__main__":
     test_acc = nn.score(dp.test_reviews, dp.test_sentiments)
     test_eval_time = time.time() - test_start
 
-    print(f"Training Accuracy: {train_acc:.4f}")
-    print(f"Test Accuracy: {test_acc:.4f}")
-    print(f"\nTraining Time: {nn.training_time_:.2f} seconds")
+    print(f"Training Accuracy : {train_acc:.4f}")
+    print(f"Test Accuracy     : {test_acc:.4f}")
+    print(f"Training Time     : {nn.training_time_:.2f} seconds")
     print(f"Train Evaluation Time: {train_eval_time:.4f} seconds")
-    print(f"Test Evaluation Time: {test_eval_time:.4f} seconds")
+    print(f"Test Evaluation Time : {test_eval_time:.4f} seconds")
 
-    # Plot loss convergence
+    # ---------------------------------------------------------------
+    # Summary comparison
+    # ---------------------------------------------------------------
+    print("\n--- Comparison ---")
+    print(f"{'Model':<30} {'Train Acc':>10} {'Test Acc':>10}")
+    print("-" * 52)
+    print(f"{'Logistic Regression':<30} {lr_train_acc:>10.4f} {lr_test_acc:>10.4f}")
+    print(f"{'FNN':<30} {train_acc:>10.4f} {test_acc:>10.4f}")
+
+    # Plot FNN loss convergence
     plt.figure(figsize=(10, 6))
     plt.plot(range(1, len(nn.losses_) + 1), nn.losses_, marker='o')
     plt.xlabel('Epoch')
     plt.ylabel('Loss (Binary Cross-Entropy)')
-    plt.title('Training Loss Convergence')
+    plt.title('FNN Training Loss Convergence')
     plt.grid(True)
     plt.show()
