@@ -171,10 +171,10 @@ class DataProcessor:
     train_set = df[:num_train_samples]
     test_set = df[num_train_samples:]
 
-    print(f"splitting {num_samples} raw data samples by {percent_needed_to_split_windows_correctly * 100} to ensure good percentage of windows.")
-    print(f"total num of windows: {num_samples - (2 * self.window_size)}")
-    print(f"{self.train_percent * 100}% of windows: {self.train_percent * (num_samples - (2 * self.window_size))}")
-    print(f"training set windows: {train_set.shape[0] - self.window_size}")
+    # print(f"splitting {num_samples} raw data samples by {percent_needed_to_split_windows_correctly * 100} to ensure good percentage of windows.")
+    # print(f"total num of windows: {num_samples - (2 * self.window_size)}")
+    # print(f"{self.train_percent * 100}% of windows: {self.train_percent * (num_samples - (2 * self.window_size))}")
+    # print(f"training set windows: {train_set.shape[0] - self.window_size}")
 
     # scale
     train_set_scaled = self.scaler.fit_transform(train_set) # fit_transform a scaler to the training set
@@ -184,18 +184,18 @@ class DataProcessor:
     X_train, y_train = self._create_windows(train_set_scaled)
     X_test, y_test = self._create_windows(test_set_scaled)
 
-    print(f"how many windows ended up in training: {X_train.shape[0]}")
-    print(f"how many windows ended up in testing: {X_test.shape[0]}")
-    print(f"final total windows: {X_train.shape[0] + X_test.shape[0]}")
+    # print(f"how many windows ended up in training: {X_train.shape[0]}")
+    # print(f"how many windows ended up in testing: {X_test.shape[0]}")
+    # print(f"final total windows: {X_train.shape[0] + X_test.shape[0]}")
 
     # TODO: removing outlier detection for a moment due to reordering
     
-    print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
+    # print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
     # shape to: num samples * size of sequence * num features in a sample (columns)
     self.X_train = torch.tensor(X_train, dtype=torch.float32).view(X_train.shape[0], X_train.shape[1], df.shape[1])
     self.y_train = torch.tensor(y_train, dtype=torch.float32)
 
-    print(f"shape we're changing to for training for pytorch: {X_test.shape[0]}, {X_test.shape[1]}, {df.shape[1]}")
+    # print(f"shape we're changing to for training for pytorch: {X_test.shape[0]}, {X_test.shape[1]}, {df.shape[1]}")
     self.X_test = torch.tensor(X_test, dtype=torch.float32).view(X_test.shape[0], X_test.shape[1], df.shape[1])
     self.y_test = torch.tensor(y_test, dtype=torch.float32)
 
@@ -286,36 +286,24 @@ class DataProcessor:
 
 # ===========================================
 # TESTING
-
-dp = DataProcessor(
-  data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
-  clean=False, # TRUE: clean the raw data and overwrite the existing CSVs
-  target="Close",
-  start_date="2020-01-01",
-  end_date="2024-01-02",
-  scaler=MinMaxScaler(),
-  training_percent=0.8,
-  window_size=60
-  ) # TODO set to false before any usage so they don't have to repull crap 
-
-
-dp.split(dp.company_symbols["Microsoft"]) # get ready for training
-# dp.split(dp.company_symbols["Google"]) # get ready for training
-# dp.split(dp.company_symbols["Amazon"]) # get ready for training
-# dp.split(dp.company_symbols["NVIDIA"]) # get ready for training
-
-# enforce reproducability
-torch.manual_seed(42)
-np.random.seed(42)
-
-# Define RNN model
-input_size = 5 # 5 features--cols 
-hidden_size = 10
-output_size = 1
-model = SimpleRNNModel(input_size, hidden_size, output_size)
-
-model.fit(dp.X_train, dp.y_train) # quick fit
-
-print(f"MAPE score on train: {model.mape(dp.X_train, dp.y_train, dp)}%")
-print(f"MAPE score on test: {model.mape(dp.X_test, dp.y_test, dp)}%")
+# dp = DataProcessor(
+#   data_grab=False,
+#   clean=False,
+#   target="Close",
+#   start_date="2020-01-01",
+#   end_date="2024-01-02",
+#   scaler=MinMaxScaler(),
+#   training_percent=0.8,
+#   window_size=60
+#   )
+# dp.split(dp.company_symbols["Microsoft"])
+# torch.manual_seed(42)
+# np.random.seed(42)
+# input_size = 5
+# hidden_size = 10
+# output_size = 1
+# model = SimpleRNNModel(input_size, hidden_size, output_size)
+# model.fit(dp.X_train, dp.y_train)
+# print(f"MAPE score on train: {model.mape(dp.X_train, dp.y_train, dp)}%")
+# print(f"MAPE score on test: {model.mape(dp.X_test, dp.y_test, dp)}%")
 # ===========================================
