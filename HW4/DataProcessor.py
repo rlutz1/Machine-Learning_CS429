@@ -89,8 +89,8 @@ class DataProcessor:
   # method to pull the raw data initially
   def _get_raw_data(self):
     for symbol in self.company_symbols.values():
-      print(f"pinging for {symbol} data over {self.time_frame}")
-      df = yf.download(symbol, period=self.time_frame)
+      print(f"pinging for {symbol} data over {self.start_date} - {self.end_date}")
+      df = yf.download(symbol, start=self.start_date, end=self.end_date)
       print(df[:3]) # print first 3 things for confirmation
       df.to_csv(os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv"), index=False, encoding="utf-8")# write ALL to a csv
 
@@ -127,7 +127,7 @@ class DataProcessor:
   # split into test and training sets.
   # this will create M length windows that overlap of all the data, 
   # and then setting the "true" label to the next closing price
-  def _split(self, symbol):
+  def split(self, symbol):
     path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
     df = pd.read_csv(path) # read in the raw data for this symbol
 
