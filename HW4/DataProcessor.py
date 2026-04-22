@@ -81,7 +81,7 @@ class DataProcessor:
     self.target = target 
     self.scaler = scaler # (0, 1) default range scaling
     # for maleability of changing target without having to change the splitting function
-    self.target_indeces = { # Close,High,Low,Open,Volume
+    self.target_indeces = {
       "Close": 0,
       "High": 1, 
       "Low": 2,
@@ -95,7 +95,7 @@ class DataProcessor:
       "Microsoft": "MSFT",
       "Amazon": "AMZN",
       "NVIDIA": "NVDA",
-      "Google": "GOOG" # GOOGL is also an option. not literate enough to know the distict diff yet
+      "Google": "GOOG" # GOOGL is also an option
     }
 
     # select a time frame/period to shoot for
@@ -128,7 +128,7 @@ class DataProcessor:
     for symbol in self.company_symbols.values():
       path = os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv")
       df = pd.read_csv(path) # read in the raw data for this symbol
-      df = self._remove_yfinance_header(df, symbol)# remove the weird row that fucking yfinance adds
+      df = self._remove_yfinance_header(df, symbol)# remove the weird row that yfinance adds
       df = self._remove_missing(df) # drop missing values
       df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv"), index=False, encoding="utf-8") # write to the clean dir
   
@@ -151,11 +151,10 @@ class DataProcessor:
     print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
-  # trying something else because this scaling is making me very nervous
-  # unless xin tells me no, it is a LOT safer to split the raw data FIRST
-  # and then scale, then windows. trying to make windows, split, then scale
-  # is a messy mess that i could do, but it needs to be done VERY carefully.
-  # in the name of time, let us have more data and split this way for now.
+  # split the raw data by a percentage that ensures train_percent% of sequences
+  # are training, rest are for testing.
+  # standardize the data using the specified scaler,
+  # and then create a sliding window set out of the raw datasets.
   def split(self, symbol):
     path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
     df = pd.read_csv(path) # read in the raw data for this symbol
@@ -164,18 +163,21 @@ class DataProcessor:
 
     # find number of training samples
     num_samples = df.shape[0]
-    # num_train_samples = round(num_samples * self.train_percent) # get the training portion
-    # simple algebra to see what the percentage is of the RAW samples we need to 
-    # dedication to training set in order to ensure the trainin percentage specified is
-    # of WINDOWS, which are the real testing set.
-    percent_needed_to_split_windows_correctly = self.train_percent - ((self.window_size * ((2 * self.train_percent) - 1)) / num_samples)
-    num_train_samples = round(num_samples * percent_needed_to_split_windows_correctly) # get the training portion
+    # calculate the percent needed to split the raw data such that
+    # we guarantee the number of slidding windows is train_percent% from
+    # the raw training set, rest is from raw testing.
+
+    # percent_needed_to_split_windows_correctly = self.train_percent - ((self.window_size * ((2 * self.train_percent) - 1)) / num_samples)
+    # num_train_samples = round(num_samples * percent_needed_to_split_windows_correctly) # get the training portion
+    
+    # simplification on above: 
+    num_train_samples = round(self.train_percent * (num_samples - (2 * self.window_size)) + self.window_size)
     
     # splitting
     train_set = df[:num_train_samples]
     test_set = df[num_train_samples:]
 
-    print(f"splitting {num_samples} raw data samples by {percent_needed_to_split_windows_correctly * 100} to ensure good percentage of windows.")
+    # print(f"splitting {num_samples} raw data samples by {percent_needed_to_split_windows_correctly * 100} to ensure good percentage of windows.")
     print(f"total num of windows: {num_samples - (2 * self.window_size)}")
     print(f"{self.train_percent * 100}% of windows: {self.train_percent * (num_samples - (2 * self.window_size))}")
     print(f"training set windows: {train_set.shape[0] - self.window_size}")
@@ -308,18 +310,18 @@ dp.split(dp.company_symbols["Microsoft"]) # get ready for training
 # dp.split(dp.company_symbols["Amazon"]) # get ready for training
 # dp.split(dp.company_symbols["NVIDIA"]) # get ready for training
 
-# enforce reproducability
-torch.manual_seed(42)
-np.random.seed(42)
+# # enforce reproducability
+# torch.manual_seed(42)
+# np.random.seed(42)
 
-# Define RNN model
-input_size = 5 # 5 features--cols 
-hidden_size = 10
-output_size = 1
-model = SimpleRNNModel(input_size, hidden_size, output_size)
+# # Define RNN model
+# input_size = 5 # 5 features--cols 
+# hidden_size = 10
+# output_size = 1
+# model = SimpleRNNModel(input_size, hidden_size, output_size)
 
-model.fit(dp.X_train, dp.y_train) # quick fit
+# model.fit(dp.X_train, dp.y_train) # quick fit
 
-print(f"MAPE score on train: {model.mape(dp.X_train, dp.y_train, dp)}%")
-print(f"MAPE score on test: {model.mape(dp.X_test, dp.y_test, dp)}%")
+# print(f"MAPE score on train: {model.mape(dp.X_train, dp.y_train, dp)}%")
+# print(f"MAPE score on test: {model.mape(dp.X_test, dp.y_test, dp)}%")
 # ===========================================
