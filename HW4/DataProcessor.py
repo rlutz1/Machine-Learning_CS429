@@ -14,7 +14,6 @@ import yfinance as yf
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from scipy import stats
-from helper_code.TesterRNN import SimpleRNNModel
 import torch
 
 
@@ -298,18 +297,15 @@ class DataProcessor:
 # TESTING
 
 # dp = DataProcessor(
-#   data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
-#   clean=False, # TRUE: clean the raw data and overwrite the existing CSVs
-#   target="Close",
-#   start_date="2020-01-01",
-#   end_date="2024-01-02",
-#   scaler=MinMaxScaler(),
-#   training_percent=0.8,
-#   window_size=60
-#   ) # TODO set to false before any usage so they don't have to repull crap 
+#     start_date="2020-01-01",
+#     end_date="2024-01-02",
+#     window_size=60,
+#     data_grab=False,
+#     clean=False
+# ) # TODO set to false before any usage so they don't have to repull crap 
 
 
-# dp.split(dp.company_symbols["Microsoft"]) # get ready for training
+dp.split(dp.company_symbols["Microsoft"]) # get ready for training
 # dp.split(dp.company_symbols["Google"]) # get ready for training
 # dp.split(dp.company_symbols["Amazon"]) # get ready for training
 # dp.split(dp.company_symbols["NVIDIA"]) # get ready for training
