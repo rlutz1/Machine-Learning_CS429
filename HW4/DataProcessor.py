@@ -305,7 +305,7 @@ class DataProcessor:
 # ) # TODO set to false before any usage so they don't have to repull crap 
 
 
-dp.split(dp.company_symbols["Microsoft"]) # get ready for training
+# dp.split(dp.company_symbols["Microsoft"]) # get ready for training
 # dp.split(dp.company_symbols["Google"]) # get ready for training
 # dp.split(dp.company_symbols["Amazon"]) # get ready for training
 # dp.split(dp.company_symbols["NVIDIA"]) # get ready for training
