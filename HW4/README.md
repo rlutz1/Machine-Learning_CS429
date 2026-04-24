@@ -12,11 +12,11 @@ This class accomplishes all needs of Task 1 in the assignment, making the data a
 
 ### RNN.py
 
-Baseline recurrent neural network model (Task 2 & 3). Uses a single RNN layer to predict the next day's closing price from the past 60 days of stock data (close, high, low, open, volume). Trained with Adam optimizer and mini-batch gradient descent (MSE loss). Run this file to train and evaluate the baseline RNN on all four stocks.
+Baseline recurrent neural network model. Uses a single RNN layer to predict the next day's closing price from the past 60 days of stock data. Trained with Adam optimizer and mini-batch gradient descent. Run this file to train and evaluate the baseline RNN on all four stocks.
 
 ### GRU.py
 
-Improved model using Gated Recurrent Units (Task 4). Same input/output setup as the RNN, but replaces the recurrent layer with two stacked GRU layers. The gating mechanism helps the model better capture long-term patterns in the price data. Outperforms the baseline RNN on all four stocks. Run this file to train and evaluate the GRU on all four stocks.
+Improved model using Gated Recurrent Units. Same input/output setup as the RNN, but replaces the recurrent layer with two stacked GRU layers. The gating mechanism helps the model better capture long-term patterns in the price data. Outperforms the baseline RNN on all four stocks. Run this file to train and evaluate the GRU on all four stocks.
 
 ## data Directory
 
