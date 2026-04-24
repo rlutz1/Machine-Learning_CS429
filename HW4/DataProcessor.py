@@ -14,7 +14,6 @@ import yfinance as yf
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from scipy import stats
-from helper_code.TesterRNN import SimpleRNNModel
 import torch
 
 
