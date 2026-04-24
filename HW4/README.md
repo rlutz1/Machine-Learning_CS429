@@ -18,6 +18,10 @@ Baseline recurrent neural network model. Uses a single RNN layer to predict the 
 
 Improved model using Gated Recurrent Units. Same input/output setup as the RNN, but replaces the recurrent layer with two stacked GRU layers. The gating mechanism helps the model better capture long-term patterns in the price data. Outperforms the baseline RNN on all four stocks. Run this file to train and evaluate the GRU on all four stocks.
 
+### LSTM.py
+
+Model using Long Short-Term Memory units. This uses the same input as the RNN, but instead replaces the recurrent layer with two stacked LSTM layers. Run this file to train and evaluate the LSTM on all four stocks, generating plots of the predictions against the actual values.
+
 ## data Directory
 
 ### raw Directory
