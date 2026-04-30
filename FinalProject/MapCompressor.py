@@ -84,6 +84,9 @@ class MapCompressor:
 
     im = Image.open(path_to_bmp)
     # im.show() # testing
+    im_array = np.array(im)
+    # print(im_array.shape) # 400x400 for bmp 2 -> correct
+    # print(im_array[100:120]) # printing to 255 -> white, 0 -> black
 
 
 # ==========================================================================================================
