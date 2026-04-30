@@ -104,11 +104,14 @@ class MapCompressor:
     num_cols = im.shape[1]
 
     # don't do anything if it's already small
-    if (num_rows <= self.BASE_SIZE and num_cols <= self.BASE_SIZE): return im
+    if num_rows <= self.BASE_SIZE and num_cols <= self.BASE_SIZE: return im
 
     # extend all the rows of im with edge values thus divisible by base size
-    extension = np.pad(im, ((0, (num_rows % self.BASE_SIZE)), (0, 0)), mode='edge') # extend columns
-    extension = np.pad(extension, ((0, 0), (0, (num_cols % self.BASE_SIZE))), mode='edge') # extend rows
+    # print((num_rows % self.BASE_SIZE))
+    row_extension = (((num_rows // self.BASE_SIZE) + 1) * self.BASE_SIZE) - num_rows
+    col_extension = (((num_cols // self.BASE_SIZE) + 1) * self.BASE_SIZE) - num_cols
+    extension = np.pad(im, ((0, row_extension), (0, 0)), mode='edge') # extend columns
+    extension = np.pad(extension, ((0, 0), (0, col_extension)), mode='edge') # extend rows
     print(f"extending with edge vals {extension.shape}")
 
     # testing padding 
@@ -118,6 +121,26 @@ class MapCompressor:
     # print(extension)
 
     return extension # return the extension
+  
+  # use overestimation method to compress the image
+  def overestimate(self, im):
+    num_rows = im.shape[0]
+    num_cols = im.shape[1]
+
+    # just in case called directly
+    if num_rows % self.BASE_SIZE != 0 or num_cols % self.BASE_SIZE != 0: 
+      # print(num_rows )
+      # print(num_cols )
+      im = self.reshape(im)
+    
+    # the small kernel sizes to split to
+    num_neighborhood_rows = num_rows / self.BASE_SIZE
+    num_neighborhood_cols = num_cols / self.BASE_SIZE
+
+    # for r in range
+
+      
+
 
 
 
@@ -126,4 +149,4 @@ class MapCompressor:
 # ==========================================================================================================
 
 mc = MapCompressor()
-mc.compress(mc.MAP_3_PATH)
+mc.compress(mc.MAP_4_PATH)
