@@ -76,6 +76,7 @@ class MapCompressor:
     self.MAP_2_PATH = os.path.join("data", "original_images", "map2.bmp")
     self.MAP_3_PATH = os.path.join("data", "original_images", "map3.bmp")
     self.MAP_4_PATH = os.path.join("data", "original_images", "map4.bmp")
+    self.BASE_SIZE = 40
 
   # method to hold the overestimation of this map 
   def compress(self, path_to_bmp=None):
@@ -84,9 +85,40 @@ class MapCompressor:
 
     im = Image.open(path_to_bmp)
     # im.show() # testing
+
     im_array = np.array(im)
     # print(im_array.shape) # 400x400 for bmp 2 -> correct
     # print(im_array[100:120]) # printing to 255 -> white, 0 -> black
+
+    im_extended = self.reshape(im_array)
+
+    im_compressed = self.overestimate(im_extended)
+
+    return im_compressed
+
+  # to make life simpler, we will extend the end of rows
+  # and bottom of columns with their existing value.
+  def reshape(self, im):
+    print(f"original shape {im.shape}")
+    num_rows = im.shape[0]
+    num_cols = im.shape[1]
+
+    # don't do anything if it's already small
+    if (num_rows <= self.BASE_SIZE and num_cols <= self.BASE_SIZE): return im
+
+    # extend all the rows of im with edge values thus divisible by base size
+    extension = np.pad(im, ((0, (num_rows % self.BASE_SIZE)), (0, 0)), mode='edge') # extend columns
+    extension = np.pad(extension, ((0, 0), (0, (num_cols % self.BASE_SIZE))), mode='edge') # extend rows
+    print(f"extending with edge vals {extension.shape}")
+
+    # testing padding 
+    # extension = np.pad([[1, 2], [3, 4]], ((0, (num_rows % self.BASE_SIZE)), (0, 0)), mode='edge')
+    # print(extension)
+    # extension = np.pad(extension, ((0, 0), (0, (num_cols % self.BASE_SIZE))), mode='edge')
+    # print(extension)
+
+    return extension # return the extension
+
 
 
 # ==========================================================================================================
@@ -94,4 +126,4 @@ class MapCompressor:
 # ==========================================================================================================
 
 mc = MapCompressor()
-mc.compress(mc.MAP_2_PATH)
+mc.compress(mc.MAP_3_PATH)
