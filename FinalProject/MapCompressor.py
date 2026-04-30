@@ -33,10 +33,57 @@ the following class is responsible for taking a raw bmp file and compressing (or
 through over approximation into a platable matrix.
 
 the resultant matrix will be 40x40 or less.
+
+USAGE NOTES
+
+this should be used as follows:
+
+-------------------------------------------------------------------------
+
+mc = MapCompressor()
+
+<numpy array> map = mc.compress("/path/to/image.bmp")
+
+-------------------------------------------------------------------------
+
+also offered are some set paths if you just want to use those.
+the set paths are to the provided maps 1 - 4.
+
+-------------------------------------------------------------------------
+
+mc = MapCompressor()
+
+<numpy array> map1 = mc.compress(mc.MAP_1_PATH)
+<numpy array> map2 = mc.compress(mc.MAP_2_PATH)
+<numpy array> map3 = mc.compress(mc.MAP_3_PATH)
+<numpy array> map4 = mc.compress(mc.MAP_4_PATH)
+
+-------------------------------------------------------------------------
+
+============================================================================================================
 """
+
+# imports
+from PIL import Image
+import numpy as np
+import os
 
 class MapCompressor:
 
   # initializer
-  def __init__():
+  def __init__(self):
+    self.MAP_1_PATH = os.path.join("data", "original_images", "map1.bmp")
+    self.MAP_2_PATH = os.path.join("data", "original_images", "map2.bmp")
+    self.MAP_3_PATH = os.path.join("data", "original_images", "map3.bmp")
+    self.MAP_4_PATH = os.path.join("data", "original_images", "map4.bmp")
+
+  def compress(self):
     pass
+
+
+# ==========================================================================================================
+# TESTING
+# ==========================================================================================================
+
+mc = MapCompressor()
+mc.compress()
