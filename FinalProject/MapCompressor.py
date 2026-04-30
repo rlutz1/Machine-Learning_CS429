@@ -77,8 +77,13 @@ class MapCompressor:
     self.MAP_3_PATH = os.path.join("data", "original_images", "map3.bmp")
     self.MAP_4_PATH = os.path.join("data", "original_images", "map4.bmp")
 
-  def compress(self):
-    pass
+  # method to hold the overestimation of this map 
+  def compress(self, path_to_bmp=None):
+
+    if (path_to_bmp is None): path_to_bmp = self.MAP_2_PATH # get around defualt issue wtih self
+
+    im = Image.open(path_to_bmp)
+    # im.show() # testing
 
 
 # ==========================================================================================================
@@ -86,4 +91,4 @@ class MapCompressor:
 # ==========================================================================================================
 
 mc = MapCompressor()
-mc.compress()
+mc.compress(mc.MAP_2_PATH)
