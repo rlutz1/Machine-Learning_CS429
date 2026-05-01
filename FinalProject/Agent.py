@@ -153,6 +153,7 @@ environment = Environment(im, (0, 0)) # testing only
 # agent = Agent(environment, im.shape[0], im.shape[1]) # agent 
 agent = QLearnAgent(environment, im.shape[0], im.shape[1]) # agent 
 agent.train(episodes=1000)
+print(agent.Q_TABLE)
 # plt.imshow(im)
 # plt.colorbar()
 # plt.show()
