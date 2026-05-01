@@ -174,8 +174,8 @@ class MapCompressor:
 # TESTING
 # ==========================================================================================================
 
-mc = MapCompressor()
-im = mc.compress(mc.MAP_3_PATH)
-plt.imshow(im)
-plt.colorbar()
-plt.show()
+# mc = MapCompressor()
+# im = mc.compress(mc.MAP_3_PATH)
+# plt.imshow(im)
+# plt.colorbar()
+# plt.show()
