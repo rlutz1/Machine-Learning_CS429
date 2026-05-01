@@ -88,7 +88,7 @@ class MapCompressor:
     # im.show() # testing
 
     im_array = np.array(im)
-    print(im_array.shape) # 400x400 for bmp 2 -> correct
+    # print(im_array.shape) # 400x400 for bmp 2 -> correct
     # print(im_array[100:120]) # printing to 255 -> white, 0 -> black
 
     im_extended = self.reshape(im_array)
@@ -98,7 +98,7 @@ class MapCompressor:
   # to make life simpler, we will extend the end of rows
   # and bottom of columns with their existing value.
   def reshape(self, im):
-    print(f"original shape {im.shape}")
+    # print(f"original shape {im.shape}")
     num_rows = im.shape[0]
     num_cols = im.shape[1]
 
@@ -109,14 +109,12 @@ class MapCompressor:
 
     # extend all the rows of im with edge values thus divisible by base size
     # print((num_rows % self.BASE_SIZE))
-    # row_extension = (((num_rows // self.BASE_SIZE) + 1) * self.BASE_SIZE) - num_rows
-    # col_extension = (((num_cols // self.BASE_SIZE) + 1) * self.BASE_SIZE) - num_cols
     row_extension = (self.BASE_SIZE - (num_rows % self.BASE_SIZE)) % self.BASE_SIZE
     col_extension = (self.BASE_SIZE - (num_cols % self.BASE_SIZE)) % self.BASE_SIZE
 
     extension = np.pad(im, ((0, row_extension), (0, 0)), mode='edge') # extend columns
     extension = np.pad(extension, ((0, 0), (0, col_extension)), mode='edge') # extend rows
-    print(f"extending with edge vals {extension.shape}")
+    # print(f"extending with edge vals {extension.shape}")
 
     # testing padding 
     # extension = np.pad([[1, 2], [3, 4]], ((0, (num_rows % self.BASE_SIZE)), (0, 0)), mode='edge')
@@ -136,8 +134,6 @@ class MapCompressor:
 
     # just in case called directly
     if num_rows % self.BASE_SIZE != 0 or num_cols % self.BASE_SIZE != 0: 
-      # print(num_rows )
-      # print(num_cols )
       im = self.reshape(im)
     
     # the small kernel sizes to split to
@@ -163,8 +159,6 @@ class MapCompressor:
                 break
           else:
             break
-
-    print(compression)
    
     return compression
 
@@ -173,8 +167,8 @@ class MapCompressor:
 # TESTING
 # ==========================================================================================================
 
-mc = MapCompressor()
-im = mc.compress(mc.MAP_4_PATH)
-plt.imshow(im)
-plt.colorbar()
-plt.show()
+# mc = MapCompressor()
+# im = mc.compress(mc.MAP_2_PATH)
+# plt.imshow(im)
+# plt.colorbar()
+# plt.show()
