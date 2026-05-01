@@ -150,8 +150,8 @@ class QLearnAgent(Agent):
 mc = MapCompressor()
 im = mc.compress(mc.MAP_3_PATH)
 
-target_point = (39, 39)
-init_point = (10, 20)
+target_point = (39, 0)
+init_point = (0, 39)
 
 environment = Environment(im, target=target_point) # testing only
 
@@ -174,8 +174,17 @@ agent.train(episodes=10000)
 agent.test(steps=10000)
 
 # let's plot this bad boy
-plt.imshow(im)
-plt.scatter(agent.final_path[0], agent.final_path[1])
+plt.imshow(im, cmap="binary")
+plt.scatter(agent.final_path[0][0], agent.final_path[1][0], c='g', label="Start")
+plt.scatter(agent.final_path[0][1:-1], agent.final_path[1][1:-1], c='b', label="Transit")
+plt.scatter(agent.final_path[0][-1], agent.final_path[1][-1], c='r', label="End")
+plt.xlabel("Map Width")
+plt.ylabel("Map Height")
+plt.xticks(np.arange(1, im.shape[0] + 1, step=4))
+plt.yticks(np.arange(1, im.shape[1] + 1, step=4))
+plt.grid()
+plt.legend(loc="upper right")
+plt.title(f"Final Path of QLearn Agent, Start: {init_point}, End: {target_point}")
 plt.show()
 
 # np.set_printoptions(threshold=sys.maxsize)
