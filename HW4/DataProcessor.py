@@ -14,7 +14,6 @@ import yfinance as yf
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from scipy import stats
-from helper_code.TesterRNN import SimpleRNNModel
 import torch
 
 
@@ -81,7 +80,7 @@ class DataProcessor:
     self.target = target 
     self.scaler = scaler # (0, 1) default range scaling
     # for maleability of changing target without having to change the splitting function
-    self.target_indeces = { # Close,High,Low,Open,Volume
+    self.target_indeces = {
       "Close": 0,
       "High": 1, 
       "Low": 2,
@@ -95,7 +94,7 @@ class DataProcessor:
       "Microsoft": "MSFT",
       "Amazon": "AMZN",
       "NVIDIA": "NVDA",
-      "Google": "GOOG" # GOOGL is also an option. not literate enough to know the distict diff yet
+      "Google": "GOOG" # GOOGL is also an option
     }
 
     # select a time frame/period to shoot for
@@ -128,7 +127,7 @@ class DataProcessor:
     for symbol in self.company_symbols.values():
       path = os.path.join(self.raw_csv_dir, f"{symbol}_raw.csv")
       df = pd.read_csv(path) # read in the raw data for this symbol
-      df = self._remove_yfinance_header(df, symbol)# remove the weird row that fucking yfinance adds
+      df = self._remove_yfinance_header(df, symbol)# remove the weird row that yfinance adds
       df = self._remove_missing(df) # drop missing values
       df.to_csv(os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv"), index=False, encoding="utf-8") # write to the clean dir
   
@@ -151,11 +150,10 @@ class DataProcessor:
     print(f"dropped {original_num_samples - df_drop.shape[0]} samples with missing data.")
     return df_drop
 
-  # trying something else because this scaling is making me very nervous
-  # unless xin tells me no, it is a LOT safer to split the raw data FIRST
-  # and then scale, then windows. trying to make windows, split, then scale
-  # is a messy mess that i could do, but it needs to be done VERY carefully.
-  # in the name of time, let us have more data and split this way for now.
+  # split the raw data by a percentage that ensures train_percent% of sequences
+  # are training, rest are for testing.
+  # standardize the data using the specified scaler,
+  # and then create a sliding window set out of the raw datasets.
   def split(self, symbol):
     path = os.path.join(self.clean_csv_dir, f"{symbol}_clean.csv")
     df = pd.read_csv(path) # read in the raw data for this symbol
@@ -164,8 +162,16 @@ class DataProcessor:
 
     # find number of training samples
     num_samples = df.shape[0]
-    percent_needed_to_split_windows_correctly = self.train_percent - ((self.window_size * ((2 * self.train_percent) - 1)) / num_samples)
-    num_train_samples = round(num_samples * percent_needed_to_split_windows_correctly)
+
+    # calculate the percent needed to split the raw data such that
+    # we guarantee the number of slidding windows is train_percent% from
+    # the raw training set, rest is from raw testing.
+
+    # percent_needed_to_split_windows_correctly = self.train_percent - ((self.window_size * ((2 * self.train_percent) - 1)) / num_samples)
+    # num_train_samples = round(num_samples * percent_needed_to_split_windows_correctly) # get the training portion
+    
+    # simplification on above: calculate the number of samples, ditch the percent since we're jsut first and second portion
+    num_train_samples = round(self.train_percent * (num_samples - (2 * self.window_size)) + self.window_size)
     
     # splitting
     train_set = df[:num_train_samples]
@@ -188,7 +194,7 @@ class DataProcessor:
     # print(f"how many windows ended up in testing: {X_test.shape[0]}")
     # print(f"final total windows: {X_train.shape[0] + X_test.shape[0]}")
 
-    # TODO: removing outlier detection for a moment due to reordering
+    # NOTE: removing outlier detection for a moment due to reordering
     
     # print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
     # shape to: num samples * size of sequence * num features in a sample (columns)
@@ -196,6 +202,7 @@ class DataProcessor:
     self.y_train = torch.tensor(y_train, dtype=torch.float32)
 
     # print(f"shape we're changing to for training for pytorch: {X_test.shape[0]}, {X_test.shape[1]}, {df.shape[1]}")
+    # shape to: num samples * size of sequence * num features in a sample (columns)
     self.X_test = torch.tensor(X_test, dtype=torch.float32).view(X_test.shape[0], X_test.shape[1], df.shape[1])
     self.y_test = torch.tensor(y_test, dtype=torch.float32)
 
@@ -209,7 +216,7 @@ class DataProcessor:
       X.append(dataset[i:i + self.window_size]) # grab the next window_size rows
       y.append(dataset[i + self.window_size, self.target_indeces[self.target]]) # grab the NEXT ROW'S target value
     
-    # ensuring we're grabbing the right thing lmfao
+    # tester prints
     # print("first window")
     # print(dataset[0:60])
     # print("target val")
@@ -219,6 +226,7 @@ class DataProcessor:
     return np.array(X), np.array(y) # return the sliding windows.
 
   # method to remove outliers using Z score dropping qualification
+  # unused for the time being.
   def _remove_outliers(self, df, auto_drop=True):
 
     # helper function to be able to id potential
@@ -256,7 +264,8 @@ class DataProcessor:
 
     return df
 
-  #  helper function to identify all outlier samples as qualified by each column
+  # helper function to identify all outlier samples as qualified by each column
+  # unused for the time being.
   def _find_outlier_samples(self, df, col_labels, num_samples, sd_threshold=3):
     df = df.astype(float)
     problems_per_col = {} # for holding issues per column for clarity/debugging
@@ -286,24 +295,22 @@ class DataProcessor:
 
 # ===========================================
 # TESTING
+
 # dp = DataProcessor(
-#   data_grab=False,
-#   clean=False,
+#   data_grab=False, # TRUE: grab the raw data from yahoo finance and overwrite the existing CSVs
+#   clean=False, # TRUE: clean the raw data and overwrite the existing CSVs
 #   target="Close",
 #   start_date="2020-01-01",
 #   end_date="2024-01-02",
 #   scaler=MinMaxScaler(),
 #   training_percent=0.8,
 #   window_size=60
-#   )
-# dp.split(dp.company_symbols["Microsoft"])
-# torch.manual_seed(42)
-# np.random.seed(42)
-# input_size = 5
-# hidden_size = 10
-# output_size = 1
-# model = SimpleRNNModel(input_size, hidden_size, output_size)
-# model.fit(dp.X_train, dp.y_train)
-# print(f"MAPE score on train: {model.mape(dp.X_train, dp.y_train, dp)}%")
-# print(f"MAPE score on test: {model.mape(dp.X_test, dp.y_test, dp)}%")
+#   ) # TODO set to false before any usage so they don't have to repull crap 
+
+
+# dp.split(dp.company_symbols["Microsoft"]) # get ready for training
+# dp.split(dp.company_symbols["Google"]) # get ready for training
+# dp.split(dp.company_symbols["Amazon"]) # get ready for training
+# dp.split(dp.company_symbols["NVIDIA"]) # get ready for training
+
 # ===========================================
