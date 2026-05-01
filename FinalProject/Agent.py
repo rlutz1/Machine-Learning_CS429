@@ -48,7 +48,16 @@ class Agent:
 
 class QLearnAgent(Agent):
 
-  def __init__(self, environment, learn_rate=0.5, discount=0.5,  map_width=40, map_height=40):
+  def __init__(self, 
+               environment, 
+               learn_rate=0.5, 
+               discount=0.5,  
+               map_width=40,
+               map_height=40,
+               max_epsilon=1.0,
+               min_epsilon=0.05,
+               epsilon_decay_rate=0.0005
+               ):
     super().__init__(environment, map_width, map_height) # init the agent, with the Q table
     self.learn_rate = learn_rate
     self.discount = discount
