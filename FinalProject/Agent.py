@@ -42,7 +42,7 @@ class Agent:
     return self.environment.step(state=curr_state, action=next_action, strategy=strategy)
 
   # override with SARSA or QLearn?
-  def develop_policy(self):
+  def develop_policy(self, episodes=1000):
     pass
 
 
@@ -54,8 +54,9 @@ class QLearnAgent(Agent):
     self.discount = discount
 
   # initiate QLearn algorithm?
-  def develop_policy(self):
+  def develop_policy(self, episodes=1000):
     # next_state, reward, done = self.interact()
+    pass
  
 
 # ==========================================================================================================
