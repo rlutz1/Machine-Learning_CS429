@@ -10,6 +10,7 @@ import sys
 from Agent import Agent
 from MapCompressor import MapCompressor
 from Environment import Environment
+import matplotlib.pyplot as plt
 
 """
 class that implements the QLearn feedback policy for finding its way
@@ -36,18 +37,23 @@ class QLearnAgent(Agent):
     self.max_epsilon = max_epsilon
     self.min_epsilon = min_epsilon
     self.epsilon_decay_rate = epsilon_decay_rate
+    self.final_path = ([], []) # for plotting the path taken on the map
 
   
   # test the agent, meaning run it off it's Q table
   def test(self, steps=1000):
-
     # set initial state
     curr_state = self.init_state
 
     # have a limit on how long it can run for for sanity
     for step in range(steps):
-      print(curr_state)
-      # epsilon is now 0 -> ALWAYS exploit
+      # print(curr_state)
+
+      # for plotting
+      self.final_path[0].append(curr_state[0])
+      self.final_path[1].append([curr_state[1]])
+
+      # epsilon is now 0 -> ALWAYS exploit, never explore
       action = self.exploit_or_explore(0, curr_state)
 
       # interact with the environment with this action A and current state S
@@ -64,7 +70,6 @@ class QLearnAgent(Agent):
         curr_state = next_state
 
 
-
   # initiate QLearn algorithm to TRAIN the agent
   def train(self, episodes=1000):
 
@@ -74,15 +79,12 @@ class QLearnAgent(Agent):
       # use epsilon decay 
       epsilon = self.decay_epsilon(episode)
       
-
       # for each step of the episode
       for _ in range(1000):
         # choose next state/action by either exploitation or exploration
         action = self.exploit_or_explore(epsilon, curr_state)
-        # print(f"next action {action}")
         # interact with the environment with this action A and current state S
         next_state, reward, done, crash = self.interact(curr_state, action, self.strategy)
-        # print(f"next state {next_state}, reward {reward}")
 
         # if next state S' is not target
         # or the boundary
@@ -92,7 +94,6 @@ class QLearnAgent(Agent):
           # update the curr state to this one
           curr_state = next_state
         else: # boundary or target
-          # print("??")
           break # stop, we reached terminal state
 
   # wrapper for specific update to Q table as directed by the 
@@ -104,6 +105,8 @@ class QLearnAgent(Agent):
     new_x  = next_state[0]
     new_y  = next_state[1]
 
+    # i know this is stupid, but was helpful to write this out
+    # for the formula below, lol--going off his slides for it
     QSA = self.Q_TABLE[curr_x][curr_y][action]
     max_QS_a_index = np.argmax(self.Q_TABLE[new_x][new_y])
     QS_a = self.Q_TABLE[new_x][new_y][max_QS_a_index]
@@ -113,8 +116,6 @@ class QLearnAgent(Agent):
 
     # update according to QLearn
     self.Q_TABLE[curr_x][curr_y][action] = QSA + alpha * (R + (gamma * QS_a) - QSA) 
-    # print(self.Q_TABLE[curr_x][curr_y][action])
-    # print(f"QSA {QSA}, QS_a {QS_a}, R {R}")
 
   # use a greedy epsilon strategy to choose the next state
   # TODO: randomly break ties? for now, just exploit in ties
@@ -172,9 +173,13 @@ agent.train(episodes=10000)
 
 agent.test(steps=10000)
 
+# let's plot this bad boy
+plt.imshow(im)
+plt.scatter(agent.final_path[0], agent.final_path[1])
+plt.show()
 
-np.set_printoptions(threshold=sys.maxsize)
-print(agent.Q_TABLE)
-# plt.imshow(im)
+# np.set_printoptions(threshold=sys.maxsize)
+# print(agent.Q_TABLE)
+# # plt.imshow(im)
 # plt.colorbar()
 # plt.show()
