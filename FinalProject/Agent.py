@@ -14,37 +14,54 @@ from Environment import Environment
 
 class Agent:
 
-  
-
   def __init__(self, environment, map_width=40, map_height=40):
     # make a 3d matrix: 
     # dimension 1: x coords (map_width)
     # dimension 2: y coords (map_height)
     # dimension 3: actions (U, D, L, R) (4)
     self.Q_TABLE = np.zeros((map_width, map_height, 4))
-    # print(self.Q_TABLE.shape)
     self.environment = environment
+    # for not hardcoding every little thing.
+    self.actions = {
+      "L": 0, "R": 1, "U": 2, "D": 3
+    }
 
-  # interaction with environment, update Qtable
+  # interaction with environment simply a wrapper
   def interact(self, 
                curr_state: tuple,        # next coordinate (x, y)
                next_action: int,         # next action {0, 1, 2, 3} -> (LEFT / RIGHT / UP / DOWN)
                strategy: str = "S1" # strategy to use
                ):
-    # probe the environment
-    next_state, reward, done = self.environment.step(state=curr_state, action=next_action, strategy=strategy)
-    if not done:
-      self.update_Q_TABLE(state=next_state, action=action, reward=reward)
+    # probe the environment with your current state (S) and desired next action (A).
+    # take action (A), observe next state (S') and reward (R)
+    return self.environment.step(state=curr_state, action=next_action, strategy=strategy)
 
-  # is this where policy eval/update goes? unclear... hold on
-  def update_Q_TABLE(self,  state: tuple, action: int, reward:float):
-    x = state[0]
-    y = state[1]
-    self.Q_TABLE[x][y][action] = self.algo()
 
-  # redefine this with sarsa update or QLearn?
-  def algo(self):
+  def develop_policy(self):
     pass
+
+  
+  # # is this where policy eval/update goes? unclear... hold on
+  # def update_Q_TABLE(self,  state: tuple, action: int, reward:float):
+  #   x = state[0]
+  #   y = state[1]
+  #   self.Q_TABLE[x][y][action] = self.algo()
+
+  # # redefine this with sarsa update or QLearn?
+  # def algo(self):
+  #   pass
+
+
+class QLearnAgent(Agent):
+
+  def __init__(self, environment, learn_rate=0.5, discount=0.5,  map_width=40, map_height=40):
+    super().__init__(environment, map_width, map_height) # init the agent, with the Q table
+    self.learn_rate = learn_rate
+    self.discount = discount
+
+  def develop_policy(self):
+    # next_state, reward, done = self.interact()
+ 
 
 # ==========================================================================================================
 # TESTING
@@ -55,7 +72,8 @@ im = mc.compress(mc.MAP_1_PATH)
 
 environment = Environment(im, (0, 0)) # testing only
 
-agent = Agent(environment, im.shape[0], im.shape[1]) # agent 
+# agent = Agent(environment, im.shape[0], im.shape[1]) # agent 
+agent = QLearnAgent(environment, im.shape[0], im.shape[1]) # agent 
 # plt.imshow(im)
 # plt.colorbar()
 # plt.show()
