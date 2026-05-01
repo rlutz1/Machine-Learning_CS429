@@ -157,10 +157,25 @@ class QLearnAgent(Agent):
 mc = MapCompressor()
 im = mc.compress(mc.MAP_1_PATH)
 
-environment = Environment(im, target=(19, 19)) # testing only
+target_point = (19, 19)
+init_point = (0, 0)
+
+environment = Environment(im, target=target_point) # testing only
 
 # agent = Agent(environment, im.shape[0], im.shape[1]) # agent 
-agent = QLearnAgent(environment, im.shape[0], im.shape[1]) # agent 
+agent = QLearnAgent(
+  environment, 
+  map_width=im.shape[0],
+  map_height=im.shape[1],
+  init_state=init_point,
+  strategy_to_use="S1",
+  learn_rate=0.7, 
+  discount=0.95,  
+  max_epsilon=1.0,
+  min_epsilon=0.05,
+  epsilon_decay_rate=0.0005
+  )
+
 agent.train(episodes=1000)
 
 
