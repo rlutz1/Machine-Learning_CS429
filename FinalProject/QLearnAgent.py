@@ -160,7 +160,8 @@ im = mc.compress(mc.MAP_3_PATH)
 target_point = (39, 39) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
 # testing_init_point = (16, 28) # start him from somewhere strange when testing to see how he does
-testing_init_point = (10, 8) # start him from somewhere strange when testing to see how he does
+# testing_init_point = (10, 8) # start him from somewhere strange when testing to see how he does
+testing_init_point = (8, 15) # start him from somewhere strange when testing to see how he does
 
 environment = Environment(im, target=target_point) # testing only
 
