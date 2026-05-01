@@ -45,13 +45,13 @@ class QLearnAgent(Agent):
     # set initial state
     curr_state = self.init_state
 
+    # for plotting
+    self.final_path[0].append(curr_state[0])
+    self.final_path[1].append([curr_state[1]])
+
     # have a limit on how long it can run for for sanity
     for step in range(steps):
       # print(curr_state)
-
-      # for plotting
-      self.final_path[0].append(curr_state[0])
-      self.final_path[1].append([curr_state[1]])
 
       # epsilon is now 0 -> ALWAYS exploit, never explore
       action = self.exploit_or_explore(0, curr_state)
@@ -59,15 +59,22 @@ class QLearnAgent(Agent):
       # interact with the environment with this action A and current state S
       next_state, reward, done, crash = self.interact(curr_state, action, self.strategy)
 
+      # for plotting
+      self.final_path[0].append(next_state[0])
+      self.final_path[1].append([next_state[1]])
+
       # if DONE, like, hit the trigger
       if done: 
         print("AGENT SUCCESSFULLY FOUND TARGET!!! :>")
         break
-      elif crash:
+
+      # if i hit a wall, DO BETTER
+      if crash:
         print("AGENT CRASHED INTO BOUNDARY OR OBSTACLE! :(")
         break
-      else: # no crash, not done
-        curr_state = next_state
+      
+      # no crash, not done
+      curr_state = next_state
 
 
   # initiate QLearn algorithm to TRAIN the agent
@@ -150,8 +157,8 @@ class QLearnAgent(Agent):
 mc = MapCompressor()
 im = mc.compress(mc.MAP_3_PATH)
 
-target_point = (39, 0)
-init_point = (0, 39)
+target_point = (24, 4)
+init_point = (16, 28)
 
 environment = Environment(im, target=target_point) # testing only
 
@@ -180,8 +187,8 @@ plt.scatter(agent.final_path[0][1:-1], agent.final_path[1][1:-1], c='b', label="
 plt.scatter(agent.final_path[0][-1], agent.final_path[1][-1], c='r', label="End")
 plt.xlabel("Map Width")
 plt.ylabel("Map Height")
-plt.xticks(np.arange(1, im.shape[0] + 1, step=4))
-plt.yticks(np.arange(1, im.shape[1] + 1, step=4))
+plt.xticks(np.arange(0, im.shape[0], step=4))
+plt.yticks(np.arange(0, im.shape[1], step=4))
 plt.grid()
 plt.legend(loc="upper right")
 plt.title(f"Final Path of QLearn Agent, Start: {init_point}, End: {target_point}")
