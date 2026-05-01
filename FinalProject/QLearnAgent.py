@@ -157,8 +157,11 @@ class QLearnAgent(Agent):
 mc = MapCompressor()
 im = mc.compress(mc.MAP_3_PATH)
 
-target_point = (24, 4)
-init_point = (16, 28)
+target_point = (39, 39) # target stays consistent for the moment
+training_init_point = (0, 0) # start him from here when training
+testing_init_point = (16, 28) # start him from somewhere strange when testing to see how he does
+# something weird here
+# testing_init_point = (10, 8) # start him from somewhere strange when testing to see how he does
 
 environment = Environment(im, target=target_point) # testing only
 
@@ -167,7 +170,7 @@ agent = QLearnAgent(
   environment, 
   map_width=im.shape[0],
   map_height=im.shape[1],
-  init_state=init_point,
+  init_state=training_init_point,
   strategy_to_use="S2",
   learn_rate=0.7, 
   discount=0.95,  
@@ -178,6 +181,8 @@ agent = QLearnAgent(
 
 agent.train(episodes=10000)
 
+# change the initial state for spice
+agent.init_state = testing_init_point
 agent.test(steps=10000)
 
 # let's plot this bad boy
@@ -191,7 +196,7 @@ plt.xticks(np.arange(0, im.shape[0], step=4))
 plt.yticks(np.arange(0, im.shape[1], step=4))
 plt.grid()
 plt.legend(loc="upper right")
-plt.title(f"Final Path of QLearn Agent, Start: {init_point}, End: {target_point}")
+plt.title(f"Final Path of QLearn Agent, Start: {testing_init_point}, End: {target_point}")
 plt.show()
 
 # np.set_printoptions(threshold=sys.maxsize)
