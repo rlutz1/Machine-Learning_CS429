@@ -129,13 +129,15 @@ class Environment:
         if not self.in_bounds(nx, ny):
             reward = self.compute_reward(x, y, hit_boundary=True, strategy=strategy)
             # Agent stays in current cell and episode ends
-            return state, reward, True
+            # return state, reward, True
+            return state, reward, False # TODO: this may need to be true in training?
 
         # Obstacle
         if self.is_obstacle(nx, ny):
             reward = self.compute_reward(x, y, hit_boundary=True, strategy=strategy)
             # Treat obstacle collision same as boundary violation
-            return state, reward, True
+            # return state, reward, True
+            return state, reward, False # TODO: this may need to be true in training?
 
         # Target reached
         next_state = (nx, ny)

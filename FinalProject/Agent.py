@@ -9,6 +9,7 @@ is reached and a very negative reward is returned when an obstacle is reached
 """
 # imports
 import numpy as np
+import sys
 from MapCompressor import MapCompressor
 from Environment import Environment
 
@@ -19,7 +20,8 @@ class Agent:
                map_width=40, 
                map_height=40,
                init_state=(0, 0),
-               strategy_to_use="S1"):
+               strategy_to_use="S1"
+               ):
     # make a 3d matrix: 
     # dimension 1: x coords (map_width)
     # dimension 2: y coords (map_height)
@@ -36,12 +38,12 @@ class Agent:
   # interaction with environment simply a wrapper
   def interact(self, 
                curr_state: tuple,        # next coordinate (x, y)
-               next_action: int,         # next action {0, 1, 2, 3} -> (LEFT / RIGHT / UP / DOWN)
+               action: int,         # next action {0, 1, 2, 3} -> (LEFT / RIGHT / UP / DOWN)
                strategy: str = "S1" # strategy to use
                ):
     # probe the environment with your current state (S) and desired next action (A).
     # take action (A), observe next state (S') and reward (R)
-    return self.environment.step(state=curr_state, action=next_action, strategy=strategy)
+    return self.environment.step(state=curr_state, action=action, strategy=strategy)
 
   # override with SARSA or QLearn?
   def train(self, episodes=1000):
@@ -56,8 +58,8 @@ class QLearnAgent(Agent):
                map_height=40,
                init_state=(0, 0),
                strategy_to_use="S1",
-               learn_rate=0.5, 
-               discount=0.5,  
+               learn_rate=0.7, 
+               discount=0.95,  
                max_epsilon=1.0,
                min_epsilon=0.05,
                epsilon_decay_rate=0.0005
@@ -79,18 +81,23 @@ class QLearnAgent(Agent):
       epsilon = self.decay_epsilon(episode)
 
       # for each step of the episode
-      for step in range(0, 100):
+      for _ in range(1000):
         # choose next state/action by either exploitation or exploration
         action = self.exploit_or_explore(epsilon, curr_state)
+        print(f"next action {action}")
         # interact with the environment with this action A and current state S
         next_state, reward, done = self.interact(curr_state, action, self.strategy)
-        # if next state S' is not terminal
+        print(f"next state {next_state}, reward {reward}")
+
+        # if next state S' is not target
+        # or the boundary
         if not done: 
           # update the Q table
           self.update_Q_TABLE(curr_state, next_state, reward, action)
           # update the curr state to this one
           curr_state = next_state
-        else:
+        else: # boundary or target
+          print("??")
           break # stop, we reached terminal state
 
 
@@ -110,6 +117,8 @@ class QLearnAgent(Agent):
 
     # update
     self.Q_TABLE[curr_x][curr_y][action] = QSA + alpha * (R + (gamma * QS_a) - QSA) 
+    print(self.Q_TABLE[curr_x][curr_y][action])
+    print(f"QSA {QSA}, QS_a {QS_a}, R {R}")
 
 
 
@@ -148,11 +157,14 @@ class QLearnAgent(Agent):
 mc = MapCompressor()
 im = mc.compress(mc.MAP_1_PATH)
 
-environment = Environment(im, (0, 0)) # testing only
+environment = Environment(im, target=(19, 19)) # testing only
 
 # agent = Agent(environment, im.shape[0], im.shape[1]) # agent 
 agent = QLearnAgent(environment, im.shape[0], im.shape[1]) # agent 
 agent.train(episodes=1000)
+
+
+np.set_printoptions(threshold=sys.maxsize)
 print(agent.Q_TABLE)
 # plt.imshow(im)
 # plt.colorbar()
