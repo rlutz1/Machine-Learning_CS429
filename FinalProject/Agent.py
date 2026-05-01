@@ -14,13 +14,18 @@ from Environment import Environment
 
 class Agent:
 
-  def __init__(self, environment, map_width=40, map_height=40):
+  def __init__(self, 
+               environment, 
+               map_width=40, 
+               map_height=40,
+               strategy_to_use="S1"):
     # make a 3d matrix: 
     # dimension 1: x coords (map_width)
     # dimension 2: y coords (map_height)
     # dimension 3: actions (U, D, L, R) (4)
     self.Q_TABLE = np.zeros((map_width, map_height, 4))
-    self.environment = environment
+    self.environment = environment # environment to probe
+    self.strategy = strategy_to_use # tie to the agent
     # for not hardcoding every little thing.
     self.actions = {
       "L": 0, "R": 1, "U": 2, "D": 3
@@ -36,20 +41,9 @@ class Agent:
     # take action (A), observe next state (S') and reward (R)
     return self.environment.step(state=curr_state, action=next_action, strategy=strategy)
 
-
+  # override with SARSA or QLearn?
   def develop_policy(self):
     pass
-
-  
-  # # is this where policy eval/update goes? unclear... hold on
-  # def update_Q_TABLE(self,  state: tuple, action: int, reward:float):
-  #   x = state[0]
-  #   y = state[1]
-  #   self.Q_TABLE[x][y][action] = self.algo()
-
-  # # redefine this with sarsa update or QLearn?
-  # def algo(self):
-  #   pass
 
 
 class QLearnAgent(Agent):
@@ -59,6 +53,7 @@ class QLearnAgent(Agent):
     self.learn_rate = learn_rate
     self.discount = discount
 
+  # initiate QLearn algorithm?
   def develop_policy(self):
     # next_state, reward, done = self.interact()
  
