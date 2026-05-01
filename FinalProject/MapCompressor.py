@@ -67,6 +67,7 @@ mc = MapCompressor()
 from PIL import Image
 import numpy as np
 import os
+import matplotlib.pyplot as plt
 
 class MapCompressor:
 
@@ -93,6 +94,7 @@ class MapCompressor:
     im_extended = self.reshape(im_array)
 
     im_compressed = self.overestimate(im_extended)
+  
 
     return im_compressed
 
@@ -127,6 +129,9 @@ class MapCompressor:
     num_rows = im.shape[0]
     num_cols = im.shape[1]
 
+    # don't do anything if it's already small
+    if num_rows <= self.BASE_SIZE and num_cols <= self.BASE_SIZE: return im
+
     # just in case called directly
     if num_rows % self.BASE_SIZE != 0 or num_cols % self.BASE_SIZE != 0: 
       # print(num_rows )
@@ -134,14 +139,35 @@ class MapCompressor:
       im = self.reshape(im)
     
     # the small kernel sizes to split to
-    num_neighborhood_rows = num_rows / self.BASE_SIZE
-    num_neighborhood_cols = num_cols / self.BASE_SIZE
+    num_neighborhood_rows = num_rows // self.BASE_SIZE
+    num_neighborhood_cols = num_cols // self.BASE_SIZE
 
-    # for r in range
+    # matrix for compressing values
+    compression = np.ones((self.BASE_SIZE, self.BASE_SIZE))
+    # kernel to use
+    kernel = np.ones((num_neighborhood_rows, num_neighborhood_cols))
+    # boundary = False
 
-      
+    # outer iteration of larger array
+    for (c_r, R) in zip(range(0, self.BASE_SIZE), range(0, num_rows, num_neighborhood_rows)):
+      for (c_c, C) in zip(range(0, self.BASE_SIZE), range(0, num_cols, num_neighborhood_cols)):
+        compression[c_r][c_c] = 255
+        # kernel iteration
+        boundary = False
+        for r in range(R, R + num_neighborhood_rows):
+          if not boundary:
+            for c in range(C, C + num_neighborhood_cols):
+              # if ANY pixel is black in the neighborhood
+              if im[r][c] == 0: 
+                compression[c_r][c_c] = 0
+                boundary = True
+                break
+          else:
+            break
 
-
+    print(compression)
+   
+    return compression
 
 
 # ==========================================================================================================
@@ -149,4 +175,7 @@ class MapCompressor:
 # ==========================================================================================================
 
 mc = MapCompressor()
-mc.compress(mc.MAP_4_PATH)
+im = mc.compress(mc.MAP_3_PATH)
+plt.imshow(im)
+plt.colorbar()
+plt.show()
