@@ -15,15 +15,14 @@ class Agent:
 
   
 
-  def __init__(self, map_width=40, map_height=40):
-    # self.num_coordinates = map_width * map_height # for ease of use
+  def __init__(self, environment, map_width=40, map_height=40):
     # make a 3d matrix: 
     # dimension 1: x coords (map_width)
     # dimension 2: y coords (map_height)
     # dimension 3: actions (U, D, L, R) (4)
     self.Q_TABLE = np.zeros((map_width, map_height, 4))
     print(self.Q_TABLE.shape)
-    pass
+    self.environment = environment
 
 # ==========================================================================================================
 # TESTING
