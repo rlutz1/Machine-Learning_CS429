@@ -199,8 +199,8 @@ agent = QLearnAgent(
 agent.train(episodes=10000)
 
 
-np.set_printoptions(threshold=sys.maxsize)
-print(agent.Q_TABLE)
+# np.set_printoptions(threshold=sys.maxsize)
+# print(agent.Q_TABLE)
 
 # change the initial state for spice
 agent.test(steps=10000, init_state=testing_init_point )
@@ -218,7 +218,3 @@ plt.grid()
 plt.legend(loc="upper right")
 plt.title(f"Final Path of QLearn Agent, Start: {testing_init_point}, End: {target_point}")
 plt.show()
-
-# # plt.imshow(im)
-# plt.colorbar()
-# plt.show()
