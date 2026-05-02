@@ -92,29 +92,29 @@ class MapCompressor:
     # print(im_array[100:120]) # printing to 255 -> white, 0 -> black
 
     im_extended = self.reshape(im_array)
-
     im_compressed = self.overestimate(im_extended)
-  
-
     return im_compressed
 
   # to make life simpler, we will extend the end of rows
   # and bottom of columns with their existing value.
   def reshape(self, im):
-    print(f"original shape {im.shape}")
+    # print(f"original shape {im.shape}")
     num_rows = im.shape[0]
     num_cols = im.shape[1]
 
     # don't do anything if it's already small
     if num_rows <= self.BASE_SIZE and num_cols <= self.BASE_SIZE: return im
 
+
+
     # extend all the rows of im with edge values thus divisible by base size
     # print((num_rows % self.BASE_SIZE))
-    row_extension = (((num_rows // self.BASE_SIZE) + 1) * self.BASE_SIZE) - num_rows
-    col_extension = (((num_cols // self.BASE_SIZE) + 1) * self.BASE_SIZE) - num_cols
+    row_extension = (self.BASE_SIZE - (num_rows % self.BASE_SIZE)) % self.BASE_SIZE
+    col_extension = (self.BASE_SIZE - (num_cols % self.BASE_SIZE)) % self.BASE_SIZE
+
     extension = np.pad(im, ((0, row_extension), (0, 0)), mode='edge') # extend columns
     extension = np.pad(extension, ((0, 0), (0, col_extension)), mode='edge') # extend rows
-    print(f"extending with edge vals {extension.shape}")
+    # print(f"extending with edge vals {extension.shape}")
 
     # testing padding 
     # extension = np.pad([[1, 2], [3, 4]], ((0, (num_rows % self.BASE_SIZE)), (0, 0)), mode='edge')
@@ -134,8 +134,6 @@ class MapCompressor:
 
     # just in case called directly
     if num_rows % self.BASE_SIZE != 0 or num_cols % self.BASE_SIZE != 0: 
-      # print(num_rows )
-      # print(num_cols )
       im = self.reshape(im)
     
     # the small kernel sizes to split to
@@ -143,15 +141,12 @@ class MapCompressor:
     num_neighborhood_cols = num_cols // self.BASE_SIZE
 
     # matrix for compressing values
-    compression = np.ones((self.BASE_SIZE, self.BASE_SIZE))
-    # kernel to use
-    kernel = np.ones((num_neighborhood_rows, num_neighborhood_cols))
-    # boundary = False
+    compression = np.full((self.BASE_SIZE, self.BASE_SIZE), 255)
 
     # outer iteration of larger array
     for (c_r, R) in zip(range(0, self.BASE_SIZE), range(0, num_rows, num_neighborhood_rows)):
       for (c_c, C) in zip(range(0, self.BASE_SIZE), range(0, num_cols, num_neighborhood_cols)):
-        compression[c_r][c_c] = 255
+
         # kernel iteration
         boundary = False
         for r in range(R, R + num_neighborhood_rows):
@@ -164,8 +159,6 @@ class MapCompressor:
                 break
           else:
             break
-
-    print(compression)
    
     return compression
 

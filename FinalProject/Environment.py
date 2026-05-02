@@ -119,7 +119,8 @@ class Environment:
         Returns
         next_state : (x, y)  – position after the action (unchanged if the move was illegal)
         reward: float – immediate reward
-        done: bool – True if the episode has ended (target reached, obstacle hit, max steps met)
+        done: bool – True if the episode has ended (target reached)
+        crash: bool - True if obstacle hit/boundary hit
         """
         x, y = state
         dx, dy = DELTA[action]
@@ -129,23 +130,23 @@ class Environment:
         if not self.in_bounds(nx, ny):
             reward = self.compute_reward(x, y, hit_boundary=True, strategy=strategy)
             # Agent stays in current cell and episode ends
-            return state, reward, True
+            return state, reward, False, True
 
         # Obstacle
         if self.is_obstacle(nx, ny):
             reward = self.compute_reward(x, y, hit_boundary=True, strategy=strategy)
             # Treat obstacle collision same as boundary violation
-            return state, reward, True
+            return state, reward, False, True
 
         # Target reached
         next_state = (nx, ny)
         if next_state == self.target:
             reward = self.compute_reward(nx, ny, hit_boundary=False, strategy=strategy)
-            return next_state, reward, True  # End here we win (yay)
+            return next_state, reward, True, False  # End here we win (yay)
 
         # Normal steppin
         reward = self.compute_reward(nx, ny, hit_boundary=False, strategy=strategy)
-        return next_state, reward, False
+        return next_state, reward, False, False
 
     def get_free_cells(self) -> list:
         """Return a list of all accessible (x, y) positions on the map."""

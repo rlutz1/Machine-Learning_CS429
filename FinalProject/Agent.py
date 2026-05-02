@@ -1,0 +1,53 @@
+"""
+BUILDING THE AGENT
+
+You are required to write a Python class for the agent which keeps a
+Q-table. At least a function for the interaction with an environment should be implemented. It performs an
+interaction with an environment and updates the Q-table. As it is explained in the class, the Q-table should
+be a 3-D matrix. S1 can be a naive strategy in which a very high reward is returned when the target position
+is reached and a very negative reward is returned when an obstacle is reached
+"""
+# imports
+import numpy as np
+
+"""
+general class for an agent.
+provides a simple wrapper for interaction
+with the environment, as well as the setup of the QTable
+"""
+
+class Agent:
+
+  def __init__(self, 
+               environment, 
+               map_width=40, 
+               map_height=40,
+               init_state=(0, 0),
+               strategy_to_use="S1"
+               ):
+    # make a 3d matrix: 
+    # dimension 1: x coords (map_width)
+    # dimension 2: y coords (map_height)
+    # dimension 3: actions (U, D, L, R) (4)
+    self.Q_TABLE = np.zeros((map_width, map_height, 4))
+    self.environment = environment # environment to probe
+    self.strategy = strategy_to_use # tie to the agent
+    self.init_state=init_state
+    # for not hardcoding every little thing.
+    self.actions = {
+      "L": 0, "R": 1, "U": 2, "D": 3
+    }
+
+  # interaction with environment simply a wrapper
+  def interact(self, 
+               curr_state: tuple,        # next coordinate (x, y)
+               action: int,         # next action {0, 1, 2, 3} -> (LEFT / RIGHT / UP / DOWN)
+               strategy: str = "S1" # strategy to use
+               ):
+    # probe the environment with your current state (S) and desired next action (A).
+    # take action (A), observe next state (S') and reward (R)
+    return self.environment.step(state=curr_state, action=action, strategy=strategy)
+
+  # override with SARSA or QLearn
+  def train(self, episodes=1000):
+    pass
