@@ -41,9 +41,9 @@ class QLearnAgent(Agent):
 
   
   # test the agent, meaning run it off it's Q table
-  def test(self, steps=1000):
+  def test(self, steps=1000, init_state=(0, 0)):
     # set initial state
-    curr_state = self.init_state
+    curr_state = init_state
 
     # for plotting
     self.final_path[0].append(curr_state[0])
@@ -87,21 +87,37 @@ class QLearnAgent(Agent):
       epsilon = self.decay_epsilon(episode)
       
       # for each step of the episode
-      for _ in range(1000):
+      for _ in range(10000):
         # choose next state/action by either exploitation or exploration
         action = self.exploit_or_explore(epsilon, curr_state)
         # interact with the environment with this action A and current state S
         next_state, reward, done, crash = self.interact(curr_state, action, self.strategy)
+        # update the Q table
+        self.update_Q_TABLE(curr_state, next_state, reward, action)
+        # update the curr state to this one
+        curr_state = next_state
 
         # if next state S' is not target
         # or the boundary
-        if not done: 
-          # update the Q table
-          self.update_Q_TABLE(curr_state, next_state, reward, action)
-          # update the curr state to this one
-          curr_state = next_state
-        else: # boundary or target
+        if done or crash: # boundary or target
           break # stop, we reached terminal state
+
+        # OLD STEP ITERATION WITH POOR ORDERING OF Q TABLE UPDATE:  
+
+        # # choose next state/action by either exploitation or exploration
+        # action = self.exploit_or_explore(epsilon, curr_state)
+        # # interact with the environment with this action A and current state S
+        # next_state, reward, done, crash = self.interact(curr_state, action, self.strategy)
+
+        # # if next state S' is not target
+        # # or the boundary
+        # if not done: 
+        #   # update the Q table
+        #   self.update_Q_TABLE(curr_state, next_state, reward, action)
+        #   # update the curr state to this one
+        #   curr_state = next_state
+        # else: # boundary or target
+        #   break # stop, we reached terminal state
 
   # wrapper for specific update to Q table as directed by the 
   # QLearn algorithm.
@@ -127,6 +143,7 @@ class QLearnAgent(Agent):
   # use a greedy epsilon strategy to choose the next state
   # TODO: randomly break ties? for now, just exploit in ties
   def exploit_or_explore(self, epsilon: float, curr_state: tuple):
+    np.random.seed(42) # woops
     p = np.random.uniform()
     action = None
     if p < epsilon:
@@ -181,9 +198,12 @@ agent = QLearnAgent(
 
 agent.train(episodes=10000)
 
+
+np.set_printoptions(threshold=sys.maxsize)
+print(agent.Q_TABLE)
+
 # change the initial state for spice
-agent.init_state = testing_init_point
-agent.test(steps=10000)
+agent.test(steps=10000, init_state=testing_init_point )
 
 # let's plot this bad boy
 plt.imshow(im, cmap="binary")
@@ -199,8 +219,6 @@ plt.legend(loc="upper right")
 plt.title(f"Final Path of QLearn Agent, Start: {testing_init_point}, End: {target_point}")
 plt.show()
 
-# np.set_printoptions(threshold=sys.maxsize)
-# print(agent.Q_TABLE)
 # # plt.imshow(im)
 # plt.colorbar()
 # plt.show()
