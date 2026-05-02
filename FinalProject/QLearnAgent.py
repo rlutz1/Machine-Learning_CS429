@@ -47,7 +47,7 @@ class QLearnAgent(Agent):
 
     # for plotting
     self.final_path[0].append(curr_state[0])
-    self.final_path[1].append([curr_state[1]])
+    self.final_path[1].append(curr_state[1])
 
     # have a limit on how long it can run for for sanity
     for step in range(steps):
@@ -177,12 +177,11 @@ im = mc.compress(mc.MAP_3_PATH)
 target_point = (39, 39) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
 # testing_init_point = (16, 28) # start him from somewhere strange when testing to see how he does
-# testing_init_point = (10, 8) # start him from somewhere strange when testing to see how he does
+# testing_init_point = (10, 8) # this one, he gets stuck in oscillation
 testing_init_point = (8, 15) # start him from somewhere strange when testing to see how he does
 
 environment = Environment(im, target=target_point) # testing only
 
-# agent = Agent(environment, im.shape[0], im.shape[1]) # agent 
 agent = QLearnAgent(
   environment, 
   map_width=im.shape[0],
@@ -203,7 +202,10 @@ agent.train(episodes=10000, steps=1000)
 # print(agent.Q_TABLE)
 
 # change the initial state for spice
-agent.test(steps=10000, init_state=testing_init_point )
+agent.test(steps=10000, init_state=testing_init_point)
+
+# print(agent.final_path[0])
+# print(agent.final_path[1])
 
 # let's plot this bad boy
 plt.imshow(im, cmap="binary")
