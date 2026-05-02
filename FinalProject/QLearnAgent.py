@@ -78,7 +78,7 @@ class QLearnAgent(Agent):
 
 
   # initiate QLearn algorithm to TRAIN the agent
-  def train(self, episodes=1000):
+  def train(self, episodes=1000, steps=1000):
 
     for episode in range(episodes):
       # initialize S
@@ -87,7 +87,7 @@ class QLearnAgent(Agent):
       epsilon = self.decay_epsilon(episode)
       
       # for each step of the episode
-      for _ in range(10000):
+      for _ in range(steps):
         # choose next state/action by either exploitation or exploration
         action = self.exploit_or_explore(epsilon, curr_state)
         # interact with the environment with this action A and current state S
@@ -196,7 +196,7 @@ agent = QLearnAgent(
   epsilon_decay_rate=0.0005
   )
 
-agent.train(episodes=10000)
+agent.train(episodes=10000, steps=1000)
 
 
 # np.set_printoptions(threshold=sys.maxsize)
