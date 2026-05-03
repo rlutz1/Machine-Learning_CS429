@@ -138,7 +138,12 @@ class QLearnAgent(Agent):
       # 1 - epsilon chance to exploit -- choose based on Q table
       x = curr_state[0]
       y = curr_state[1]
-      action = np.argmax(self.Q_TABLE[x][y])
+      # action = np.argmax(self.Q_TABLE[x][y])
+      q_vals = self.Q_TABLE[x][y]
+      max_q = np.max(q_vals)
+      actions = np.where(q_vals == max_q)[0]
+      # print(actions)
+      action = np.random.choice(actions)
 
     return action
 
@@ -178,7 +183,7 @@ agent = QLearnAgent(
   learn_rate=0.7, 
   discount=0.95,  
   use_epsilon_decay=False, # havin eps=1 with this works just fine.
-  epsilon=0.5, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
+  epsilon=0.7, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
   min_epsilon=0.05,
   epsilon_decay_rate=0.0005
   )
