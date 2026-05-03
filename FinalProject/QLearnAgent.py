@@ -63,7 +63,7 @@ class QLearnAgent(Agent):
 
       # for plotting
       self.final_path[0].append(next_state[0])
-      self.final_path[1].append([next_state[1]])
+      self.final_path[1].append(next_state[1])
 
       # if DONE, like, hit the trigger
       if done: 
@@ -126,7 +126,7 @@ class QLearnAgent(Agent):
   # use a greedy epsilon strategy to choose the next state
   # TODO: randomly break ties? for now, just exploit in ties
   def exploit_or_explore(self, epsilon: float, curr_state: tuple):
-    np.random.seed(42) # woops
+    
     p = np.random.uniform()
     action = None
 
@@ -155,10 +155,12 @@ class QLearnAgent(Agent):
 # TESTING
 # ==========================================================================================================
 
-mc = MapCompressor()
-im = mc.compress(mc.MAP_3_PATH)
+np.random.seed(42) # woops
 
-target_point = (39, 39) # target stays consistent for the moment
+mc = MapCompressor()
+im = mc.compress(mc.MAP_1_PATH)
+
+target_point = (19, 19) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
 testing_init_point = (0, 0) # just the same as before
 # testing_init_point = (16, 28) # start him from somewhere strange when testing to see how he does
@@ -176,7 +178,7 @@ agent = QLearnAgent(
   learn_rate=0.7, 
   discount=0.95,  
   use_epsilon_decay=False, # havin eps=1 with this works just fine.
-  epsilon=1, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
+  epsilon=0.5, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
   min_epsilon=0.05,
   epsilon_decay_rate=0.0005
   )
@@ -185,14 +187,14 @@ agent = QLearnAgent(
 agent.train(episodes=10000, steps=1000)
 
 
-# np.set_printoptions(threshold=sys.maxsize)
-# print(agent.Q_TABLE)
+np.set_printoptions(threshold=sys.maxsize)
+print(agent.Q_TABLE)
 
 # change the initial state for spice
 agent.test(steps=10000, init_state=testing_init_point)
 
-# print(agent.final_path[0])
-# print(agent.final_path[1])
+print(agent.final_path[0])
+print(agent.final_path[1])
 
 # let's plot this bad boy
 plt.imshow(im, cmap="binary")
