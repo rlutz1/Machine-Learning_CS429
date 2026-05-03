@@ -139,10 +139,10 @@ class QLearnAgent(Agent):
       x = curr_state[0]
       y = curr_state[1]
       # action = np.argmax(self.Q_TABLE[x][y])
+      # randomly break ties, dumbass:
       q_vals = self.Q_TABLE[x][y]
       max_q = np.max(q_vals)
       actions = np.where(q_vals == max_q)[0]
-      # print(actions)
       action = np.random.choice(actions)
 
     return action
@@ -183,7 +183,7 @@ agent = QLearnAgent(
   learn_rate=0.7, 
   discount=0.95,  
   use_epsilon_decay=False, # havin eps=1 with this works just fine.
-  epsilon=0.7, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
+  epsilon=1, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
   min_epsilon=0.05,
   epsilon_decay_rate=0.0005
   )
@@ -203,14 +203,31 @@ print(agent.final_path[1])
 
 # let's plot this bad boy
 plt.imshow(im, cmap="binary")
-plt.scatter(agent.final_path[0][0], agent.final_path[1][0], c='g', label="Start")
-plt.scatter(agent.final_path[0][1:-1], agent.final_path[1][1:-1], c='b', label="Transit")
-plt.scatter(agent.final_path[0][-1], agent.final_path[1][-1], c='r', label="End")
+
 plt.xlabel("Map Width")
 plt.ylabel("Map Height")
 plt.xticks(np.arange(0, im.shape[0], step=4))
 plt.yticks(np.arange(0, im.shape[1], step=4))
 plt.grid()
-plt.legend(loc="upper right")
+
 plt.title(f"Final Path of QLearn Agent, Start: {testing_init_point}, End: {target_point}")
+
+animate = False # for seeing a little more feedback to debug
+
+if animate:
+  for i in range(len(agent.final_path[0])):
+      # Update data (shift the sine wave)
+      plt.scatter(agent.final_path[0][i], agent.final_path[1][i], c='b', label="Transit")
+      
+      # Refresh the plot
+      plt.draw()      # Force the figure to re-draw
+      plt.pause(0.01) # Pause and process GUI events for 0.01 seconds
+
+else:
+  plt.scatter(agent.final_path[0][0], agent.final_path[1][0], c='g', label="Start")
+  plt.scatter(agent.final_path[0][1:-1], agent.final_path[1][1:-1], c='b', label="Transit")
+  plt.scatter(agent.final_path[0][-1], agent.final_path[1][-1], c='r', label="End")
+  plt.legend(loc="upper right")
+
+
 plt.show()
