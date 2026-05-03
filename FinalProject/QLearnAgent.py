@@ -120,17 +120,8 @@ class QLearnAgent(Agent):
     new_x  = next_state[0]
     new_y  = next_state[1]
 
-    # i know this is stupid, but was helpful to write this out
-    # for the formula below, lol--going off his slides for it
-    QSA = self.Q_TABLE[curr_x][curr_y][action]
-    max_QS_a_index = np.argmax(self.Q_TABLE[new_x][new_y])
-    QS_a = self.Q_TABLE[new_x][new_y][max_QS_a_index]
-    alpha = self.learn_rate
-    R = reward
-    gamma = self.discount
-
-    # update according to QLearn
-    self.Q_TABLE[curr_x][curr_y][action] = QSA + alpha * (R + (gamma * QS_a) - QSA) 
+    # update the Q table
+    self.Q_TABLE[curr_x][curr_y][action] += self.learn_rate * (reward + (self.discount * np.max(self.Q_TABLE[new_x][new_y]) - self.Q_TABLE[curr_x][curr_y][action]))
 
   # use a greedy epsilon strategy to choose the next state
   # TODO: randomly break ties? for now, just exploit in ties
@@ -181,11 +172,11 @@ agent = QLearnAgent(
   map_width=im.shape[0],
   map_height=im.shape[1],
   init_state=training_init_point,
-  strategy_to_use="S2",
+  strategy_to_use="S1",
   learn_rate=0.7, 
   discount=0.95,  
   use_epsilon_decay=False, # havin eps=1 with this works just fine.
-  epsilon=0, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
+  epsilon=1, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
   min_epsilon=0.05,
   epsilon_decay_rate=0.0005
   )
