@@ -27,14 +27,16 @@ class QLearnAgent(Agent):
                strategy_to_use="S1",
                learn_rate=0.7, 
                discount=0.95,  
-               max_epsilon=1.0,
+               use_epsilon_decay=False,
+               epsilon=1.0,
                min_epsilon=0.05,
                epsilon_decay_rate=0.0005
                ):
     super().__init__(environment, map_width, map_height, init_state, strategy_to_use) # init the agent, with the Q table
     self.learn_rate = learn_rate
     self.discount = discount
-    self.max_epsilon = max_epsilon
+    self.use_epsilon_decay = use_epsilon_decay
+    self.epsilon = epsilon
     self.min_epsilon = min_epsilon
     self.epsilon_decay_rate = epsilon_decay_rate
     self.final_path = ([], []) # for plotting the path taken on the map
@@ -83,8 +85,14 @@ class QLearnAgent(Agent):
     for episode in range(episodes):
       # initialize S
       curr_state = self.init_state # set to the given start point
-      # use epsilon decay 
-      epsilon = self.decay_epsilon(episode)
+
+      # if that mode is turned on: default is false
+      if self.use_epsilon_decay:
+        # use epsilon decay 
+        epsilon = self.decay_epsilon(episode)
+      else:
+        # keep a constant epsilon
+        epsilon = self.epsilon
       
       # for each step of the episode
       for _ in range(steps):
@@ -102,26 +110,10 @@ class QLearnAgent(Agent):
         if done or crash: # boundary or target
           break # stop, we reached terminal state
 
-        # OLD STEP ITERATION WITH POOR ORDERING OF Q TABLE UPDATE:  
-
-        # # choose next state/action by either exploitation or exploration
-        # action = self.exploit_or_explore(epsilon, curr_state)
-        # # interact with the environment with this action A and current state S
-        # next_state, reward, done, crash = self.interact(curr_state, action, self.strategy)
-
-        # # if next state S' is not target
-        # # or the boundary
-        # if not done: 
-        #   # update the Q table
-        #   self.update_Q_TABLE(curr_state, next_state, reward, action)
-        #   # update the curr state to this one
-        #   curr_state = next_state
-        # else: # boundary or target
-        #   break # stop, we reached terminal state
 
   # wrapper for specific update to Q table as directed by the 
   # QLearn algorithm.
-  def update_Q_TABLE(self, curr_state, next_state, reward, action):
+  def update_Q_TABLE(self, curr_state: tuple, next_state: tuple, reward: float, action: int):
     # following variables are readability and writability.
     curr_x = curr_state[0]
     curr_y = curr_state[1]
@@ -146,6 +138,7 @@ class QLearnAgent(Agent):
     np.random.seed(42) # woops
     p = np.random.uniform()
     action = None
+
     if p < epsilon:
       # epsilon chance to explore -- chose a random action
       action = np.random.randint(0, 4) # chose from l, r, u, d
@@ -162,8 +155,8 @@ class QLearnAgent(Agent):
   # use exponential decay to slowly decay the exploration choice
   # not necessary, but appears beneficial to put more
   # emphasis on exploitation over time.
-  def decay_epsilon(self, t):
-    return self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.epsilon_decay_rate * t)
+  def decay_epsilon(self, t: int):
+    return self.min_epsilon + (self.epsilon - self.min_epsilon) * np.exp(-self.epsilon_decay_rate * t)
    
  
 
@@ -176,9 +169,10 @@ im = mc.compress(mc.MAP_3_PATH)
 
 target_point = (39, 39) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
+testing_init_point = (0, 0) # just the same as before
 # testing_init_point = (16, 28) # start him from somewhere strange when testing to see how he does
 # testing_init_point = (10, 8) # this one, he gets stuck in oscillation
-testing_init_point = (8, 15) # start him from somewhere strange when testing to see how he does
+# testing_init_point = (8, 15) # start him from somewhere strange when testing to see how he does
 
 environment = Environment(im, target=target_point) # testing only
 
@@ -190,11 +184,13 @@ agent = QLearnAgent(
   strategy_to_use="S2",
   learn_rate=0.7, 
   discount=0.95,  
-  max_epsilon=1.0,
+  use_epsilon_decay=False, # havin eps=1 with this works just fine.
+  epsilon=0, # 1 is bad, 0.5 also an issue, 0 works okay. something feels weird
   min_epsilon=0.05,
   epsilon_decay_rate=0.0005
   )
 
+# train the agent
 agent.train(episodes=10000, steps=1000)
 
 

@@ -49,5 +49,9 @@ class Agent:
     return self.environment.step(state=curr_state, action=action, strategy=strategy)
 
   # override with SARSA or QLearn
-  def train(self, episodes=1000):
+  def train(self, episodes=1000, steps=1000):
+    pass
+
+  # test your policy, overide
+  def test(self, steps=1000, init_state=(0, 0)):
     pass
