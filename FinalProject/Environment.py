@@ -45,6 +45,9 @@ class Environment:
         self.n_rows, self.n_cols = grid.shape
         self.target = target
 
+        self.S3_rewards = {}
+        self._init_S3_rewards() # specific to S3 for ease of grabbing.
+
         # Validate target is reachable
         tx, ty = target
         assert self.in_bounds(tx, ty), "Target is outside the map boundary."
@@ -96,6 +99,21 @@ class Environment:
         if hit_boundary:
             return -100.0
         return -1.0
+    
+
+    def reward_S3(self, x: int, y: int, hit_boundary: bool) -> float:
+        """
+        Strategy 3
+          +100                 : reached the target
+          -100                 : hit an obstacle or went out of bounds
+            -1                 : every normal step to encourage shorter path
+          {0, 10, 20, ..., 90} : rippling larger and larger rewards the closer to target  
+        """
+        # if (x, y) == self.target:
+        #     return 100.0
+        if hit_boundary:
+            return -100.0
+        return self.S3_rewards[(x, y)]
 
     def compute_reward(self, x: int, y: int, hit_boundary: bool,
                         strategy: str) -> float:
@@ -103,6 +121,8 @@ class Environment:
             return self.reward_S1(x, y, hit_boundary)
         elif strategy == "S2":
             return self.reward_S2(x, y, hit_boundary)
+        elif strategy == "S3":
+            return self.reward_S3(x, y, hit_boundary)
         else:
             raise ValueError(f"Unknown reward strategy")
 
@@ -195,3 +215,57 @@ class Environment:
         ax.grid(True, linewidth=0.3, alpha=0.4)
         plt.tight_layout()
         plt.show()
+
+
+    # idea is to ripple out the rewards from the target
+    # in order to better bait the agent,
+    # but with care to avoid trapping it into an obstacle.
+    def _init_S3_rewards(self):
+        # setup all free cells as -1 to give some slight feedback
+        free_cells = self.get_free_cells()
+        for cell in free_cells:
+            self.S3_rewards[cell] = -1 
+
+        # setup the rippling effect
+        self._ripple(self.target, 1000)
+
+    # recursive algorithm to ripple out rewards
+    def _ripple(self, cell: tuple, reward: float):
+        # # base case: if not a free cell, stop
+        # if not self.is_free(cell[0], cell[1]): 
+        #     return
+
+        # base case: if we've gone below a 0 reward, stop
+        if reward < 0: return
+
+        # general case: set this cell's reward to this reward
+        self.S3_rewards[cell] = reward
+        # update the reward to a lesser reward
+        reward -= 100
+
+        # then, recurse on all directions if the reward is still -1 (the default)
+        
+        dx, dy = DELTA[0]
+        left_x, left_y = cell[0] + dx, cell[1] + dy
+
+        dx, dy = DELTA[1]
+        right_x, right_y = cell[0] + dx, cell[1] + dy
+
+        dx, dy = DELTA[2]
+        up_x, up_y = cell[0] + dx, cell[1] + dy
+
+        dx, dy = DELTA[3]
+        down_x, down_y = cell[0] + dx, cell[1] + dy
+
+        if self.is_free(left_x, left_y) and self.S3_rewards[(left_x, left_y)] == -1:
+            self._ripple((left_x, left_y), reward)
+
+        if self.is_free(right_x, right_y) and self.S3_rewards[(right_x, right_y)] == -1:
+            self._ripple((right_x, right_y), reward)
+
+        if self.is_free(up_x, up_y) and self.S3_rewards[(up_x, up_y)] == -1:
+            self._ripple((up_x, up_y), reward)
+
+          
+        if self.is_free(down_x, down_y) and self.S3_rewards[(down_x, down_y)] == -1:
+            self._ripple((down_x, down_y), reward)

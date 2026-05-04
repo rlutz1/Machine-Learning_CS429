@@ -169,7 +169,7 @@ class QLearnAgent(Agent):
 np.random.seed(42) # woops
 
 mc = MapCompressor()
-im = mc.compress(mc.MAP_4_PATH)
+im = mc.compress(mc.MAP_3_PATH)
 
 target_point = (39, 39) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
@@ -185,11 +185,11 @@ agent = QLearnAgent(
   map_width=im.shape[0],
   map_height=im.shape[1],
   init_state=training_init_point,
-  strategy_to_use="S2",
+  strategy_to_use="S3",
   learn_rate=0.7, 
   discount=0.95,  
   # use_epsilon_decay=True, # havin eps=1 with this works just fine.
-  epsilon=0.1, # the epsilon constant or where to decay from if decay true
+  epsilon=0.2, # the epsilon constant or where to decay from if decay true
   )
 
 # observation: low epsilon, high discount works well if it must remain constant

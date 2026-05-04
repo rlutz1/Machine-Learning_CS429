@@ -513,10 +513,10 @@ if __name__ == "__main__":
   mc = MapCompressor()
 
   maps_to_test = [
-    ("map1", mc.MAP_1_PATH),
-    ("map2", mc.MAP_2_PATH),
-    ("map3", mc.MAP_3_PATH),
-    ("map4", mc.MAP_4_PATH)
+    # ("map1", mc.MAP_1_PATH),
+    # ("map2", mc.MAP_2_PATH),
+    ("map3", mc.MAP_3_PATH)
+    # ("map4", mc.MAP_4_PATH)
   ]
 
   def choose_target(environment):
@@ -594,7 +594,7 @@ if __name__ == "__main__":
       map_width=im.shape[1],
       map_height=im.shape[0],
       init_state=training_init_point,
-      strategy_to_use="S2",
+      strategy_to_use="S3",
       learn_rate=0.7,
       discount=0.95,
       epsilon=0.2,
