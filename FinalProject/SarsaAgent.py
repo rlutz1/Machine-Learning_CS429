@@ -513,9 +513,9 @@ if __name__ == "__main__":
   mc = MapCompressor()
 
   maps_to_test = [
-    # ("map1", mc.MAP_1_PATH),
+    ("map1", mc.MAP_1_PATH),
     ("map2", mc.MAP_2_PATH),
-    # ("map3", mc.MAP_3_PATH),
+    ("map3", mc.MAP_3_PATH),
     ("map4", mc.MAP_4_PATH)
   ]
 
