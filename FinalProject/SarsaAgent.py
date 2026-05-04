@@ -390,7 +390,7 @@ class SARSAAgent(Agent):
     ax.imshow(map_abstraction, cmap="gray", origin="upper")
 
     if title is None:
-      title = f"Final Path of SARSA Agent, Start: {testing_init_point}, End: {target_point}"
+      title = f"Final Path of SARSA Agent, Start: {testing_init_point}, End: {target_point}, Strategy {self.strategy}"
 
     ax.set_title(title, fontsize=12)
     ax.set_xlabel("Map Width / x-coordinate")
@@ -564,10 +564,13 @@ if __name__ == "__main__":
 
   results = []
 
+  strategy = "S3" # used below
+
+
   for map_name, map_path in maps_to_test:
 
     print("\n" + "=" * 80)
-    print(f"RUNNING SARSA ON {map_name}")
+    print(f"RUNNING SARSA ON {map_name} with STRATEGY {strategy}")
     print("=" * 80)
 
     im = mc.compress(map_path)
@@ -594,7 +597,7 @@ if __name__ == "__main__":
       map_width=im.shape[1],
       map_height=im.shape[0],
       init_state=training_init_point,
-      strategy_to_use="S2",
+      strategy_to_use=strategy,
       learn_rate=0.7,
       discount=0.95,
       epsilon=0.2,
