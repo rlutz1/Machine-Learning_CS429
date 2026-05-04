@@ -228,11 +228,61 @@ class Environment:
             self.S3_rewards[cell] = -1 
 
         # setup the rippling effect
-        self._ripple(self.target, 10, 1)
+        # self._ripple_dense(self.target, 10, 1) # reward hacking--goes completely around the target, lol
+        # self._ripple_sparse(self.target, 1, 10) # working!
+        # map 4 is the only one that still show cases heavy reward hacking unfortunately
+        # self._ripple_sparse(self.target, 1, min(self.n_rows, self.n_cols) / 2 - 1) # make ab.ove maleable to the size
+        # in attempt to fix map 4, try less 
+        self._ripple_sparse(self.target, 1, min(self.n_rows, self.n_cols) / 3 - 1) 
         # self._print_ripple()
 
+
+
      # bfs style iterative method because the recursion is causing too much troubleee
-    def _ripple(self, cell: tuple, reward: float, dr: float):
+    def _ripple_sparse(self, cell: tuple, reward: float, steps: int):
+        
+        queue = [(cell, steps)]
+        visited = [cell]
+
+        while len(queue) > 0:
+            # print(queue)
+            # print(visited)
+            (curr_cell, curr_steps) = queue.pop(0)
+            
+            # if curr_cell not in visited:  
+            self.S3_rewards[curr_cell] = reward
+
+            if curr_steps > 0:
+                # get up, down, left right
+                dx, dy = DELTA[0]
+                left_x, left_y = curr_cell[0] + dx, curr_cell[1] + dy
+                if self.is_free(left_x, left_y) and (left_x, left_y) not in visited:
+                    queue.append(((left_x, left_y), curr_steps - 1))
+                    visited.append((left_x, left_y))
+
+                dx, dy = DELTA[1]
+                right_x, right_y = curr_cell[0] + dx, curr_cell[1] + dy
+                if self.is_free(right_x, right_y) and (right_x, right_y) not in visited:
+                    queue.append(((right_x, right_y), curr_steps - 1))
+                    visited.append((right_x, right_y))
+
+                dx, dy = DELTA[2]
+                up_x, up_y = curr_cell[0] + dx, curr_cell[1] + dy
+                if self.is_free(up_x, up_y) and (up_x, up_y) not in visited:
+                    queue.append(((up_x, up_y), curr_steps - 1))
+                    visited.append((up_x, up_y))
+
+                dx, dy = DELTA[3]
+                down_x, down_y = curr_cell[0] + dx, curr_cell[1] + dy
+                if self.is_free(down_x, down_y) and (down_x, down_y) not in visited:
+                    queue.append(((down_x, down_y), curr_steps - 1))
+                    visited.append((down_x, down_y))
+
+        # self._print_ripple()
+
+
+     # bfs style iterative method because the recursion is causing too much troubleee
+    def _ripple_dense(self, cell: tuple, reward: float, dr: float):
         
         queue = [(cell, reward)]
         visited = [cell]
@@ -273,56 +323,9 @@ class Environment:
 
         # self._print_ripple()
 
-    # # recursive algorithm to ripple out rewards
-    # def _ripple(self, cell: tuple, reward: float):
-    #     # # base case: if not a free cell, stop
-    #     # if not self.is_free(cell[0], cell[1]): 
-    #     #     return
-
-    #     # base case: if we've gone below a 0 reward, stop
-    #     if reward < 0: return
-
-    #     # general case: set this cell's reward to this reward
-    #     if self.S3_rewards[cell] == -1: self.S3_rewards[cell] = reward
-    #     # update the reward to a lesser reward
-    #     reward -= 200
-
-    #     # then, recurse on all directions if the reward is still -1 (the default)
-        
-    #     dx, dy = DELTA[0]
-    #     # left_x, left_y = cell[0] + dx, cell[1] + dy
-    #     left_x, left_y = cell[0] - 1, cell[1] 
-
-    #     dx, dy = DELTA[1]
-    #     right_x, right_y = cell[0] + 1, cell[1] 
-
-    #     dx, dy = DELTA[2]
-    #     up_x, up_y = cell[0], cell[1] - 1
-
-    #     dx, dy = DELTA[3]
-    #     down_x, down_y = cell[0], cell[1] + 1
-
-    #     if self.is_free(left_x, left_y) :
-    #         print(f"LEFT {left_x}, {left_y}")
-    #         self._ripple((left_x, left_y), reward)
-
-    #     if self.is_free(right_x, right_y) :
-    #         print(f"RIGHT {right_x}, {right_y}")
-    #         self._ripple((right_x, right_y), reward)
-
-    #     if self.is_free(up_x, up_y) :
-    #         print(f"UP {up_x}, {up_y}")
-    #         self._ripple((up_x, up_y), reward)
-
-          
-    #     if self.is_free(down_x, down_y) :
-    #         print(f"DOWN {down_x}, {down_y}")
-    #         self._ripple((down_x, down_y), reward)
-
-    #     self._print_ripple()
-
+   
     def _print_ripple(self):
-        map = np.full((40, 40), 255)
+        map = np.full((self.n_rows, self.n_cols), 255)
         free_cells = self.get_free_cells()
         for cell in free_cells:
             map[cell[0]][cell[1]] = self.S3_rewards[cell]

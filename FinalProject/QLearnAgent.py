@@ -169,9 +169,9 @@ class QLearnAgent(Agent):
 np.random.seed(42) # woops
 
 mc = MapCompressor()
-im = mc.compress(mc.MAP_4_PATH)
+im = mc.compress(mc.MAP_1_PATH)
 
-target_point = (39, 39) # target stays consistent for the moment
+target_point = (19, 19) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
 testing_init_point = (0, 0) # just the same as before
 # testing_init_point = (16, 28) # start him from somewhere strange when testing to see how he does
@@ -198,8 +198,8 @@ agent = QLearnAgent(
 agent.train(episodes=10000, steps=1000)
 
 
-# np.set_printoptions(threshold=sys.maxsize)
-# print(agent.Q_TABLE)
+np.set_printoptions(threshold=sys.maxsize)
+print(agent.Q_TABLE)
 
 # change the initial state for spice
 agent.test(steps=10000, init_state=testing_init_point)
