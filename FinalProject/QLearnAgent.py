@@ -27,6 +27,7 @@ class QLearnAgent(Agent):
                strategy_to_use="S1",
                learn_rate=0.7, 
                discount=0.95,  
+               use_random_start=True,
                use_epsilon_decay=False,
                epsilon=1.0,
                min_epsilon=0.05,
@@ -35,6 +36,7 @@ class QLearnAgent(Agent):
     super().__init__(environment, map_width, map_height, init_state, strategy_to_use) # init the agent, with the Q table
     self.learn_rate = learn_rate
     self.discount = discount
+    self.use_random_start = use_random_start
     self.use_epsilon_decay = use_epsilon_decay
     self.epsilon = epsilon
     self.min_epsilon = min_epsilon
@@ -53,7 +55,6 @@ class QLearnAgent(Agent):
 
     # have a limit on how long it can run for for sanity
     for step in range(steps):
-      # print(curr_state)
 
       # epsilon is now 0 -> ALWAYS exploit, never explore
       action = self.exploit_or_explore(0, curr_state)
@@ -84,7 +85,10 @@ class QLearnAgent(Agent):
 
     for episode in range(episodes):
       # initialize S
-      curr_state = self.init_state # set to the given start point
+      if self.use_random_start:
+        curr_state = self.get_random_start_state() # set to a randomly selected point each episode
+      else:
+        curr_state = self.init_state # set to the given start point
 
       # if that mode is turned on: default is false
       if self.use_epsilon_decay:
@@ -104,9 +108,6 @@ class QLearnAgent(Agent):
         self.update_Q_TABLE(curr_state, next_state, reward, action)
         # update the curr state to this one
         curr_state = next_state
-
-        # if done:
-        #   print("goal")
 
         # if next state S' is not target
         # or the boundary
@@ -141,18 +142,28 @@ class QLearnAgent(Agent):
       # 1 - epsilon chance to exploit -- choose based on Q table
       x = curr_state[0]
       y = curr_state[1]
-      # action = np.argmax(self.Q_TABLE[x][y])
+
       # randomly break ties, dumbass:
       q_vals = self.Q_TABLE[x][y]
       max_q = np.max(q_vals)
       actions = np.where(q_vals == max_q)[0]
       action = np.random.choice(actions)
-      # actions = np.argmax(self.Q_TABLE[x][y])
-      # print(actions)
-      # action = np.random.choice(actions)
 
     return action
 
+
+  def get_random_start_state(self):
+    """
+    Optional helper for random-start training.
+    """
+
+    free_cells = self.environment.get_free_cells()
+    state = free_cells[np.random.randint(len(free_cells))]
+
+    while state == self.environment.target:
+      state = free_cells[np.random.randint(len(free_cells))]
+
+    return state
 
   # use exponential decay to slowly decay the exploration choice
   # not necessary, but appears beneficial to put more
@@ -169,13 +180,13 @@ class QLearnAgent(Agent):
 np.random.seed(42) # woops
 
 mc = MapCompressor()
-im = mc.compress(mc.MAP_1_PATH)
+im = mc.compress(mc.MAP_4_PATH)
 
-target_point = (19, 19) # target stays consistent for the moment
+target_point = (39, 39) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
 testing_init_point = (0, 0) # just the same as before
 # testing_init_point = (16, 28) # start him from somewhere strange when testing to see how he does
-# testing_init_point = (10, 8) # this one, he gets stuck in oscillation
+# testing_init_point = (10, 8) # this one, he gets stuck in oscillation on map 3 -- fixed by random start!
 # testing_init_point = (8, 15) # start him from somewhere strange when testing to see how he does
 
 environment = Environment(im, target=target_point) # testing only
@@ -185,11 +196,12 @@ agent = QLearnAgent(
   map_width=im.shape[0],
   map_height=im.shape[1],
   init_state=training_init_point,
-  strategy_to_use="S3",
+  strategy_to_use="S2",
   learn_rate=0.7, 
   discount=0.95,  
-  # use_epsilon_decay=True, # havin eps=1 with this works just fine.
   epsilon=0.2, # the epsilon constant or where to decay from if decay true
+  # use_epsilon_decay=False, # default
+  # use_random_start=True # default -> breaks map 4, s3
   )
 
 # observation: low epsilon, high discount works well if it must remain constant
@@ -198,8 +210,8 @@ agent = QLearnAgent(
 agent.train(episodes=10000, steps=1000)
 
 
-np.set_printoptions(threshold=sys.maxsize)
-print(agent.Q_TABLE)
+# np.set_printoptions(threshold=sys.maxsize)
+# print(agent.Q_TABLE)
 
 # change the initial state for spice
 agent.test(steps=10000, init_state=testing_init_point)

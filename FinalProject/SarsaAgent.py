@@ -26,12 +26,12 @@ class SARSAAgent(Agent):
                strategy_to_use="S1",
                learn_rate=0.5,
                discount=0.99,
-               use_epsilon_decay=True,
+               use_epsilon_decay=False,
                epsilon=1.0,
                min_epsilon=0.01,
                epsilon_decay_rate=0.00005,
-               use_random_start=False,
-               use_reward_shaping=True):
+               use_random_start=True,
+               use_reward_shaping=False):
 
     super().__init__(
       environment,
@@ -601,12 +601,12 @@ if __name__ == "__main__":
       # min_epsilon=0.01,
       # epsilon_decay_rate=0.00005,
       use_epsilon_decay=False,
-      use_random_start=False,
+      use_random_start=True,
       use_reward_shaping=False
     )
 
     agent.train(
-      episodes=20000,
+      episodes=10000,
       steps=1000,
       show_progress=True
     )
