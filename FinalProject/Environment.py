@@ -110,8 +110,8 @@ class Environment:
             -1                 : every normal step to encourage shorter path
           {0, 10, 20, ..., 90} : rippling larger and larger rewards the closer to target  
         """
-        # if (x, y) == self.target:
-        #     return 100.0
+        if (x, y) == self.target:
+            return 10000.0
         if hit_boundary:
             return -100.0
         return self.S3_rewards[(x, y)]
@@ -228,41 +228,48 @@ class Environment:
             self.S3_rewards[cell] = -1 
 
         # setup the rippling effect
-        self._ripple(self.target, 1000)
-        self._print_ripple()
+        self._ripple(self.target, 1000, 100)
+        # self._print_ripple()
 
      # bfs style iterative method because the recursion is causing too much troubleee
-    def _ripple(self, cell: tuple, reward: float):
+    def _ripple(self, cell: tuple, reward: float, dr: float):
         
         queue = [(cell, reward)]
-        visited = []
+        visited = [cell]
 
-        while len(queue) > 0 and reward >= 0:
-            (curr_cell, curr_reward) = queue.pop()
-            if self.S3_rewards[curr_cell] == -1: 
-                self.S3_rewards[curr_cell] = curr_reward
-                visited.append(curr_cell)
+        while len(queue) > 0:
+            # print(queue)
+            # print(visited)
+            (curr_cell, curr_reward) = queue.pop(0)
+            
+            # if curr_cell not in visited:  
+            self.S3_rewards[curr_cell] = curr_reward
 
-            # get up, down, left right
-            dx, dy = DELTA[0]
-            left_x, left_y = cell[0] + dx, cell[1] + dy
-            if self.is_free(left_x, left_y) and (left_x, left_y) not in visited:
-                queue.append(((left_x, left_y), curr_reward - 200))
+            if curr_reward > 0:
+                # get up, down, left right
+                dx, dy = DELTA[0]
+                left_x, left_y = curr_cell[0] + dx, curr_cell[1] + dy
+                if self.is_free(left_x, left_y) and (left_x, left_y) not in visited:
+                    queue.append(((left_x, left_y), curr_reward - dr))
+                    visited.append((left_x, left_y))
 
-            dx, dy = DELTA[1]
-            right_x, right_y = cell[0] + dx, cell[1] + dy
-            if self.is_free(right_x, right_y) and (right_x, right_y) not in visited:
-                queue.append(((right_x, right_y), curr_reward - 200))
+                dx, dy = DELTA[1]
+                right_x, right_y = curr_cell[0] + dx, curr_cell[1] + dy
+                if self.is_free(right_x, right_y) and (right_x, right_y) not in visited:
+                    queue.append(((right_x, right_y), curr_reward - dr))
+                    visited.append((right_x, right_y))
 
-            dx, dy = DELTA[2]
-            up_x, up_y = cell[0] + dx, cell[1] + dy
-            if self.is_free(up_x, up_y) and (up_x, up_y) not in visited:
-                queue.append(((up_x, up_y), curr_reward - 200))
+                dx, dy = DELTA[2]
+                up_x, up_y = curr_cell[0] + dx, curr_cell[1] + dy
+                if self.is_free(up_x, up_y) and (up_x, up_y) not in visited:
+                    queue.append(((up_x, up_y), curr_reward - dr))
+                    visited.append((up_x, up_y))
 
-            dx, dy = DELTA[3]
-            down_x, down_y = cell[0] + dx, cell[1] + dy
-            if self.is_free(down_x, down_y) and (down_x, down_y) not in visited:
-                queue.append(((down_x, down_y), curr_reward - 200))
+                dx, dy = DELTA[3]
+                down_x, down_y = curr_cell[0] + dx, curr_cell[1] + dy
+                if self.is_free(down_x, down_y) and (down_x, down_y) not in visited:
+                    queue.append(((down_x, down_y), curr_reward - dr))
+                    visited.append((down_x, down_y))
 
         # self._print_ripple()
 
@@ -315,7 +322,7 @@ class Environment:
     #     self._print_ripple()
 
     def _print_ripple(self):
-        map = np.zeros((40, 40))
+        map = np.full((40, 40), 255)
         free_cells = self.get_free_cells()
         for cell in free_cells:
             map[cell[0]][cell[1]] = self.S3_rewards[cell]
