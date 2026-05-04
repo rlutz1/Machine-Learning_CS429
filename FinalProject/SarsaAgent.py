@@ -594,7 +594,7 @@ if __name__ == "__main__":
       map_width=im.shape[1],
       map_height=im.shape[0],
       init_state=training_init_point,
-      strategy_to_use="S3",
+      strategy_to_use="S2",
       learn_rate=0.7,
       discount=0.95,
       epsilon=0.2,
