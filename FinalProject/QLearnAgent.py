@@ -105,8 +105,8 @@ class QLearnAgent(Agent):
         # update the curr state to this one
         curr_state = next_state
 
-        if done:
-          print("goal")
+        # if done:
+        #   print("goal")
 
         # if next state S' is not target
         # or the boundary
@@ -147,6 +147,9 @@ class QLearnAgent(Agent):
       max_q = np.max(q_vals)
       actions = np.where(q_vals == max_q)[0]
       action = np.random.choice(actions)
+      # actions = np.argmax(self.Q_TABLE[x][y])
+      # print(actions)
+      # action = np.random.choice(actions)
 
     return action
 
@@ -166,7 +169,7 @@ class QLearnAgent(Agent):
 np.random.seed(42) # woops
 
 mc = MapCompressor()
-im = mc.compress(mc.MAP_3_PATH)
+im = mc.compress(mc.MAP_4_PATH)
 
 target_point = (39, 39) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
@@ -184,15 +187,15 @@ agent = QLearnAgent(
   init_state=training_init_point,
   strategy_to_use="S2",
   learn_rate=0.7, 
-  discount=0.5,  
-  use_epsilon_decay=False, # havin eps=1 with this works just fine.
-  epsilon=0.0, # the epsilon constant or where to decay from if decay true
-  min_epsilon=0.05, # ignored if eps decay false
-  epsilon_decay_rate=0.0005 # ignored if eps decay false
+  discount=0.95,  
+  # use_epsilon_decay=True, # havin eps=1 with this works just fine.
+  epsilon=0.1, # the epsilon constant or where to decay from if decay true
   )
 
+# observation: low epsilon, high discount works well if it must remain constant
+
 # train the agent
-agent.train(episodes=10000, steps=500)
+agent.train(episodes=10000, steps=1000)
 
 
 # np.set_printoptions(threshold=sys.maxsize)
