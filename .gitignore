@@ -218,6 +218,9 @@ tmp/
 # for Assign 3 -> extraction of tar!! huge folder!
 HW3/data/extract
 
+# for final project so i don't woops and push random pngs
+FinalProject/*.png
+
 # venv files
 Scripts/
 Include/
