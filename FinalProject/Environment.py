@@ -111,7 +111,7 @@ class Environment:
           {0, 10, 20, ..., 90} : rippling larger and larger rewards the closer to target  
         """
         if (x, y) == self.target:
-            return 10000.0
+            return 100.0
         if hit_boundary:
             return -100.0
         return self.S3_rewards[(x, y)]
@@ -228,7 +228,7 @@ class Environment:
             self.S3_rewards[cell] = -1 
 
         # setup the rippling effect
-        self._ripple(self.target, 1000, 100)
+        self._ripple(self.target, 10, 1)
         # self._print_ripple()
 
      # bfs style iterative method because the recursion is causing too much troubleee
