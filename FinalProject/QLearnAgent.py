@@ -169,7 +169,7 @@ class QLearnAgent(Agent):
 np.random.seed(42) # woops
 
 mc = MapCompressor()
-im = mc.compress(mc.MAP_3_PATH)
+im = mc.compress(mc.MAP_4_PATH)
 
 target_point = (39, 39) # target stays consistent for the moment
 training_init_point = (0, 0) # start him from here when training
@@ -180,60 +180,60 @@ testing_init_point = (0, 0) # just the same as before
 
 environment = Environment(im, target=target_point) # testing only
 
-agent = QLearnAgent(
-  environment, 
-  map_width=im.shape[0],
-  map_height=im.shape[1],
-  init_state=training_init_point,
-  strategy_to_use="S3",
-  learn_rate=0.7, 
-  discount=0.95,  
-  # use_epsilon_decay=True, # havin eps=1 with this works just fine.
-  epsilon=0.2, # the epsilon constant or where to decay from if decay true
-  )
+# agent = QLearnAgent(
+#   environment, 
+#   map_width=im.shape[0],
+#   map_height=im.shape[1],
+#   init_state=training_init_point,
+#   strategy_to_use="S3",
+#   learn_rate=0.7, 
+#   discount=0.95,  
+#   # use_epsilon_decay=True, # havin eps=1 with this works just fine.
+#   epsilon=0.2, # the epsilon constant or where to decay from if decay true
+#   )
 
-# observation: low epsilon, high discount works well if it must remain constant
+# # observation: low epsilon, high discount works well if it must remain constant
 
-# train the agent
-agent.train(episodes=10000, steps=1000)
+# # train the agent
+# agent.train(episodes=10000, steps=1000)
 
 
-# np.set_printoptions(threshold=sys.maxsize)
-# print(agent.Q_TABLE)
+# # np.set_printoptions(threshold=sys.maxsize)
+# # print(agent.Q_TABLE)
 
-# change the initial state for spice
-agent.test(steps=10000, init_state=testing_init_point)
+# # change the initial state for spice
+# agent.test(steps=10000, init_state=testing_init_point)
 
-# print(agent.final_path[0])
-# print(agent.final_path[1])
+# # print(agent.final_path[0])
+# # print(agent.final_path[1])
 
-# let's plot this bad boy
-plt.imshow(im, cmap="binary")
+# # let's plot this bad boy
+# plt.imshow(im, cmap="binary")
 
-plt.xlabel("Map Width")
-plt.ylabel("Map Height")
-plt.xticks(np.arange(0, im.shape[0], step=4))
-plt.yticks(np.arange(0, im.shape[1], step=4))
-plt.grid()
+# plt.xlabel("Map Width")
+# plt.ylabel("Map Height")
+# plt.xticks(np.arange(0, im.shape[0], step=4))
+# plt.yticks(np.arange(0, im.shape[1], step=4))
+# plt.grid()
 
-plt.title(f"Final Path of QLearn Agent, Start: {testing_init_point}, End: {target_point}")
+# plt.title(f"Final Path of QLearn Agent, Start: {testing_init_point}, End: {target_point}")
 
-animate = False # for seeing a little more feedback to debug
+# animate = False # for seeing a little more feedback to debug
 
-if animate:
-  for i in range(len(agent.final_path[0])):
-      # Update data (shift the sine wave)
-      plt.scatter(agent.final_path[0][i], agent.final_path[1][i], c='b', label="Transit")
+# if animate:
+#   for i in range(len(agent.final_path[0])):
+#       # Update data (shift the sine wave)
+#       plt.scatter(agent.final_path[0][i], agent.final_path[1][i], c='b', label="Transit")
       
-      # Refresh the plot
-      plt.draw()      # Force the figure to re-draw
-      plt.pause(0.01) # Pause and process GUI events for 0.01 seconds
+#       # Refresh the plot
+#       plt.draw()      # Force the figure to re-draw
+#       plt.pause(0.01) # Pause and process GUI events for 0.01 seconds
 
-else:
-  plt.scatter(agent.final_path[0][0], agent.final_path[1][0], c='g', label="Start")
-  plt.scatter(agent.final_path[0][1:-1], agent.final_path[1][1:-1], c='b', label="Transit")
-  plt.scatter(agent.final_path[0][-1], agent.final_path[1][-1], c='r', label="End")
-  plt.legend(loc="upper right")
+# else:
+#   plt.scatter(agent.final_path[0][0], agent.final_path[1][0], c='g', label="Start")
+#   plt.scatter(agent.final_path[0][1:-1], agent.final_path[1][1:-1], c='b', label="Transit")
+#   plt.scatter(agent.final_path[0][-1], agent.final_path[1][-1], c='r', label="End")
+#   plt.legend(loc="upper right")
 
 
-plt.show()
+# plt.show()
