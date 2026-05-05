@@ -108,7 +108,7 @@ class Environment:
           +100                 : reached the target
           -100                 : hit an obstacle or went out of bounds
             -1                 : every normal step to encourage shorter path
-          {0, 10, 20, ..., 90} : rippling larger and larger rewards the closer to target  
+          {1, 1, ..., 1}       : rippling constant rewards the closer to target  
         """
         if (x, y) == self.target:
             return 100.0
@@ -233,12 +233,13 @@ class Environment:
         # map 4 is the only one that still show cases heavy reward hacking unfortunately
         # self._ripple_sparse(self.target, 1, min(self.n_rows, self.n_cols) / 2 - 1) # make ab.ove maleable to the size
         # in attempt to fix map 4, try less 
-        self._ripple_sparse(self.target, 1, min(self.n_rows, self.n_cols) / 3 - 1) 
+        self._ripple_sparse(self.target, 1, min(self.n_rows, self.n_cols) / 3 - 1) # seems to be working aight
         # self._print_ripple()
 
 
 
-     # bfs style iterative method because the recursion is causing too much troubleee
+    # bfs style iterative method to ripple out a constant reward for a 
+    # specific number of steps away from the target, respecting obstacles and boundaries.
     def _ripple_sparse(self, cell: tuple, reward: float, steps: int):
         
         queue = [(cell, steps)]
@@ -281,7 +282,7 @@ class Environment:
         # self._print_ripple()
 
 
-     # bfs style iterative method because the recursion is causing too much troubleee
+     # bfs style iterative method; not in use: causes reward hacking like crazy.
     def _ripple_dense(self, cell: tuple, reward: float, dr: float):
         
         queue = [(cell, reward)]
@@ -323,7 +324,7 @@ class Environment:
 
         # self._print_ripple()
 
-   
+   # debugging only
     def _print_ripple(self):
         map = np.full((self.n_rows, self.n_cols), 255)
         free_cells = self.get_free_cells()
