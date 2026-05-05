@@ -353,7 +353,7 @@ maps_to_test = [
 
 results = []
 
-strategy = "S3" # used below
+strategy = "S2" # used below
 
 for map_name, map_path in maps_to_test:
 

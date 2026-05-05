@@ -33,10 +33,6 @@ class Agent:
     self.environment = environment # environment to probe
     self.strategy = strategy_to_use # tie to the agent
     self.init_state=init_state
-    # for not hardcoding every little thing.
-    self.actions = {
-      "L": 0, "R": 1, "U": 2, "D": 3
-    }
 
   # interaction with environment simply a wrapper
   def interact(self, 
@@ -47,8 +43,12 @@ class Agent:
     # probe the environment with your current state (S) and desired next action (A).
     # take action (A), observe next state (S') and reward (R)
     return self.environment.step(state=curr_state, action=action, strategy=strategy)
+  
+  # override with the correct QTable update according to SARSA or QLearn update rule
+  def update_Q_TABLE(self):
+    pass
 
-  # override with SARSA or QLearn
+  # override with SARSA or QLearn iteration
   def train(self, episodes=1000, steps=1000):
     pass
 

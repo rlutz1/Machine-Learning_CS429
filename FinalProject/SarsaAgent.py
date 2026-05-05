@@ -564,7 +564,7 @@ if __name__ == "__main__":
 
   results = []
 
-  strategy = "S3" # used below
+  strategy = "S2" # used below
 
 
   for map_name, map_path in maps_to_test:
