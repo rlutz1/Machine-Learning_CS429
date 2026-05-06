@@ -43,7 +43,6 @@ class QLearnAgent(Agent):
     self.min_epsilon = min_epsilon
     self.epsilon_decay_rate = epsilon_decay_rate
     self.final_path = ([], []) # for plotting the path taken on the map
-
   
   # test the agent, meaning run it off it's Q table
   def test(self, steps=1000, init_state=(0, 0)):
