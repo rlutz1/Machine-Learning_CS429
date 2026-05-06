@@ -131,8 +131,7 @@ def run_trial(grid, target, agent_type, episodes, steps, epsilon, discount, stra
         epsilon=epsilon,
         discount=discount,
         use_random_start=True,
-        use_epsilon_decay=False, # TODO
-        seed=SEED
+        use_epsilon_decay=False # TODO
     )
 
     if agent_type == "SARSA":

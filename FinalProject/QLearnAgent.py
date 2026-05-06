@@ -32,8 +32,7 @@ class QLearnAgent(Agent):
                use_epsilon_decay=False,
                epsilon=1.0,
                min_epsilon=0.05,
-               epsilon_decay_rate=0.0005,
-               seed=42
+               epsilon_decay_rate=0.0005
                ):
     super().__init__(environment, map_width, map_height, init_state, strategy_to_use) # init the agent, with the Q table
     self.learn_rate = learn_rate
@@ -44,7 +43,6 @@ class QLearnAgent(Agent):
     self.min_epsilon = min_epsilon
     self.epsilon_decay_rate = epsilon_decay_rate
     self.final_path = ([], []) # for plotting the path taken on the map
-    np.random.seed(42)
   
   # test the agent, meaning run it off it's Q table
   def test(self, steps=1000, init_state=(0, 0)):
