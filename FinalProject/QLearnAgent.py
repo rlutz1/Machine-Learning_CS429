@@ -340,106 +340,96 @@ class QLearnAgent(Agent):
 # TESTING
 # ==========================================================================================================
 
-np.random.seed(42) # woops
+if __name__ == "__main__":
+  np.random.seed(42) # woops
 
-mc = MapCompressor()
+  mc = MapCompressor()
 
-maps_to_test = [
+  maps_to_test = [
     ("map1", mc.MAP_1_PATH),
     ("map2", mc.MAP_2_PATH),
     ("map3", mc.MAP_3_PATH),
     ("map4", mc.MAP_4_PATH)
   ]
 
-results = []
+  results = []
 
-strategy = "S3" # used below
+  strategy = "S3" # used below
 
-for map_name, map_path in maps_to_test:
+  for map_name, map_path in maps_to_test:
 
-  print("\n" + "=" * 80)
-  print(f"RUNNING QLearn ON {map_name} with STRATEGY {strategy}")
-  print("=" * 80)
+    print("\n" + "=" * 80)
+    print(f"RUNNING QLearn ON {map_name} with STRATEGY {strategy}")
+    print("=" * 80)
 
-  im = mc.compress(map_path)
+    im = mc.compress(map_path)
 
-  target_point = (im.shape[0] - 1, im.shape[1] - 1) # target stays consistent for the moment
-  training_init_point = (0, 0) # start him from here when training
-  testing_init_point = (0, 0) # just the same as before
-  # testing_init_point = (16, 28) # start him from somewhere strange when testing to see how he does
-  # testing_init_point = (10, 8) # this one, he gets stuck in oscillation on map 3 -- fixed by random start!
-  # testing_init_point = (8, 15) # start him from somewhere strange when testing to see how he does
+    target_point = (im.shape[0] - 1, im.shape[1] - 1) # target stays consistent for the moment
+    training_init_point = (0, 0) # start him from here when training
+    testing_init_point = (0, 0) # just the same as before
 
-  environment = Environment(im, target=target_point) # testing only
+    environment = Environment(im, target=target_point)
 
-  print(f"{map_name} shape:", im.shape)
-  print(f"{map_name} start:", testing_init_point)
-  print(f"{map_name} target:", target_point)
+    print(f"{map_name} shape:", im.shape)
+    print(f"{map_name} start:", testing_init_point)
+    print(f"{map_name} target:", target_point)
 
-  agent = QLearnAgent(
-    environment, 
-    map_width=im.shape[0],
-    map_height=im.shape[1],
-    init_state=training_init_point, # ignored if random state true
-    strategy_to_use=strategy,
-    learn_rate=0.7, 
-    discount=0.95,  
-    epsilon=0.2, # the epsilon constant or where to decay from if decay true
-    # use_epsilon_decay=False, # default
-    # use_random_start=True # default -> breaks map 4 0, 0->39, 39, s3
+    agent = QLearnAgent(
+      environment,
+      map_width=im.shape[0],
+      map_height=im.shape[1],
+      init_state=training_init_point,
+      strategy_to_use=strategy,
+      learn_rate=0.7,
+      discount=0.95,
+      epsilon=0.2,
     )
 
-  # observation: low epsilon, high discount works well if it must remain constant
+    agent.train(episodes=10000, steps=1000)
+    agent.test(steps=10000, init_state=testing_init_point)
 
-  # train the agent
-  agent.train(episodes=10000, steps=1000)
+    final_state = (agent.final_path[0][-1], agent.final_path[1][-1])
+    path_length = len(agent.final_path[0])
+    success = final_state == target_point
 
-  # change the initial state for spice
-  agent.test(steps=10000, init_state=testing_init_point)
+    print(f"{map_name} final path length:", path_length)
+    print(f"{map_name} final state:", final_state)
+    print(f"{map_name} target:", target_point)
+    print(f"{map_name} success:", success)
 
-  # let's plot this bad boy
-  final_state = (agent.final_path[0][-1], agent.final_path[1][-1])
-  path_length = len(agent.final_path[0])
-  success = final_state == target_point
+    save_name = f"qlearn_final_path_{map_name}.png"
 
-  print(f"{map_name} final path length:", path_length)
-  print(f"{map_name} final state:", final_state)
-  print(f"{map_name} target:", target_point)
-  print(f"{map_name} success:", success)
+    agent.plot_path(
+      map_abstraction=im,
+      target_point=target_point,
+      testing_init_point=testing_init_point,
+      save_name=save_name
+    )
 
-  save_name = f"qlearn_final_path_{map_name}.png"
+    results.append({
+      "map": map_name,
+      "success": success,
+      "path_length": path_length,
+      "final_state": final_state,
+      "target": target_point,
+      "start": testing_init_point,
+      "plot": save_name
+    })
 
-  agent.plot_path(
-    map_abstraction=im,
-    target_point=target_point,
-    testing_init_point=testing_init_point,
-    save_name=save_name
-  )
+  print("\n" + "=" * 80)
+  print("SUMMARY")
+  print("=" * 80)
 
-  results.append({
-    "map": map_name,
-    "success": success,
-    "path_length": path_length,
-    "final_state": final_state,
-    "target": target_point,
-    "start": testing_init_point,
-    "plot": save_name
-  })
-
-print("\n" + "=" * 80)
-print("SUMMARY")
-print("=" * 80)
-
-for result in results:
-  print(
-    f"{result['map']}: "
-    f"success={result['success']}, "
-    f"start={result['start']}, "
-    f"target={result['target']}, "
-    f"path_length={result['path_length']}, "
-    f"final_state={result['final_state']}, "
-    f"plot={result['plot']}"
-  )
+  for result in results:
+    print(
+      f"{result['map']}: "
+      f"success={result['success']}, "
+      f"start={result['start']}, "
+      f"target={result['target']}, "
+      f"path_length={result['path_length']}, "
+      f"final_state={result['final_state']}, "
+      f"plot={result['plot']}"
+    )
 
 
   # plt.imshow(im, cmap="binary")
