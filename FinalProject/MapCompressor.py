@@ -168,7 +168,7 @@ class MapCompressor:
 # ==========================================================================================================
 
 # mc = MapCompressor()
-# im = mc.compress(mc.MAP_2_PATH)
+# im = mc.compress(mc.MAP_3_PATH)
 # plt.imshow(im)
 # plt.colorbar()
 # plt.show()
