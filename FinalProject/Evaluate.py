@@ -139,6 +139,8 @@ def run_trial(grid, target, agent_type, episodes, steps, epsilon, discount, stra
     else:
         agent = QLearnAgent(**common) 
 
+    np.random.seed(SEED) # reset seed prior to training?
+
     # Train and time it
     t0 = time.time()
     agent.train(episodes=episodes, steps=steps, show_progress=False)
@@ -300,7 +302,7 @@ def exp4_reward_strategy(best_epsilon, best_discount, episodes=EPISODES, steps=S
 # ── main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    np.random.seed(SEED)
+    # np.random.seed(SEED)
 
     r1 = exp1_map_complexity()
     r2 = exp2_exploration_rate()
