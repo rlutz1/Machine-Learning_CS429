@@ -316,3 +316,6 @@ if __name__ == "__main__":
     print(f"Best discount (from Exp 3): {best_disc}")
 
     r4 = exp4_reward_strategy(best_eps, best_disc)
+    
+    # testing to be sure the same!!!
+    # r4 = exp4_reward_strategy(best_epsilon=0.2, best_discount=0.95)
