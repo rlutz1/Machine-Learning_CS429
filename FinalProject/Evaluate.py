@@ -28,7 +28,7 @@ from QLearnAgent import QLearnAgent
 SEED = 42
 EPISODES = 5000 # training episodes per trial
 STEPS = 1000 # max steps per episode during training
-LEARN_RATE = 0.7 # learning rate for consistency between agents
+LEARN_RATE = 0.5 # learning rate for consistency between agents
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -131,7 +131,8 @@ def run_trial(grid, target, agent_type, episodes, steps, epsilon, discount, stra
         epsilon=epsilon,
         discount=discount,
         use_random_start=True,
-        use_epsilon_decay=False # TODO
+        use_epsilon_decay=False, # TODO
+        seed=SEED
     )
 
     if agent_type == "SARSA":

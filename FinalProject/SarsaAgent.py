@@ -31,7 +31,9 @@ class SARSAAgent(Agent):
                min_epsilon=0.01,
                epsilon_decay_rate=0.00005,
                use_random_start=True,
-               use_reward_shaping=False):
+               use_reward_shaping=False,
+               seed=42
+               ):
 
     super().__init__(
       environment,
@@ -55,6 +57,7 @@ class SARSAAgent(Agent):
     self.distance_to_target = self.compute_distance_to_target()
 
     self.final_path = ([], [])
+    np.random.seed(seed)
 
 
   def compute_distance_to_target(self):
