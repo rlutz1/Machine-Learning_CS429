@@ -430,34 +430,3 @@ if __name__ == "__main__":
       f"final_state={result['final_state']}, "
       f"plot={result['plot']}"
     )
-
-
-  # plt.imshow(im, cmap="binary")
-
-  # plt.xlabel("Map Width")
-  # plt.ylabel("Map Height")
-  # plt.xticks(np.arange(0, im.shape[0], step=4))
-  # plt.yticks(np.arange(0, im.shape[1], step=4))
-  # plt.grid()
-
-  # plt.title(f"Final Path of QLearn Agent, Start: {testing_init_point}, End: {target_point}")
-
-  # animate = False # for seeing a little more feedback to debug
-
-  # if animate:
-  #   for i in range(len(agent.final_path[0])):
-  #       # Update data (shift the sine wave)
-  #       plt.scatter(agent.final_path[0][i], agent.final_path[1][i], c='b', label="Transit")
-        
-  #       # Refresh the plot
-  #       plt.draw()      # Force the figure to re-draw
-  #       plt.pause(0.01) # Pause and process GUI events for 0.01 seconds
-
-  # else:
-  #   plt.scatter(agent.final_path[0][0], agent.final_path[1][0], c='g', label="Start")
-  #   plt.scatter(agent.final_path[0][1:-1], agent.final_path[1][1:-1], c='b', label="Transit")
-  #   plt.scatter(agent.final_path[0][-1], agent.final_path[1][-1], c='r', label="End")
-  #   plt.legend(loc="upper right")
-
-
-  # plt.show()
