@@ -181,6 +181,10 @@ class DataProcessor:
     # print(f"total num of windows: {num_samples - (2 * self.window_size)}")
     # print(f"{self.train_percent * 100}% of windows: {self.train_percent * (num_samples - (2 * self.window_size))}")
     # print(f"training set windows: {train_set.shape[0] - self.window_size}")
+    # print(f"splitting {num_samples} raw data samples by {percent_needed_to_split_windows_correctly * 100} to ensure good percentage of windows.")
+    # print(f"total num of windows: {num_samples - (2 * self.window_size)}")
+    # print(f"{self.train_percent * 100}% of windows: {self.train_percent * (num_samples - (2 * self.window_size))}")
+    # print(f"training set windows: {train_set.shape[0] - self.window_size}")
 
     # scale
     train_set_scaled = self.scaler.fit_transform(train_set) # fit_transform a scaler to the training set
@@ -193,9 +197,13 @@ class DataProcessor:
     # print(f"how many windows ended up in training: {X_train.shape[0]}")
     # print(f"how many windows ended up in testing: {X_test.shape[0]}")
     # print(f"final total windows: {X_train.shape[0] + X_test.shape[0]}")
+    # print(f"how many windows ended up in training: {X_train.shape[0]}")
+    # print(f"how many windows ended up in testing: {X_test.shape[0]}")
+    # print(f"final total windows: {X_train.shape[0] + X_test.shape[0]}")
 
     # NOTE: removing outlier detection for a moment due to reordering
     
+    # print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
     # print(f"shape we're changing to for training for pytorch: {X_train.shape[0]}, {X_train.shape[1]}, {df.shape[1]}")
     # shape to: num samples * size of sequence * num features in a sample (columns)
     self.X_train = torch.tensor(X_train, dtype=torch.float32).view(X_train.shape[0], X_train.shape[1], df.shape[1])
