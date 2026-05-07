@@ -6,11 +6,6 @@ from Evaluate import exp4_reward_strategy
 
 import numpy as np
 
-# SEED = 42
-# EPISODES = 5000 # training episodes per trial
-# STEPS = 1000 # max steps per episode during training
-# LEARN_RATE = 0.5
-
 # ── main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -23,12 +18,12 @@ if __name__ == "__main__":
     # to set eps lower and see what a higher discount does
     # r3 = exp3_discount_value(epsilon=0.1, strategy="S1")
 
+    # ============================================================
+    # data for the report in case useful: 
+    # ============================================================
 
-
-    # from the table:
     # eps = 0, disc = 0.5
     # r4 = exp4_reward_strategy(best_epsilon=0, best_discount=0.5)
-
     """
     ========================================================================================
     Exp 4 – Reward Strategy  [eps=0, gamma=0.5]
@@ -45,10 +40,8 @@ if __name__ == "__main__":
     
     """
 
-
-    # eps = 0.5, disc = 0.1
-    r4 = exp4_reward_strategy(best_epsilon=0.5, best_discount=0.1)
-
+    # # eps = 0.5, disc = 0.1
+    # r4 = exp4_reward_strategy(best_epsilon=0.5, best_discount=0.1)
     """
     ========================================================================================
     Exp 4 – Reward Strategy  [eps=0.5, gamma=0.1]
@@ -63,14 +56,27 @@ if __name__ == "__main__":
     QLearn     S3         0.5        0.1        20.18      5000       21.2       15.7       
     ========================================================================================
     """
-   
+
+    # empirically a decent balance
     # eps = 0.2, disc = 0.95
     # r4 = exp4_reward_strategy(best_epsilon=0.2, best_discount=0.95)
-    # run as well so that ensure random fix is all gucci
-    # r4 = exp4_reward_strategy(best_epsilon=0.2, best_discount=0.95)
-   
-    # eps = 0.5, disc = 0.5
-    # r4 = exp4_reward_strategy(best_epsilon=0.5, best_discount=0.5)
-   
+    """
+    ========================================================================================
+    Exp 4 – Reward Strategy  [eps=0.2, gamma=0.95]
+    ========================================================================================
+    agent      strategy   epsilon    discount   time_s     episodes   accuracy   avg_path   
+    ----------------------------------------------------------------------------------------
+    SARSA      S1         0.2        0.95       84.36      5000       94.5       42.5       
+    QLearn     S1         0.2        0.95       107.9      5000       78.9       171.6      
+    SARSA      S2         0.2        0.95       155.77     5000       93.1       37.8       
+    QLearn     S2         0.2        0.95       108.72     5000       71.0       30.8       
+    SARSA      S3         0.2        0.95       108.01     5000       94.9       38.8       
+    QLearn     S3         0.2        0.95       83.15      5000       83.9       36.9       
+    ========================================================================================
+    """
+
+    # decay
     # THIS IS TO BE RUN WITH DECAY TURNED TRUE IN EVAL
-    # r4 = exp4_reward_strategy(best_epsilon=1.0, best_discount=0.95)
+    r4 = exp4_reward_strategy(best_epsilon=1.0, best_discount=0.95)
+   
+   
