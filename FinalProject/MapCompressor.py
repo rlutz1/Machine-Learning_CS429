@@ -105,8 +105,6 @@ class MapCompressor:
     # don't do anything if it's already small
     if num_rows <= self.BASE_SIZE and num_cols <= self.BASE_SIZE: return im
 
-
-
     # extend all the rows of im with edge values thus divisible by base size
     # print((num_rows % self.BASE_SIZE))
     row_extension = (self.BASE_SIZE - (num_rows % self.BASE_SIZE)) % self.BASE_SIZE

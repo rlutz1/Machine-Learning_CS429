@@ -162,7 +162,6 @@ class QLearnAgent(Agent):
     self.Q_TABLE[curr_x][curr_y][action] += self.learn_rate * (reward + (self.discount * np.max(self.Q_TABLE[new_x][new_y]) - self.Q_TABLE[curr_x][curr_y][action]))
 
   # use a greedy epsilon strategy to choose the next state
-  # TODO: randomly break ties? for now, just exploit in ties
   def exploit_or_explore(self, epsilon: float, curr_state: tuple):
     
     p = np.random.uniform()
@@ -177,7 +176,7 @@ class QLearnAgent(Agent):
       x = curr_state[0]
       y = curr_state[1]
 
-      # randomly break ties, dumbass:
+      # randomly break ties
       q_vals = self.Q_TABLE[x][y]
       max_q = np.max(q_vals)
       actions = np.where(q_vals == max_q)[0]
@@ -185,11 +184,8 @@ class QLearnAgent(Agent):
 
     return action
 
-
+  # Optional helper for random-start training.
   def get_random_start_state(self):
-    """
-    Optional helper for random-start training.
-    """
 
     free_cells = self.environment.get_free_cells()
     state = free_cells[np.random.randint(len(free_cells))]
@@ -205,7 +201,7 @@ class QLearnAgent(Agent):
   def decay_epsilon(self, t: int):
     return self.min_epsilon + (self.epsilon - self.min_epsilon) * np.exp(-self.epsilon_decay_rate * t)
   
-  # plotting function, thank you marnieee
+  # plotting function, thank you marnie
   def plot_path(self,
                 map_abstraction,
                 target_point,
