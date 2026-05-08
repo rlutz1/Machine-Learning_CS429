@@ -131,7 +131,7 @@ def run_trial(grid, target, agent_type, episodes, steps, epsilon, discount, stra
         epsilon=epsilon,
         discount=discount,
         use_random_start=True,
-        use_epsilon_decay=False # TODO
+        use_epsilon_decay=False 
     )
 
     if agent_type == "SARSA":
@@ -139,7 +139,7 @@ def run_trial(grid, target, agent_type, episodes, steps, epsilon, discount, stra
     else:
         agent = QLearnAgent(**common) 
 
-    np.random.seed(SEED) # reset seed prior to training?
+    np.random.seed(SEED) # reset seed prior to training for consistency
 
     # Train and time it
     t0 = time.time()
@@ -302,7 +302,6 @@ def exp4_reward_strategy(best_epsilon, best_discount, episodes=EPISODES, steps=S
 # ── main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # np.random.seed(SEED)
 
     r1 = exp1_map_complexity()
     r2 = exp2_exploration_rate()
@@ -316,6 +315,3 @@ if __name__ == "__main__":
     print(f"Best discount (from Exp 3): {best_disc}")
 
     r4 = exp4_reward_strategy(best_eps, best_disc)
-
-    # testing to be sure the same!!!
-    # r4 = exp4_reward_strategy(best_epsilon=0.2, best_discount=0.95)

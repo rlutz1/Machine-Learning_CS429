@@ -25,11 +25,11 @@ class SARSAAgent(Agent):
                init_state=(0, 0),
                strategy_to_use="S1",
                learn_rate=0.5,
-               discount=0.99,
+               discount=0.95,
                use_epsilon_decay=False,
                epsilon=1.0,
-               min_epsilon=0.01,
-               epsilon_decay_rate=0.00005,
+               min_epsilon=0.05,
+               epsilon_decay_rate=0.0005,
                use_random_start=True,
                use_reward_shaping=False):
 

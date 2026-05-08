@@ -26,7 +26,7 @@ class QLearnAgent(Agent):
                map_height=40,
                init_state=(0, 0),
                strategy_to_use="S1",
-               learn_rate=0.7, 
+               learn_rate=0.5, 
                discount=0.95,  
                use_random_start=True,
                use_epsilon_decay=False,
@@ -336,11 +336,16 @@ class QLearnAgent(Agent):
  
 
 # ==========================================================================================================
-# TESTING
+# RUN THE AGENT ON ALL MAPS
 # ==========================================================================================================
 
 if __name__ == "__main__":
   np.random.seed(42) # woops
+  learn_rate = 0.5
+  epsilon = 0.0
+  discount = 0.5
+  episodes = 5000
+  steps = 1000
 
   mc = MapCompressor()
 
@@ -353,12 +358,13 @@ if __name__ == "__main__":
 
   results = []
 
-  strategy = "S3" # used below
+  strategy = "S1" # used below
 
   for map_name, map_path in maps_to_test:
 
     print("\n" + "=" * 80)
     print(f"RUNNING QLearn ON {map_name} with STRATEGY {strategy}")
+    print(f"LEARN RATE = {learn_rate}, EPSILON = {epsilon}, DISCOUNT = {discount}")
     print("=" * 80)
 
     im = mc.compress(map_path)
@@ -379,13 +385,13 @@ if __name__ == "__main__":
       map_height=im.shape[1],
       init_state=training_init_point,
       strategy_to_use=strategy,
-      learn_rate=0.7,
-      discount=0.95,
-      epsilon=0.2,
+      learn_rate=learn_rate,
+      discount=discount,
+      epsilon=epsilon,
     )
 
-    agent.train(episodes=10000, steps=1000)
-    agent.test(steps=10000, init_state=testing_init_point)
+    agent.train(episodes=episodes, steps=steps)
+    agent.test(steps=steps, init_state=testing_init_point)
 
     final_state = (agent.final_path[0][-1], agent.final_path[1][-1])
     path_length = len(agent.final_path[0])
