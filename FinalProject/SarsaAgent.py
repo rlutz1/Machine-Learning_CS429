@@ -564,7 +564,7 @@ if __name__ == "__main__":
 
   results = []
 
-  strategy = "S2" # used below
+  strategy = "S1" # used below
 
 
   for map_name, map_path in maps_to_test:
@@ -598,9 +598,9 @@ if __name__ == "__main__":
       map_height=im.shape[0],
       init_state=training_init_point,
       strategy_to_use=strategy,
-      learn_rate=0.7,
-      discount=0.95,
-      epsilon=0.2,
+      learn_rate=0.5,
+      discount=0.5,
+      epsilon=0.0,
       # min_epsilon=0.01,
       # epsilon_decay_rate=0.00005,
       use_epsilon_decay=False,
@@ -609,13 +609,13 @@ if __name__ == "__main__":
     )
 
     agent.train(
-      episodes=10000,
+      episodes=5000,
       steps=1000,
       show_progress=True
     )
 
     agent.test(
-      steps=10000,
+      steps=1000,
       init_state=testing_init_point
     )
 
