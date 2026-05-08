@@ -220,6 +220,8 @@ HW3/data/extract
 
 # for final project so i don't woops and push random pngs
 FinalProject/*.png
+FinalProject/FurtherEvaluate.py
+FinalProject/data/additional-runs
 
 # venv files
 Scripts/
