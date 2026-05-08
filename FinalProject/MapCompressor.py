@@ -1,7 +1,4 @@
 """
-============================================================================================================
-ORIGINAL PROBLEM STATEMENT
-============================================================================================================
 MAP ABSTRACTION
 
 The task requires to abstract a given BMP map to a data structure which can
@@ -22,13 +19,9 @@ if the given image is of the size 600 x 600 and we want to compute an abstractio
 we may uniformly subdivide the given map to 60 x 60 many 10 x 10 blocks, each of them is white if there
 is no black pixel included, otherwise black. If the size of the original map is not divisible by the abstraction
 size, the tail pieces are treated in a similar way
-============================================================================================================
 """
 
 """
-============================================================================================================
-AUTHOR NOTES
-============================================================================================================
 the following class is responsible for taking a raw bmp file and compressing (or abstracting it) 
 through over approximation into a platable matrix.
 
@@ -59,8 +52,6 @@ mc = MapCompressor()
 <numpy array> map4 = mc.compress(mc.MAP_4_PATH)
 
 -------------------------------------------------------------------------
-
-============================================================================================================
 """
 
 # imports
@@ -84,15 +75,12 @@ class MapCompressor:
 
     if (path_to_bmp is None): path_to_bmp = self.MAP_2_PATH # get around defualt issue wtih self
 
-    im = Image.open(path_to_bmp)
-    # im.show() # testing
+    im = Image.open(path_to_bmp) # use Pillow to process
 
-    im_array = np.array(im)
-    # print(im_array.shape) # 400x400 for bmp 2 -> correct
-    # print(im_array[100:120]) # printing to 255 -> white, 0 -> black
+    im_array = np.array(im) # convert to numpy array
 
-    im_extended = self.reshape(im_array)
-    im_compressed = self.overestimate(im_extended)
+    im_extended = self.reshape(im_array) # reshape
+    im_compressed = self.overestimate(im_extended) # compression by overestimation
     return im_compressed
 
   # to make life simpler, we will extend the end of rows
@@ -106,19 +94,11 @@ class MapCompressor:
     if num_rows <= self.BASE_SIZE and num_cols <= self.BASE_SIZE: return im
 
     # extend all the rows of im with edge values thus divisible by base size
-    # print((num_rows % self.BASE_SIZE))
     row_extension = (self.BASE_SIZE - (num_rows % self.BASE_SIZE)) % self.BASE_SIZE
     col_extension = (self.BASE_SIZE - (num_cols % self.BASE_SIZE)) % self.BASE_SIZE
 
     extension = np.pad(im, ((0, row_extension), (0, 0)), mode='edge') # extend columns
     extension = np.pad(extension, ((0, 0), (0, col_extension)), mode='edge') # extend rows
-    # print(f"extending with edge vals {extension.shape}")
-
-    # testing padding 
-    # extension = np.pad([[1, 2], [3, 4]], ((0, (num_rows % self.BASE_SIZE)), (0, 0)), mode='edge')
-    # print(extension)
-    # extension = np.pad(extension, ((0, 0), (0, (num_cols % self.BASE_SIZE))), mode='edge')
-    # print(extension)
 
     return extension # return the extension
   

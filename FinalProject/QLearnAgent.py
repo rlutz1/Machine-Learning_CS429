@@ -66,7 +66,7 @@ class QLearnAgent(Agent):
       self.final_path[0].append(next_state[0])
       self.final_path[1].append(next_state[1])
 
-      # if DONE, like, hit the trigger
+      # if DONE, like, hit the target
       if done: 
         print("AGENT SUCCESSFULLY FOUND TARGET!!! :>")
         break
@@ -99,6 +99,8 @@ class QLearnAgent(Agent):
 
     for episode in episode_iterator:
       # initialize S
+
+      # if that mode is turned on: default is true
       if self.use_random_start:
         curr_state = self.get_random_start_state() # set to a randomly selected point each episode
       else:
@@ -112,7 +114,7 @@ class QLearnAgent(Agent):
         # keep a constant epsilon
         epsilon = self.epsilon
 
-      episode_complete = False
+      episode_complete = False # reset
 
       # for each step of the episode
       for _ in range(steps):
@@ -125,7 +127,6 @@ class QLearnAgent(Agent):
         # update the curr state to this one
         curr_state = next_state
 
-    
         if done: # target
           successes += 1
           episode_complete = True
@@ -134,8 +135,9 @@ class QLearnAgent(Agent):
         if crash: # boundary
           crashes += 1
           episode_complete = True
-          break
+          break # stop, we reached terminal state
       
+      # episode is done and we didn't hit target or crash
       if not episode_complete:
         timeouts += 1
 
@@ -176,10 +178,11 @@ class QLearnAgent(Agent):
       x = curr_state[0]
       y = curr_state[1]
 
-      # randomly break ties
+      # get the best action
       q_vals = self.Q_TABLE[x][y]
       max_q = np.max(q_vals)
       actions = np.where(q_vals == max_q)[0]
+      # randomly break ties
       action = np.random.choice(actions)
 
     return action
@@ -336,12 +339,15 @@ class QLearnAgent(Agent):
 # ==========================================================================================================
 
 if __name__ == "__main__":
-  np.random.seed(42) # woops
+  np.random.seed(42) # only set here
+  
+  # params used below
   learn_rate = 0.5
   epsilon = 0.0
   discount = 0.5
   episodes = 5000
   steps = 1000
+  strategy = "S1" 
 
   mc = MapCompressor()
 
@@ -354,8 +360,6 @@ if __name__ == "__main__":
 
   results = []
 
-  strategy = "S1" # used below
-
   for map_name, map_path in maps_to_test:
 
     print("\n" + "=" * 80)
@@ -363,11 +367,11 @@ if __name__ == "__main__":
     print(f"LEARN RATE = {learn_rate}, EPSILON = {epsilon}, DISCOUNT = {discount}")
     print("=" * 80)
 
-    im = mc.compress(map_path)
+    im = mc.compress(map_path) # get compression
 
-    target_point = (im.shape[0] - 1, im.shape[1] - 1) # target stays consistent for the moment
-    training_init_point = (0, 0) # start him from here when training
-    testing_init_point = (0, 0) # just the same as before
+    target_point = (im.shape[0] - 1, im.shape[1] - 1) # target stays consistent as bottom right
+    training_init_point = (0, 0) # if random start not on--this point is the start point
+    testing_init_point = (0, 0) # test from this point
 
     environment = Environment(im, target=target_point)
 
@@ -375,6 +379,7 @@ if __name__ == "__main__":
     print(f"{map_name} start:", testing_init_point)
     print(f"{map_name} target:", target_point)
 
+    # init agent
     agent = QLearnAgent(
       environment,
       map_width=im.shape[0],
@@ -386,9 +391,12 @@ if __name__ == "__main__":
       epsilon=epsilon,
     )
 
+    # train agent
     agent.train(episodes=episodes, steps=steps)
+    # test it from specific point
     agent.test(steps=steps, init_state=testing_init_point)
 
+    # gather some metrics from the path taken
     final_state = (agent.final_path[0][-1], agent.final_path[1][-1])
     path_length = len(agent.final_path[0])
     success = final_state == target_point
@@ -398,6 +406,7 @@ if __name__ == "__main__":
     print(f"{map_name} target:", target_point)
     print(f"{map_name} success:", success)
 
+    # get a basic plotting
     save_name = f"qlearn_final_path_{map_name}.png"
 
     agent.plot_path(
@@ -407,6 +416,7 @@ if __name__ == "__main__":
       save_name=save_name
     )
 
+    # gather results from this round
     results.append({
       "map": map_name,
       "success": success,
@@ -417,6 +427,7 @@ if __name__ == "__main__":
       "plot": save_name
     })
 
+  # print all results
   print("\n" + "=" * 80)
   print("SUMMARY")
   print("=" * 80)
